@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { FaPen, FaBook, FaSearch, FaPlus, FaSpinner, FaBookOpen } from 'react-icons/fa';
-import { useToast } from '@chakra-ui/react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAnimation } from '../../../context/AnimationContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -67,8 +66,6 @@ const DiscoverySection = ({
 const DiscoveryBookCard = ({ book }) => {
     const [isAdding, setIsAdding] = useState(false);
     const imageRef = useRef(null);
-    const queryClient = useQueryClient();
-    const toast = useToast();
     const { t } = useTranslation();
     const { token, user } = useAuth();
     const { flyBook } = useAnimation();

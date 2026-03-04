@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@chakra-ui/react';
-import { useTranslation } from 'react-i18next';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { booksApi } from '../../books/api';
 import { useAddBookToLibrary } from '../../books/hooks/useAddBookToLibrary';
 import discoveryApi from '../../discovery/api/discoveryApi';
@@ -15,9 +13,6 @@ export const useBookSearch = () => {
     const [query, setQuery] = useState('');
     const [searchTerm, setSearchTerm] = useState(''); // Only updates on Enter/button click
     const { token, user } = useAuth();
-    const toast = useToast();
-    const { t } = useTranslation();
-    const queryClient = useQueryClient();
 
     // Track last logged query to prevent duplicates
     const lastLoggedQuery = useRef('');
