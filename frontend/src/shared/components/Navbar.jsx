@@ -18,7 +18,6 @@ function Navbar() {
     const { registerTarget } = useAnimation();
     const { activeSession } = useReadingSessionContext();
 
-    // Check if we are on a statistics page
     const isStatsPage = location.pathname.match(/\/books\/\d+\/stats/);
     const isSessionPage = location.pathname.match(/\/books\/\d+\/session/);
 
@@ -26,6 +25,18 @@ function Navbar() {
         logout();
         navigate('/login');
     };
+
+    const isActive = (path) => {
+        if (path === '/') return location.pathname === '/' || location.pathname === '/discovery';
+        return location.pathname === path;
+    };
+
+    const navItems = [
+        { to: '/', label: t('navbar.discovery') },
+        { to: '/goals', label: t('navbar.goals') },
+        { to: '/search', label: t('navbar.search') },
+        { to: '/my-books', label: t('navbar.myBooks'), ref: registerTarget },
+    ];
 
     return (
         <nav className="navbar">
@@ -36,90 +47,81 @@ function Navbar() {
             </div>
             <div className="navbar-menu">
                 {user ? (
-                    <div className="navbar-glass-pane">
-                        <Link to="/" className="navbar-item">
-                            {(location.pathname === '/' || location.pathname === '/discovery') && (
-                                <motion.div
-                                    layoutId="nav-bubble"
-                                    className="nav-bubble"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                />
-                            )}
-                            <span className="navbar-text">{t('navbar.discovery')}</span>
-                        </Link>
-                        <Link to="/search" className="navbar-item">
-                            {location.pathname === '/search' && (
-                                <motion.div
-                                    layoutId="nav-bubble"
-                                    className="nav-bubble"
-                                    layout="position"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6, layout: { type: "spring", bounce: 0.2, duration: 0.4 } }}
-                                    style={{ originY: 0.5 }}
-                                />
-                            )}
-                            <span className="navbar-text">{t('navbar.search')}</span>
-                        </Link>
-                        <Link to="/my-books" className="navbar-item" ref={registerTarget}>
-                            {location.pathname === '/my-books' && (
-                                <motion.div
-                                    layoutId="nav-bubble"
-                                    className="nav-bubble"
-                                    layout="position"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6, layout: { type: "spring", bounce: 0.2, duration: 0.4 } }}
-                                    style={{ originY: 0.5 }}
-                                />
-                            )}
-                            <span className="navbar-text">{t('navbar.myBooks')}</span>
-                        </Link>
-
-                        <AnimatePresence>
-                            {/* Dynamic Item: Reading Session (Active) */}
-                            {activeSession && (
-                                <motion.div
-                                    initial={{ width: 0, opacity: 0, overflow: 'hidden' }}
-                                    animate={{ width: 'auto', opacity: 1 }}
-                                    exit={{ width: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                    style={{ display: 'flex' }}
+                    <>
+                        <div className="navbar-nav">
+                            {navItems.map(item => (
+                                <Link
+                                    key={item.to}
+                                    to={item.to}
+                                    className={`navbar-item${isActive(item.to) ? ' active' : ''}`}
+                                    ref={item.ref || null}
                                 >
-                                    <Link to={`/books/${activeSession.bookId}/session`} className="navbar-item">
-                                        {(location.pathname === `/books/${activeSession.bookId}/session`) && (
-                                            <motion.div
-                                                layoutId="nav-bubble"
-                                                className="nav-bubble"
-                                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                            />
-                                        )}
-                                        <span className="navbar-text">{t('navbar.session')}</span>
-                                    </Link>
-                                </motion.div>
-                            )}
-
-                            {/* Dynamic Item: Statistics (On Stats Page) */}
-                            {(isStatsPage && !isSessionPage) && (
-                                <motion.div
-                                    initial={{ width: 0, opacity: 0, overflow: 'hidden' }}
-                                    animate={{ width: 'auto', opacity: 1 }}
-                                    exit={{ width: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                    style={{ display: 'flex' }}
-                                >
-                                    <Link to={location.pathname} className="navbar-item">
+                                    <span className="navbar-text">{item.label}</span>
+                                    {isActive(item.to) && (
                                         <motion.div
-                                            layoutId="nav-bubble"
-                                            className="nav-bubble"
-                                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                            layoutId="nav-indicator"
+                                            className="nav-indicator"
+                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
                                         />
-                                        <span className="navbar-text">{t('navbar.stats')}</span>
-                                    </Link>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                    )}
+                                </Link>
+                            ))}
+
+                            <AnimatePresence>
+                                {activeSession && (
+                                    <motion.div
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: 'auto', opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                                        style={{ display: 'flex', overflow: 'hidden', height: '100%' }}
+                                    >
+                                        <Link
+                                            to={`/books/${activeSession.bookId}/session`}
+                                            className={`navbar-item${isSessionPage ? ' active' : ''}`}
+                                        >
+                                            <span className="navbar-text">{t('navbar.session')}</span>
+                                            {isSessionPage && (
+                                                <motion.div
+                                                    layoutId="nav-indicator"
+                                                    className="nav-indicator"
+                                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                                />
+                                            )}
+                                        </Link>
+                                    </motion.div>
+                                )}
+
+                                {(isStatsPage && !isSessionPage) && (
+                                    <motion.div
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: 'auto', opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                                        style={{ display: 'flex', overflow: 'hidden', height: '100%' }}
+                                    >
+                                        <Link
+                                            to={location.pathname}
+                                            className="navbar-item active"
+                                        >
+                                            <span className="navbar-text">{t('navbar.stats')}</span>
+                                            <motion.div
+                                                layoutId="nav-indicator"
+                                                className="nav-indicator"
+                                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                            />
+                                        </Link>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        <div className="navbar-separator" />
 
                         <button onClick={handleLogout} className="navbar-item logout-btn">
                             <FaSignOutAlt />
                         </button>
-                    </div>
+                    </>
                 ) : (
                     <Link to="/login" className="navbar-item">
                         <FaSignInAlt /> {t('navbar.login')}

@@ -10,6 +10,7 @@ const LoginPage = lazy(() => import('../features/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../features/auth/RegisterPage'));
 const HomePage = lazy(() => import('../pages/HomePage'));
 const DiscoveryPage = lazy(() => import('../features/discovery/DiscoveryPage'));
+const GoalsPage = lazy(() => import('../pages/GoalsPage'));
 
 import { AuthProvider } from '../context/AuthContext';
 import { AnimationProvider } from '../context/AnimationContext';
@@ -48,6 +49,7 @@ function App() {
                     <Route element={<MainLayout fullWidth={true} />}>
                       <Route path="/" element={<DiscoveryPage />} />
                       <Route path="/discovery" element={<DiscoveryPage />} />
+                      <Route path="/goals" element={<GoalsPage />} />
                       <Route path="/my-books" element={<MyBooks />} />
                       <Route path="/books/:id/stats" element={<BookStatsPage />} />
                       <Route path="/books/:id/session" element={<ReadingSessionPage />} />

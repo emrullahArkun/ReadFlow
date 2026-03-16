@@ -1,6 +1,7 @@
 {
     "navbar": {
-        "brand": "Bibliothek",
+        "brand": "ReadFlow",
+        "goals": "Meine Ziele",
         "discovery": "Entdecken",
         "search": "Suche",
         "myBooks": "Meine Bücher",
@@ -13,6 +14,7 @@
         "goals": "Meine Ziele",
         "yourTargets": "Deine Ziele",
         "noGoals": "Keine aktiven Ziele",
+        "active": "Aktiv",
         "frequency": {
             "weekly": "Wöchentlich",
             "monthly": "Monatlich"
