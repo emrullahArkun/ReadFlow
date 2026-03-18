@@ -33,6 +33,7 @@ const BookStatsSidebar = ({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
+            h="full"
         >
             <Card
                 bg={cardBg}
@@ -41,6 +42,7 @@ const BookStatsSidebar = ({
                 borderColor="whiteAlpha.100"
                 boxShadow="none"
                 p={5}
+                h="full"
             >
                 <VStack spacing={5} align="center" w="full">
                     {/* Cover Image */}

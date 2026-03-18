@@ -181,4 +181,104 @@ class OpenLibraryClientTest {
         assertNull(result.get(0).isbn());
         assertNull(result.get(0).pageCount());
     }
+
+    @Test
+    void mapToDto_ShouldIncludeSubjectsWhenThreeOrFewer() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "Sub Book");
+        doc.put("cover_i", 1);
+        doc.put("subject", List.of("Fiction", "Drama"));
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals(List.of("Fiction", "Drama"), result.get(0).categories());
+    }
+
+    @Test
+    void mapToDto_ShouldLimitSubjectsToThree() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "Many Subjects");
+        doc.put("cover_i", 1);
+        doc.put("subject", List.of("A", "B", "C", "D", "E"));
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals(3, result.get(0).categories().size());
+    }
+
+    @Test
+    void mapToDto_ShouldIncludePublishYear() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "Old Book");
+        doc.put("cover_i", 1);
+        doc.put("first_publish_year", 1984);
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals("1984", result.get(0).publishedDate());
+    }
+
+    @Test
+    void mapToDto_ShouldIncludePageCount() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "Thick Book");
+        doc.put("cover_i", 1);
+        doc.put("number_of_pages_median", 500);
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals(500, result.get(0).pageCount());
+    }
+
+    @Test
+    void mapToDto_ShouldFallbackToIsbn10_WhenNoIsbn13() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "ISBN10 Book");
+        doc.put("cover_i", 1);
+        doc.put("isbn", List.of("0123456789"));
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals("0123456789", result.get(0).isbn());
+    }
+
+    @Test
+    void mapToDto_ShouldFallbackToFirstIsbn_WhenNoStandardLength() {
+        Map<String, Object> doc = new java.util.HashMap<>();
+        doc.put("title", "Odd ISBN Book");
+        doc.put("cover_i", 1);
+        doc.put("isbn", List.of("12345"));
+        mockResponse(Map.of("docs", List.of(doc)));
+
+        var result = openLibraryClient.getBooksByQuery("test", 5);
+        assertEquals("12345", result.get(0).isbn());
+    }
+
+    @Test
+    void searchBooks_ShouldReturnEmptyWithZeroTotal_WhenResponseNull() {
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Map.class)))
+                .thenReturn(ResponseEntity.ok(null));
+
+        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        assertEquals(0, result.totalItems());
+        assertTrue(result.items().isEmpty());
+    }
+
+    @Test
+    void searchBooks_ShouldDefaultTotalToZero_WhenNumFoundMissing() {
+        mockResponse(Map.of("docs", List.of(bookDoc("Book", 1))));
+
+        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        assertEquals(0, result.totalItems());
+        assertEquals(1, result.items().size());
+    }
+
+    @Test
+    void searchBooks_ShouldReturnZeroTotal_WhenNoDocsAndNoNumFound() {
+        mockResponse(Map.of("someKey", "someValue"));
+
+        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        assertEquals(0, result.totalItems());
+        assertTrue(result.items().isEmpty());
+    }
 }
