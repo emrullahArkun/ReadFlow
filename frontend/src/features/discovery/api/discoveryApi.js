@@ -25,6 +25,12 @@ const discoveryApi = {
     getByRecentSearches: () => apiClient.get('/api/discovery/recent-searches'),
 
     /**
+     * Search books via backend
+     */
+    search: (query, startIndex = 0, maxResults = 36) =>
+        apiClient.get(`/api/discovery/search?q=${encodeURIComponent(query)}&startIndex=${startIndex}&maxResults=${maxResults}`),
+
+    /**
      * Log a search query
      */
     logSearch: (query) => apiClient.post(`/api/discovery/search-log?query=${encodeURIComponent(query)}`),

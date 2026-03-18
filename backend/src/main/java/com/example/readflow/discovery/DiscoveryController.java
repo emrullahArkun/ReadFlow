@@ -3,6 +3,7 @@ package com.example.readflow.discovery;
 import com.example.readflow.auth.User;
 import com.example.readflow.discovery.dto.DiscoveryResponse;
 import com.example.readflow.discovery.dto.RecommendedBookDto;
+import com.example.readflow.discovery.dto.SearchResultDto;
 import com.example.readflow.shared.security.CurrentUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,17 @@ public class DiscoveryController {
 
     private static <T> T pickRandom(List<T> list) {
         return list.get(ThreadLocalRandom.current().nextInt(list.size()));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<SearchResultDto> searchBooks(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int startIndex,
+            @RequestParam(defaultValue = "36") int maxResults,
+            @CurrentUser User user) {
+        Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
+        SearchResultDto result = discoveryService.searchBooks(q, ownedIsbns, startIndex, maxResults);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/search-log")

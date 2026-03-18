@@ -1,6 +1,7 @@
 package com.example.readflow.discovery;
 
 import com.example.readflow.discovery.dto.RecommendedBookDto;
+import com.example.readflow.discovery.dto.SearchResultDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,12 @@ public class GoogleBooksClient {
         return fetchBooks(url);
     }
 
+    public SearchResultDto searchBooks(String query, int startIndex, int maxResults) {
+        String url = googleBooksApiUrl + "?q=" + encodeParam(query)
+                + "&startIndex=" + startIndex + "&maxResults=" + maxResults;
+        return fetchBooksWithTotal(url);
+    }
+
     @SuppressWarnings("unchecked")
     private List<RecommendedBookDto> fetchBooks(String url) {
         try {
@@ -50,11 +57,38 @@ public class GoogleBooksClient {
 
             List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
             return items.stream()
+                    .filter(this::hasRealCover)
                     .map(this::mapToDto)
                     .collect(Collectors.toList());
         } catch (RestClientException e) {
             log.error("Failed to fetch books from Google API: {}", e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private SearchResultDto fetchBooksWithTotal(String url) {
+        try {
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            if (response == null || !response.containsKey("items")) {
+                int total = response != null && response.containsKey("totalItems")
+                        ? ((Number) response.get("totalItems")).intValue() : 0;
+                return new SearchResultDto(Collections.emptyList(), total);
+            }
+
+            int totalItems = response.containsKey("totalItems")
+                    ? ((Number) response.get("totalItems")).intValue() : 0;
+
+            List<Map<String, Object>> items = (List<Map<String, Object>>) response.get("items");
+            List<RecommendedBookDto> books = items.stream()
+                    .filter(this::hasRealCover)
+                    .map(this::mapToDto)
+                    .collect(Collectors.toList());
+
+            return new SearchResultDto(books, totalItems);
+        } catch (RestClientException e) {
+            log.error("Failed to search books from Google API: {}", e.getMessage());
+            return new SearchResultDto(Collections.emptyList(), 0);
         }
     }
 
@@ -85,6 +119,24 @@ public class GoogleBooksClient {
         }
 
         return new RecommendedBookDto(title, authors, categories, publishedDate, pageCount, isbn, coverUrl);
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean hasRealCover(Map<String, Object> item) {
+        Map<String, Object> volumeInfo = (Map<String, Object>) item.get("volumeInfo");
+        if (volumeInfo == null) return false;
+
+        Map<String, String> imageLinks = (Map<String, String>) volumeInfo.get("imageLinks");
+        if (imageLinks == null || (imageLinks.get("thumbnail") == null && imageLinks.get("smallThumbnail") == null)) {
+            return false;
+        }
+
+        Map<String, Object> readingModes = (Map<String, Object>) volumeInfo.get("readingModes");
+        if (readingModes != null && Boolean.FALSE.equals(readingModes.get("image"))) {
+            return false;
+        }
+
+        return true;
     }
 
     private String encodeParam(String param) {

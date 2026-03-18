@@ -15,11 +15,12 @@ vi.mock('../../../utils/googleBooks', () => ({
 
 describe('SearchResultCard', () => {
     const mockBook = {
-        id: '12345',
-        volumeInfo: {
-            title: 'Test Book',
-            imageLinks: { thumbnail: 'http://test.com/img.jpg' }
-        }
+        title: 'Test Book',
+        authors: ['Test Author'],
+        isbn: '9781234567890',
+        coverUrl: 'http://test.com/img.jpg',
+        publishedDate: '2023',
+        pageCount: 200,
     };
 
     const mockFlyBook = vi.fn();
@@ -27,25 +28,20 @@ describe('SearchResultCard', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock the hook implementation
         vi.spyOn(AnimationContextModule, 'useAnimation').mockReturnValue({
             flyBook: mockFlyBook
         });
     });
 
-    const renderCard = (ownedIsbns = new Set()) => {
+    const renderCard = () => {
         return render(
-            <SearchResultCard book={mockBook} onAdd={mockOnAdd} ownedIsbns={ownedIsbns} />
+            <SearchResultCard book={mockBook} onAdd={mockOnAdd} />
         );
     };
 
-    it('triggers animation if book is NOT owned, and uses querySelector for imageSrc fallback', async () => {
-        renderCard(new Set());
-        const card = screen.getByRole('button'); // The outer div has role="button"
-
-        // Vitest/JSDom renders BookCover as just some divs/img.
-        // We can artificially ensure imageRef.current (the container) doesn't have a direct .src
-        // but has an img child, which matches the component's fallback logic for Chakra UI.
+    it('triggers animation and calls onAdd', async () => {
+        renderCard();
+        const card = screen.getByRole('button');
 
         fireEvent.click(card);
 
@@ -53,36 +49,8 @@ describe('SearchResultCard', () => {
         expect(mockOnAdd).toHaveBeenCalledWith(mockBook);
     });
 
-    it('does NOT trigger animation if book is owned by ID fallback', async () => {
-        const ownedIsbns = new Set(['ID:12345']);
-        renderCard(ownedIsbns);
-        const card = screen.getByRole('button');
-        fireEvent.click(card);
-
-        expect(mockFlyBook).not.toHaveBeenCalled();
-        expect(mockOnAdd).toHaveBeenCalledWith(mockBook);
-    });
-
-    it('identifies book as owned by matching ISBN', async () => {
-        const bookWithIsbn = {
-            ...mockBook,
-            volumeInfo: {
-                ...mockBook.volumeInfo,
-                industryIdentifiers: [{ type: 'ISBN_13', identifier: '978-1-234-56789-0' }]
-            }
-        };
-        const ownedIsbns = new Set(['9781234567890']);
-        render(<SearchResultCard book={bookWithIsbn} onAdd={mockOnAdd} ownedIsbns={ownedIsbns} />);
-
-        const card = screen.getAllByRole('button')[0];
-        fireEvent.click(card);
-
-        expect(mockFlyBook).not.toHaveBeenCalled();
-        expect(mockOnAdd).toHaveBeenCalledWith(bookWithIsbn);
-    });
-
     it('triggers handleAddClick on Enter key press', async () => {
-        renderCard(new Set());
+        renderCard();
         const card = screen.getByRole('button');
 
         fireEvent.keyDown(card, { key: 'Enter' });
@@ -91,7 +59,7 @@ describe('SearchResultCard', () => {
 
     it('triggers handleAddClick on Space key press', async () => {
         mockOnAdd.mockClear();
-        renderCard(new Set());
+        renderCard();
         const card = screen.getByRole('button');
 
         fireEvent.keyDown(card, { key: ' ' });
@@ -100,7 +68,7 @@ describe('SearchResultCard', () => {
 
     it('ignores keydown for other keys', () => {
         mockOnAdd.mockClear();
-        renderCard(new Set());
+        renderCard();
         const card = screen.getByRole('button');
 
         fireEvent.keyDown(card, { key: 'Escape' });
@@ -109,24 +77,20 @@ describe('SearchResultCard', () => {
 
     it('prevents multiple additive requests (double click guard)', async () => {
         mockOnAdd.mockClear();
-        // Delay the resolution of onAdd to simulate loading state
         let resolveAdd;
         mockOnAdd.mockImplementation(() => new Promise((resolve) => {
             resolveAdd = resolve;
         }));
 
-        renderCard(new Set());
+        renderCard();
         const card = screen.getByRole('button');
 
-        // First click triggers function and sets `isAdding` to true
         fireEvent.click(card);
         expect(mockOnAdd).toHaveBeenCalledTimes(1);
 
-        // Second click while `isAdding` is true should be ignored
         fireEvent.click(card);
         expect(mockOnAdd).toHaveBeenCalledTimes(1);
 
-        // Resolve the promise to clean up
         resolveAdd();
     });
 });

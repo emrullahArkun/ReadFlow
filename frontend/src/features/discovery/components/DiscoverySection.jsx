@@ -79,17 +79,7 @@ const DiscoveryBookCard = ({ book }) => {
 
         setIsAdding(true);
         try {
-            await addBookMutation.mutateAsync({
-                volumeInfo: {
-                    title: book.title || t('discovery.unknownTitle'),
-                    authors: Array.isArray(book.authors) ? book.authors : [book.authors || t('discovery.unknownAuthor')],
-                    publishedDate: book.publishedDate,
-                    pageCount: book.pageCount || 0,
-                    categories: Array.isArray(book.categories) ? book.categories : [book.categories],
-                    imageLinks: book.coverUrl ? { thumbnail: book.coverUrl } : undefined,
-                    industryIdentifiers: book.isbn ? [{ type: 'ISBN_13', identifier: book.isbn }] : []
-                }
-            });
+            await addBookMutation.mutateAsync(book);
         } finally {
             setIsAdding(false);
         }

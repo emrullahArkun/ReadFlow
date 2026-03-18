@@ -3,7 +3,7 @@ import { useToast } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
 import { booksApi } from '../../books/api';
-import { mapGoogleBookToNewBook } from '../../../utils/googleBooks';
+import { getHighResImage, getOpenLibraryCoverUrl } from '../../../utils/googleBooks';
 
 const TOAST_STYLE = {
     containerStyle: { marginTop: '80px' },
@@ -35,45 +35,35 @@ export const useAddBookToLibrary = () => {
         mutationFn: async (book) => {
             if (!token) throw new Error(t('search.toast.loginRequired'));
 
-            const volumeInfo = book.volumeInfo;
-            const isbnInfo = volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')
-                || volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_10');
+            const isbn = book.isbn;
+            if (!isbn) throw new Error(t('search.toast.noIsbn'));
 
-            if (!isbnInfo && !book.id) throw new Error(t('search.toast.noIsbn'));
+            const coverUrl = book.coverUrl
+                ? getHighResImage(book.coverUrl)
+                : getOpenLibraryCoverUrl(isbn);
 
-            const newBook = mapGoogleBookToNewBook(volumeInfo, isbnInfo, book.id);
+            const newBook = {
+                title: book.title,
+                isbn: isbn,
+                authorName: Array.isArray(book.authors) ? book.authors[0] : (book.authors || 'Unknown Author'),
+                publishDate: book.publishedDate || 'Unknown Date',
+                coverUrl: coverUrl,
+                pageCount: book.pageCount || 0,
+            };
 
-            // Fallback: If pageCount is 0 or missing, try OpenLibrary
-            if ((!newBook.pageCount || newBook.pageCount === 0) && isbnInfo) {
-                try {
-                    const cleanIsbn = isbnInfo.identifier;
-                    const olUrl = `https://openlibrary.org/api/books?bibkeys=ISBN:${cleanIsbn}&format=json&jscmd=data`;
-                    const response = await fetch(olUrl);
-                    if (response.ok) {
-                        const data = await response.json();
-                        const bookKey = `ISBN:${cleanIsbn}`;
-                        if (data[bookKey]?.number_of_pages) {
-                            newBook.pageCount = data[bookKey].number_of_pages;
-                        }
-                    }
-                } catch {
-                    // Silently fail fallback and proceed with 0 pages
-                }
-            }
-
-            return { result: await booksApi.create(newBook), isbnInfo };
+            return { result: await booksApi.create(newBook), isbn };
         },
-        onSuccess: ({ isbnInfo }) => {
+        onSuccess: ({ isbn }) => {
             queryClient.invalidateQueries({ queryKey: ['myBooks'] });
             queryClient.invalidateQueries({ queryKey: ['ownedIsbns', user?.email] });
 
             // Optimistically remove the added book from discovery cache
-            const addedIsbn = isbnInfo?.identifier?.replace(/-/g, '');
-            if (addedIsbn) {
+            const cleanIsbn = isbn?.replace(/-/g, '');
+            if (cleanIsbn) {
                 queryClient.setQueryData(['discovery', user?.email], (old) => {
                     if (!old) return old;
                     const filterBooks = (books) =>
-                        (books || []).filter(b => b.isbn?.replace(/-/g, '') !== addedIsbn);
+                        (books || []).filter(b => b.isbn?.replace(/-/g, '') !== cleanIsbn);
                     return {
                         byAuthor: { ...old.byAuthor, books: filterBooks(old.byAuthor?.books) },
                         byCategory: { ...old.byCategory, books: filterBooks(old.byCategory?.books) },

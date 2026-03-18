@@ -36,7 +36,8 @@ class GoogleBooksClientTest {
         Map<String, Object> volumeInfo = Map.of(
                 "title", "Book Title",
                 "authors", List.of("Author"),
-                "pageCount", 200);
+                "pageCount", 200,
+                "imageLinks", Map.of("thumbnail", "http://cover.jpg"));
         Map<String, Object> item = Map.of("volumeInfo", volumeInfo);
         Map<String, Object> response = Map.of("items", List.of(item));
 
@@ -49,7 +50,9 @@ class GoogleBooksClientTest {
 
     @Test
     void getBooksByCategory_ShouldReturnBooks() {
-        Map<String, Object> volumeInfo = Map.of("title", "Cat Book");
+        Map<String, Object> volumeInfo = Map.of(
+                "title", "Cat Book",
+                "imageLinks", Map.of("thumbnail", "http://cover.jpg"));
         Map<String, Object> item = Map.of("volumeInfo", volumeInfo);
         when(restTemplate.getForObject(anyString(), eq(Map.class)))
                 .thenReturn(Map.of("items", List.of(item)));
@@ -61,7 +64,9 @@ class GoogleBooksClientTest {
 
     @Test
     void getBooksByQuery_ShouldReturnBooks() {
-        Map<String, Object> volumeInfo = Map.of("title", "Search Book");
+        Map<String, Object> volumeInfo = Map.of(
+                "title", "Search Book",
+                "imageLinks", Map.of("thumbnail", "http://cover.jpg"));
         Map<String, Object> item = Map.of("volumeInfo", volumeInfo);
         when(restTemplate.getForObject(anyString(), eq(Map.class)))
                 .thenReturn(Map.of("items", List.of(item)));
@@ -69,6 +74,24 @@ class GoogleBooksClientTest {
         var result = googleBooksClient.getBooksByQuery("Java", 5);
         assertEquals(1, result.size());
         assertEquals("Search Book", result.get(0).title());
+    }
+
+    @Test
+    void fetchBooks_ShouldFilterOutBooksWithoutCover() {
+        Map<String, Object> withCover = Map.of(
+                "volumeInfo", Map.of("title", "Has Cover", "imageLinks", Map.of("thumbnail", "http://cover.jpg")));
+        Map<String, Object> noCover = Map.of(
+                "volumeInfo", Map.of("title", "No Cover"));
+        Map<String, Object> noImage = Map.of(
+                "volumeInfo", Map.of("title", "No Image",
+                        "imageLinks", Map.of("thumbnail", "http://cover.jpg"),
+                        "readingModes", Map.of("image", false)));
+        when(restTemplate.getForObject(anyString(), eq(Map.class)))
+                .thenReturn(Map.of("items", List.of(withCover, noCover, noImage)));
+
+        var result = googleBooksClient.getBooksByQuery("test", 5);
+        assertEquals(1, result.size());
+        assertEquals("Has Cover", result.get(0).title());
     }
 
     @Test

@@ -19,7 +19,6 @@ function BookSearch({ onBookAdded }) {
         searchBooks,
         loadMore,
         addBookToLibrary,
-        ownedIsbns
     } = useBookSearch();
 
     const gridRef = useRef(null);
@@ -69,12 +68,11 @@ function BookSearch({ onBookAdded }) {
             {error && <p className={styles.error}>{error}</p>}
 
             <div className={styles.resultsGrid} ref={gridRef}>
-                {visibleResults.map((book) => (
+                {visibleResults.map((book, index) => (
                     <SearchResultCard
-                        key={book.id}
+                        key={book.isbn || index}
                         book={book}
                         onAdd={handleAddBook}
-                        ownedIsbns={ownedIsbns}
                     />
                 ))}
 

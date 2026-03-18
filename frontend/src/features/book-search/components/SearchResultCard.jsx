@@ -5,9 +5,7 @@ import styles from './SearchResultCard.module.css';
 import { useAnimation } from '../../../context/AnimationContext';
 import BookCover from '../../../ui/BookCover';
 
-const SearchResultCard = ({ book, onAdd, ownedIsbns }) => {
-    // const { t } = useTranslation();
-    const info = book.volumeInfo;
+const SearchResultCard = ({ book, onAdd }) => {
     const [isAdding, setIsAdding] = useState(false);
 
     const { flyBook } = useAnimation();
@@ -17,15 +15,8 @@ const SearchResultCard = ({ book, onAdd, ownedIsbns }) => {
         e.stopPropagation();
         if (isAdding) return;
 
-        // Check if already owned
-        const identifiers = info.industryIdentifiers || [];
-        const isOwned = identifiers.some(id => {
-            const cleanId = id.identifier.replace(/-/g, '');
-            return ownedIsbns?.has(cleanId);
-        }) || ownedIsbns?.has(`ID:${book.id}`);
-
-        // Start animation immediately ONLY if not owned
-        if (!isOwned && imageRef.current) {
+        // Start animation
+        if (imageRef.current) {
             const imageSrc = imageRef.current.src || imageRef.current.querySelector?.('img')?.src;
             flyBook(imageRef.current.getBoundingClientRect(), imageSrc);
         }
@@ -37,8 +28,6 @@ const SearchResultCard = ({ book, onAdd, ownedIsbns }) => {
             setIsAdding(false);
         }
     };
-
-
 
     return (
         <div

@@ -3,6 +3,7 @@ package com.example.readflow.discovery;
 import com.example.readflow.auth.User;
 import com.example.readflow.books.BookRepository;
 import com.example.readflow.discovery.dto.RecommendedBookDto;
+import com.example.readflow.discovery.dto.SearchResultDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,12 @@ public class DiscoveryService {
 
     public List<RecommendedBookDto> getRecommendationsByQuery(String query, Set<String> ownedIsbns, int maxResults) {
         return filterOwnedBooks(googleBooksClient.getBooksByQuery(query, maxResults), ownedIsbns);
+    }
+
+    public SearchResultDto searchBooks(String query, Set<String> ownedIsbns, int startIndex, int maxResults) {
+        SearchResultDto result = googleBooksClient.searchBooks(query, startIndex, maxResults);
+        List<RecommendedBookDto> filtered = filterOwnedBooks(result.items(), ownedIsbns);
+        return new SearchResultDto(filtered, result.totalItems());
     }
 
     private List<RecommendedBookDto> filterOwnedBooks(List<RecommendedBookDto> books, Set<String> ownedIsbns) {

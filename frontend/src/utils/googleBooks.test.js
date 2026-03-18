@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getHighResImage, mapGoogleBookToNewBook, getOpenLibraryCoverUrl } from './googleBooks';
+import { getHighResImage, getOpenLibraryCoverUrl } from './googleBooks';
 
 describe('googleBooks utils', () => {
     describe('getHighResImage', () => {
@@ -52,67 +52,6 @@ describe('googleBooks utils', () => {
             expect(getOpenLibraryCoverUrl(null)).toBe('');
             expect(getOpenLibraryCoverUrl(undefined)).toBe('');
             expect(getOpenLibraryCoverUrl('')).toBe('');
-        });
-    });
-
-    describe('mapGoogleBookToNewBook', () => {
-        const mockVolumeInfoWithImage = {
-            title: 'Test Title',
-            authors: ['Author One', 'Author Two'],
-            publishedDate: '2023-01-01',
-            imageLinks: {
-                thumbnail: 'http://example.com/thumb.jpg?id=123&zoom=1'
-            },
-            readingModes: { text: true, image: true },
-            pageCount: 350
-        };
-
-        const mockVolumeInfoNoImage = {
-            ...mockVolumeInfoWithImage,
-            readingModes: { text: true, image: false },
-        };
-
-        it('uses Google cover URL when readingModes.image is true', () => {
-            const isbnInfo = { identifier: '9781234567890' };
-            const result = mapGoogleBookToNewBook(mockVolumeInfoWithImage, isbnInfo, 'xyz123');
-
-            expect(result.isbn).toBe('9781234567890');
-            expect(result.coverUrl).toBe('https://example.com/thumb.jpg?id=123&zoom=0');
-            expect(result.title).toBe('Test Title');
-            expect(result.authorName).toBe('Author One');
-            expect(result.publishDate).toBe('2023-01-01');
-            expect(result.pageCount).toBe(350);
-        });
-
-        it('falls back to OpenLibrary URL when readingModes.image is false', () => {
-            const isbnInfo = { identifier: '9781234567890' };
-            const result = mapGoogleBookToNewBook(mockVolumeInfoNoImage, isbnInfo, 'xyz123');
-
-            expect(result.coverUrl).toBe('https://covers.openlibrary.org/b/isbn/9781234567890-L.jpg');
-        });
-
-        it('returns empty coverUrl when no image and no valid ISBN', () => {
-            const result = mapGoogleBookToNewBook(mockVolumeInfoNoImage, null, 'xyz123');
-
-            expect(result.isbn).toBe('ID:xyz123');
-            expect(result.coverUrl).toBe('');
-        });
-
-        it('maps correctly and falls back to ID if no ISBN provided', () => {
-            const result = mapGoogleBookToNewBook(mockVolumeInfoWithImage, null, 'xyz123');
-            expect(result.isbn).toBe('ID:xyz123');
-        });
-
-        it('handles missing optional fields safely', () => {
-            const minimalVolumeInfo = { title: 'Minimal Book' };
-            const result = mapGoogleBookToNewBook(minimalVolumeInfo, null, '123');
-
-            expect(result.isbn).toBe('ID:123');
-            expect(result.coverUrl).toBe('');
-            expect(result.title).toBe('Minimal Book');
-            expect(result.authorName).toBe('Unknown Author');
-            expect(result.publishDate).toBe('Unknown Date');
-            expect(result.pageCount).toBe(0);
         });
     });
 });

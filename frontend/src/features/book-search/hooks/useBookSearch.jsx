@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { booksApi } from '../../books/api';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useAddBookToLibrary } from '../../books/hooks/useAddBookToLibrary';
 import discoveryApi from '../../discovery/api/discoveryApi';
 
@@ -12,7 +11,7 @@ const MIN_QUERY_LENGTH = 3;  // Minimum 3 characters to log
 export const useBookSearch = () => {
     const [query, setQuery] = useState('');
     const [searchTerm, setSearchTerm] = useState(''); // Only updates on Enter/button click
-    const { token, user } = useAuth();
+    const { token } = useAuth();
 
     // Track last logged query to prevent duplicates
     const lastLoggedQuery = useRef('');
@@ -46,24 +45,6 @@ export const useBookSearch = () => {
         };
     }, [query, token]);
 
-    // Fetch owned ISBNs to check duplicates
-    const { data: ownedIsbns } = useQuery({
-        queryKey: ['ownedIsbns', user?.email],
-        queryFn: async () => {
-            if (!token) return [];
-            const response = await booksApi.getOwnedIsbns();
-            if (response) return response;
-            return [];
-        },
-        enabled: !!token,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    });
-
-    const ownedIsbnsSet = useMemo(
-        () => new Set((ownedIsbns || []).map(isbn => isbn.replace(/-/g, ''))),
-        [ownedIsbns]
-    );
-
     const {
         data,
         error,
@@ -75,14 +56,7 @@ export const useBookSearch = () => {
         queryKey: ['books', searchTerm],
         queryFn: async ({ pageParam = 0 }) => {
             if (!searchTerm.trim()) return { items: [], totalItems: 0 };
-            const finalQuery = encodeURIComponent(searchTerm.trim());
-            // This is a restricted browser API key, safe for client-side use.
-            // It is scoped to the Google Books API and restricted by HTTP referrer.
-            const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
-            const keyParam = apiKey ? `&key=${apiKey}` : '';
-            const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${finalQuery}&startIndex=${pageParam}&maxResults=36${keyParam}`);
-            if (!response.ok) throw new Error('Failed to fetch from Google Books');
-            return response.json();
+            return discoveryApi.search(searchTerm.trim(), pageParam, 36);
         },
         getNextPageParam: (lastPage, allPages) => {
             const loadedItems = allPages.flatMap(p => p.items || []).length;
@@ -95,15 +69,7 @@ export const useBookSearch = () => {
         initialPageParam: 0
     });
 
-    const allRawItems = data ? data.pages.flatMap(page => page.items || []) : [];
-    // Filter out items without IDs or volumeInfo, and deduplicate by ID
-    const results = Array.from(
-        new Map(
-            allRawItems
-                .filter(item => item.id && item.volumeInfo)
-                .map(item => [item.id, item])
-        ).values()
-    );
+    const results = data ? data.pages.flatMap(page => page.items || []) : [];
 
     const addBookMutation = useAddBookToLibrary();
 
@@ -128,6 +94,5 @@ export const useBookSearch = () => {
         searchBooks,
         loadMore: fetchNextPage,
         addBookToLibrary: addBookMutation.mutateAsync,
-        ownedIsbns: ownedIsbnsSet
     };
 };

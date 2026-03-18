@@ -33,6 +33,16 @@ describe('discoveryApi', () => {
         expect(apiClient.get).toHaveBeenCalledWith('/api/discovery/recent-searches');
     });
 
+    it('search should GET search endpoint with params', async () => {
+        await discoveryApi.search('test query', 0, 36);
+        expect(apiClient.get).toHaveBeenCalledWith('/api/discovery/search?q=test%20query&startIndex=0&maxResults=36');
+    });
+
+    it('search should use default params', async () => {
+        await discoveryApi.search('test');
+        expect(apiClient.get).toHaveBeenCalledWith('/api/discovery/search?q=test&startIndex=0&maxResults=36');
+    });
+
     it('logSearch should POST with encoded query', async () => {
         await discoveryApi.logSearch('test query');
         expect(apiClient.post).toHaveBeenCalledWith('/api/discovery/search-log?query=test%20query');

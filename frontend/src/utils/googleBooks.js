@@ -12,19 +12,3 @@ export const getOpenLibraryCoverUrl = (isbn) => {
     const clean = isbn.replace(/-/g, '');
     return clean.length >= 10 ? `https://covers.openlibrary.org/b/isbn/${clean}-L.jpg` : '';
 };
-
-export const mapGoogleBookToNewBook = (volumeInfo, isbnInfo, id) => {
-    const uniqueId = isbnInfo ? isbnInfo.identifier : `ID:${id}`;
-    const googleHasImage = volumeInfo.readingModes?.image !== false;
-    const googleUrl = googleHasImage ? getHighResImage(volumeInfo.imageLinks?.thumbnail) : '';
-    const coverUrl = googleUrl || getOpenLibraryCoverUrl(uniqueId);
-
-    return {
-        title: volumeInfo.title,
-        isbn: uniqueId,
-        authorName: volumeInfo.authors ? volumeInfo.authors[0] : 'Unknown Author',
-        publishDate: volumeInfo.publishedDate || 'Unknown Date',
-        coverUrl: coverUrl,
-        pageCount: volumeInfo.pageCount || 0
-    };
-};
