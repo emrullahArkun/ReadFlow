@@ -60,9 +60,11 @@ function Navbar() {
 
     const navItems = [
         { to: '/', label: t('navbar.discovery') },
-        { to: '/goals', label: t('navbar.goals') },
         { to: '/search', label: t('navbar.search') },
         { to: '/my-books', label: t('navbar.myBooks'), ref: registerTarget },
+        { to: '/stats', label: t('navbar.overview') },
+        { to: '/goals', label: t('navbar.goals') },
+        { to: '/achievements', label: t('navbar.achievements') },
     ];
 
     return (

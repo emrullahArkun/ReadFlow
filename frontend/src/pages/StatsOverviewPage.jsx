@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react';
+import { Box, SimpleGrid, Grid, GridItem, Card, Text, Flex, Skeleton } from '@chakra-ui/react';
+import { FaBook, FaBookOpen, FaClock, FaFire } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
+
+import { useThemeTokens } from '../shared/hooks/useThemeTokens';
+import StatsCard from '../features/my-books/components/StatsCard';
+import ReadingHeatmap from '../features/stats/components/ReadingHeatmap';
+import GenreDonutChart from '../features/stats/components/GenreDonutChart';
+import WeeklyPaceChart from '../features/stats/components/WeeklyPaceChart';
+import statsApi from '../features/stats/api/statsApi';
+
+const StatsOverviewPage = () => {
+    const { t } = useTranslation();
+    const { cardBg, textColor } = useThemeTokens();
+
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        statsApi.getOverview()
+            .then(setStats)
+            .catch(() => {})
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return (
+            <Box px={{ base: 4, md: 10 }} py={8} maxW="1100px" mx="auto">
+                <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={8}>
+                    {[0, 1, 2, 3].map(i => (
+                        <Card key={i} bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5}>
+                            <Flex align="center" mb={3} gap={3}>
+                                <Skeleton w={8} h={8} borderRadius="lg" startColor="whiteAlpha.100" endColor="whiteAlpha.200" />
+                                <Skeleton h={3} w="60%" startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="md" />
+                            </Flex>
+                            <Skeleton h={8} w="50%" mb={2} startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="md" />
+                            <Skeleton h={3} w="70%" startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="md" />
+                        </Card>
+                    ))}
+                </SimpleGrid>
+                <Card bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5} mb={6}>
+                    <Skeleton h={3} w="120px" mb={4} startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="md" />
+                    <Skeleton h="130px" w="100%" startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="lg" />
+                </Card>
+                <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6}>
+                    {[0, 1].map(i => (
+                        <GridItem key={i}>
+                            <Card bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5}>
+                                <Skeleton h={3} w="120px" mb={4} startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="md" />
+                                <Skeleton h="160px" w="100%" startColor="whiteAlpha.100" endColor="whiteAlpha.200" borderRadius="lg" />
+                            </Card>
+                        </GridItem>
+                    ))}
+                </Grid>
+            </Box>
+        );
+    }
+
+    if (!stats) return null;
+
+    const formatTime = (minutes) => {
+        if (minutes < 60) return `${minutes}m`;
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
+    };
+
+    return (
+        <Box px={{ base: 4, md: 10 }} py={8} maxW="1100px" mx="auto">
+            {/* KPI Cards */}
+            <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb={8}>
+                <StatsCard icon={FaBook} label={t('stats.books')} value={stats.completedBooks}
+                    subLabel={t('stats.booksOf', { total: stats.totalBooks })} color="teal.200" delay={0} bg={cardBg} textColor={textColor} />
+                <StatsCard icon={FaBookOpen} label={t('stats.pages')} value={stats.totalPagesRead.toLocaleString()}
+                    subLabel={t('stats.pagesRead')} color="blue.200" delay={0} bg={cardBg} textColor={textColor} />
+                <StatsCard icon={FaClock} label={t('stats.time')} value={formatTime(stats.totalReadingMinutes)}
+                    subLabel={t('stats.timeSpent')} color="orange.200" delay={0} bg={cardBg} textColor={textColor} />
+                <StatsCard icon={FaFire} label={t('stats.streak')} value={stats.currentStreak}
+                    subLabel={t('stats.streakBest', { best: stats.longestStreak })} color="red.300" delay={0} bg={cardBg} textColor={textColor} />
+            </SimpleGrid>
+
+            {/* Heatmap */}
+            <Card bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5} mb={6}>
+                <Text fontSize="xs" fontWeight="600" color="gray.400" textTransform="uppercase" letterSpacing="wider" mb={4}>
+                    {t('stats.heatmap.title')}
+                </Text>
+                <ReadingHeatmap dailyActivity={stats.dailyActivity} />
+            </Card>
+
+            {/* Insights: Genre + Weekly Pace */}
+            <Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={6}>
+                <GridItem>
+                    <Card bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5} h="full">
+                        <Text fontSize="xs" fontWeight="600" color="gray.400" textTransform="uppercase" letterSpacing="wider" mb={4}>
+                            {t('stats.genre.title')}
+                        </Text>
+                        <GenreDonutChart genreDistribution={stats.genreDistribution} />
+                    </Card>
+                </GridItem>
+                <GridItem>
+                    <Card bg={cardBg} borderRadius="2xl" border="1px solid" borderColor="whiteAlpha.100" boxShadow="none" p={5} h="full">
+                        <Text fontSize="xs" fontWeight="600" color="gray.400" textTransform="uppercase" letterSpacing="wider" mb={4}>
+                            {t('stats.weeklyPace.title')}
+                        </Text>
+                        <WeeklyPaceChart dailyActivity={stats.dailyActivity} />
+                    </Card>
+                </GridItem>
+            </Grid>
+        </Box>
+    );
+};
+
+export default StatsOverviewPage;

@@ -7,7 +7,11 @@ import {
     AlertDialogContent,
     AlertDialogOverlay,
     Button,
+    Icon,
+    Flex,
+    Text,
 } from '@chakra-ui/react';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const ConfirmDialog = ({
     isOpen,
@@ -28,17 +32,49 @@ const ConfirmDialog = ({
             onClose={onClose}
             isCentered
         >
-            <AlertDialogOverlay>
-                <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                        {title}
+            <AlertDialogOverlay bg="blackAlpha.700" backdropFilter="blur(4px)">
+                <AlertDialogContent
+                    bg="gray.900"
+                    border="1px solid"
+                    borderColor="whiteAlpha.100"
+                    borderRadius="2xl"
+                    mx={4}
+                >
+                    <AlertDialogHeader pt={8} pb={0} textAlign="center">
+                        <Flex justify="center" mb={4}>
+                            <Flex w={14} h={14} borderRadius="full" bg="whiteAlpha.100" align="center" justify="center">
+                                <Icon as={FaExclamationTriangle} boxSize={6} color="red.300" />
+                            </Flex>
+                        </Flex>
+                        <Text fontSize="lg" fontWeight="700" color="white">
+                            {title}
+                        </Text>
                     </AlertDialogHeader>
-                    <AlertDialogBody>{body}</AlertDialogBody>
-                    <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onClose}>
+                    <AlertDialogBody textAlign="center" py={3}>
+                        <Text fontSize="sm" color="gray.400">
+                            {body}
+                        </Text>
+                    </AlertDialogBody>
+                    <AlertDialogFooter justifyContent="center" gap={3} pb={8} pt={3}>
+                        <Button
+                            ref={cancelRef}
+                            onClick={onClose}
+                            bg="whiteAlpha.100"
+                            color="gray.300"
+                            border="1px solid"
+                            borderColor="whiteAlpha.200"
+                            borderRadius="xl"
+                            px={6}
+                            _hover={{ bg: 'whiteAlpha.200' }}
+                        >
                             {cancelLabel}
                         </Button>
-                        <Button colorScheme={confirmColorScheme} onClick={onConfirm} ml={3}>
+                        <Button
+                            colorScheme={confirmColorScheme}
+                            onClick={onConfirm}
+                            borderRadius="xl"
+                            px={6}
+                        >
                             {confirmLabel}
                         </Button>
                     </AlertDialogFooter>

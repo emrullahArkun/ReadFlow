@@ -11,6 +11,8 @@ const RegisterPage = lazy(() => import('../features/auth/RegisterPage'));
 const HomePage = lazy(() => import('../pages/HomePage'));
 const DiscoveryPage = lazy(() => import('../features/discovery/DiscoveryPage'));
 const GoalsPage = lazy(() => import('../pages/GoalsPage'));
+const StatsOverviewPage = lazy(() => import('../pages/StatsOverviewPage'));
+const AchievementsPage = lazy(() => import('../pages/AchievementsPage'));
 
 import { AuthProvider } from '../context/AuthContext';
 import { AnimationProvider } from '../context/AnimationContext';
@@ -51,6 +53,8 @@ function App() {
                       <Route path="/discovery" element={<DiscoveryPage />} />
                       <Route path="/goals" element={<GoalsPage />} />
                       <Route path="/my-books" element={<MyBooks />} />
+                      <Route path="/stats" element={<StatsOverviewPage />} />
+                      <Route path="/achievements" element={<AchievementsPage />} />
                       <Route path="/books/:id/stats" element={<BookStatsPage />} />
                       <Route path="/books/:id/session" element={<ReadingSessionPage />} />
                     </Route>

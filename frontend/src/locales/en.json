@@ -8,7 +8,9 @@
         "logout": "Logout",
         "login": "Login",
         "session": "Reading Session",
-        "stats": "Statistics"
+        "stats": "Statistics",
+        "overview": "Dashboard",
+        "achievements": "Achievements"
     },
     "home": {
         "goals": "My Goals",
@@ -59,7 +61,8 @@
         "deleteAll": "Delete All",
         "loading": "Loading library...",
         "confirmDelete": "Delete this book?",
-        "confirmDeleteSelected": "Delete {{count}} books?",
+        "confirmDeleteSelected_one": "Delete {{count}} book?",
+        "confirmDeleteSelected_other": "Delete {{count}} books?",
         "confirmDeleteAll": "Delete ALL books? This cannot be undone.",
         "deleteFailed": "Failed to delete book: {{message}}",
         "deleteAllFailed": "Failed to delete all books: {{message}}",
@@ -215,6 +218,76 @@
     "session": {
         "returnToSession": "Return to Session"
     },
+    "stats": {
+        "books": "Books Read",
+        "booksOf": "of {{total}} in library",
+        "pages": "Pages",
+        "pagesRead": "Total pages read",
+        "time": "Reading Time",
+        "timeSpent": "Time invested",
+        "streak": "Streak",
+        "streakBest": "Best: {{best}} days",
+        "heatmap": {
+            "title": "Reading Activity",
+            "pages": "pages",
+            "less": "Less",
+            "more": "More"
+        },
+        "genre": {
+            "title": "Genre Distribution",
+            "empty": "No genre data yet",
+            "book": "book",
+            "books": "books"
+        },
+        "weeklyPace": {
+            "title": "Weekly Pace",
+            "empty": "No reading data yet"
+        },
+        "achievements": {
+            "title": "Achievements",
+            "unlocked": "Done",
+            "FIRST_SESSION": {
+                "name": "First Steps",
+                "desc": "Complete your first reading session"
+            },
+            "BOOKWORM": {
+                "name": "Bookworm",
+                "desc": "Finish 5 books"
+            },
+            "LIBRARY_BUILDER": {
+                "name": "Library Builder",
+                "desc": "Add 10 books to your library"
+            },
+            "PAGE_TURNER": {
+                "name": "Page Turner",
+                "desc": "Read 1,000 pages total"
+            },
+            "MARATHON": {
+                "name": "Marathon Reader",
+                "desc": "Read 100 pages in a single day"
+            },
+            "EARLY_BIRD": {
+                "name": "Early Bird",
+                "desc": "Start a session before 8 AM"
+            },
+            "NIGHT_OWL": {
+                "name": "Night Owl",
+                "desc": "Read after 10 PM"
+            },
+            "WEEK_STREAK": {
+                "name": "Week Streak",
+                "desc": "Read 7 days in a row"
+            },
+            "MONTH_STREAK": {
+                "name": "Month Streak",
+                "desc": "Read 30 days in a row"
+            },
+            "SPEED_READER": {
+                "name": "Speed Reader",
+                "desc": "Finish a book within 7 days"
+            }
+        }
+    },
     "bookStats": {
         "readProgress": "Reading Progress",
         "pages": "Pages",
@@ -239,6 +312,11 @@
             "readNow": "Read Now"
         },
         "noSessionsHint": "Start a reading session to see your stats.",
+        "noSessions": {
+            "title": "No reading data yet",
+            "desc": "Start a reading session to track your progress and see detailed statistics for this book.",
+            "button": "Start Reading"
+        },
         "notFound": "Book not found",
         "currentPage": "Current Page",
         "calendarHint": "Tap date for details",

@@ -8,7 +8,9 @@
         "logout": "Abmelden",
         "login": "Anmelden",
         "session": "Lese-Session",
-        "stats": "Statistik"
+        "stats": "Statistik",
+        "overview": "Dashboard",
+        "achievements": "Erfolge"
     },
     "home": {
         "goals": "Meine Ziele",
@@ -59,7 +61,8 @@
         "deleteAll": "Alle löschen",
         "loading": "Bibliothek wird geladen...",
         "confirmDelete": "Dieses Buch löschen?",
-        "confirmDeleteSelected": "{{count}} Bücher löschen?",
+        "confirmDeleteSelected_one": "{{count}} Buch löschen?",
+        "confirmDeleteSelected_other": "{{count}} Bücher löschen?",
         "confirmDeleteAll": "ALLE Bücher löschen? Dies kann nicht rückgängig gemacht werden.",
         "deleteFailed": "Buch konnte nicht gelöscht werden: {{message}}",
         "deleteAllFailed": "Alle Bücher konnten nicht gelöscht werden: {{message}}",
@@ -215,6 +218,76 @@
     "session": {
         "returnToSession": "In Session zurückkehren"
     },
+    "stats": {
+        "books": "Gelesen",
+        "booksOf": "von {{total}} in der Bibliothek",
+        "pages": "Seiten",
+        "pagesRead": "Seiten insgesamt",
+        "time": "Lesezeit",
+        "timeSpent": "Investierte Zeit",
+        "streak": "Streak",
+        "streakBest": "Rekord: {{best}} Tage",
+        "heatmap": {
+            "title": "Leseaktivität",
+            "pages": "Seiten",
+            "less": "Weniger",
+            "more": "Mehr"
+        },
+        "genre": {
+            "title": "Genre-Verteilung",
+            "empty": "Noch keine Genre-Daten",
+            "book": "Buch",
+            "books": "Bücher"
+        },
+        "weeklyPace": {
+            "title": "Wochen-Tempo",
+            "empty": "Noch keine Lesedaten"
+        },
+        "achievements": {
+            "title": "Erfolge",
+            "unlocked": "Erreicht",
+            "FIRST_SESSION": {
+                "name": "Erste Schritte",
+                "desc": "Schließe deine erste Lesesession ab"
+            },
+            "BOOKWORM": {
+                "name": "Bücherwurm",
+                "desc": "Beende 5 Bücher"
+            },
+            "LIBRARY_BUILDER": {
+                "name": "Bibliotheksarchitekt",
+                "desc": "Füge 10 Bücher deiner Bibliothek hinzu"
+            },
+            "PAGE_TURNER": {
+                "name": "Seitenfresser",
+                "desc": "Lies insgesamt 1.000 Seiten"
+            },
+            "MARATHON": {
+                "name": "Marathon-Leser",
+                "desc": "Lies 100 Seiten an einem Tag"
+            },
+            "EARLY_BIRD": {
+                "name": "Frühaufsteher",
+                "desc": "Starte eine Session vor 8 Uhr"
+            },
+            "NIGHT_OWL": {
+                "name": "Nachteule",
+                "desc": "Lies nach 22 Uhr"
+            },
+            "WEEK_STREAK": {
+                "name": "Wochen-Streak",
+                "desc": "Lies 7 Tage am Stück"
+            },
+            "MONTH_STREAK": {
+                "name": "Monats-Streak",
+                "desc": "Lies 30 Tage am Stück"
+            },
+            "SPEED_READER": {
+                "name": "Schnellleser",
+                "desc": "Beende ein Buch innerhalb von 7 Tagen"
+            }
+        }
+    },
     "bookStats": {
         "readProgress": "Lese-Fortschritt",
         "pages": "Seiten",
@@ -239,6 +312,11 @@
             "readNow": "Jetzt lesen"
         },
         "noSessionsHint": "Starte eine Lesesession, um deine Statistiken zu sehen.",
+        "noSessions": {
+            "title": "Noch keine Lesedaten",
+            "desc": "Starte eine Lesesession, um deinen Fortschritt zu verfolgen und detaillierte Statistiken für dieses Buch zu sehen.",
+            "button": "Jetzt lesen"
+        },
         "notFound": "Buch nicht gefunden",
         "currentPage": "Aktuelle Seite",
         "calendarHint": "Tippe auf ein Datum für Details",

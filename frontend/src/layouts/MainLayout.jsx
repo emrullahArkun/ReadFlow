@@ -3,8 +3,10 @@ import { useToast } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../shared/components/Navbar';
 import { useReadingSessionContext } from '../context/ReadingSessionContext';
+import { usePinstripeBackground } from '../shared/hooks/usePinstripeBackground';
 
 const MainLayout = ({ fullWidth = false }) => {
+    usePinstripeBackground();
     const { t } = useTranslation();
     const location = useLocation();
     const isSessionPage = location.pathname.match(/\/books\/\d+\/session/);

@@ -1,6 +1,7 @@
 /* Global reset moved to specific layout */
 #root {
   width: 100%;
+  overflow-x: hidden;
 }
 
 .main-layout-content {
@@ -11,6 +12,7 @@
   padding-top: 60px;
   /* Offset for fixed navbar (60px height) */
   text-align: center;
+  overflow-x: hidden;
 }
 
 .home-content h1 {

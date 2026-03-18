@@ -1,13 +1,11 @@
 import { FaExclamationCircle, FaBookOpen } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
-import { usePinstripeBackground } from '../../shared/hooks/usePinstripeBackground';
 import DiscoverySection from './components/DiscoverySection';
 import useDiscovery from './hooks/useDiscovery';
 import styles from './DiscoveryPage.module.css';
 
 const DiscoveryPage = () => {
     const { t } = useTranslation();
-    usePinstripeBackground();
     const { loading, error, data, refresh } = useDiscovery();
 
     if (loading) {

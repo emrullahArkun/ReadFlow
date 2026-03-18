@@ -40,6 +40,10 @@ export const useAddBookToLibrary = () => {
 
             const coverUrl = book.coverUrl || getOpenLibraryCoverUrl(isbn);
 
+            const categories = Array.isArray(book.categories)
+                ? book.categories.join(', ')
+                : (book.categories || null);
+
             const newBook = {
                 title: book.title,
                 isbn: isbn,
@@ -47,6 +51,7 @@ export const useAddBookToLibrary = () => {
                 publishDate: book.publishedDate || 'Unknown Date',
                 coverUrl: coverUrl,
                 pageCount: book.pageCount || 0,
+                categories: categories,
             };
 
             return { result: await booksApi.create(newBook), isbn };

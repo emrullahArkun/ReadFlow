@@ -38,4 +38,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
         @Query("SELECT b.isbn FROM Book b WHERE b.user = :user")
         List<String> findAllIsbnsByUser(@Param("user") User user);
+
+        @Query("SELECT COUNT(b) FROM Book b WHERE b.user = :user")
+        int countByUser(@Param("user") User user);
+
+        @Query("SELECT COUNT(b) FROM Book b WHERE b.user = :user AND b.completed = true")
+        int countCompletedByUser(@Param("user") User user);
 }

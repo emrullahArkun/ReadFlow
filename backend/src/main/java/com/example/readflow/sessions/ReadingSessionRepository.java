@@ -26,4 +26,17 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSession, 
            "AND CAST(s.endTime AS LocalDate) >= :since " +
            "ORDER BY CAST(s.endTime AS LocalDate) DESC")
     List<LocalDate> findDistinctReadingDays(@Param("user") User user, @Param("since") LocalDate since);
+
+    @Query("SELECT COALESCE(SUM(s.pagesRead), 0) FROM ReadingSession s " +
+           "WHERE s.user = :user AND s.status = 'COMPLETED'")
+    long sumPagesReadByUser(@Param("user") User user);
+
+    @Query("SELECT s FROM ReadingSession s " +
+           "WHERE s.user = :user AND s.status = 'COMPLETED' AND s.endTime IS NOT NULL " +
+           "AND CAST(s.endTime AS LocalDate) >= :since")
+    List<ReadingSession> findCompletedSessionsSince(@Param("user") User user, @Param("since") LocalDate since);
+
+    @Query("SELECT COUNT(s) FROM ReadingSession s " +
+           "WHERE s.user = :user AND s.status = 'COMPLETED'")
+    long countCompletedByUser(@Param("user") User user);
 }

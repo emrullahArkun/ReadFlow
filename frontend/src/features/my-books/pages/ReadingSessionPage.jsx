@@ -11,7 +11,6 @@ import {
     useDisclosure
 } from '@chakra-ui/react';
 import { useReadingSessionPageLogic } from '../hooks/useReadingSessionPageLogic';
-import { usePinstripeBackground } from '../../../shared/hooks/usePinstripeBackground';
 import { useThemeTokens } from '../../../shared/hooks/useThemeTokens';
 import ConfirmDialog from '../../../shared/components/ConfirmDialog';
 
@@ -51,7 +50,6 @@ const ReadingSessionPage = () => {
         navigate('/my-books');
     };
 
-    usePinstripeBackground();
     const { bgColor, cardBg, textColor, subTextColor, brandColor } = useThemeTokens();
 
     if (fetchingBook || sessionLoading) {

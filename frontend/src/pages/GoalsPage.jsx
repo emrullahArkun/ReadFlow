@@ -15,7 +15,6 @@ import { FaCheckCircle, FaBullseye, FaFire } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { booksApi } from '../features/books/api';
 import apiClient from '../api/apiClient';
-import { usePinstripeBackground } from '../shared/hooks/usePinstripeBackground';
 
 const MotionBox = motion(Box);
 
@@ -106,8 +105,6 @@ const GoalsPage = () => {
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [streak, setStreak] = useState({ currentStreak: 0, longestStreak: 0 });
-
-    usePinstripeBackground();
 
     useEffect(() => {
         const fetchData = async () => {

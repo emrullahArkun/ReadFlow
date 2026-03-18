@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
@@ -11,12 +11,19 @@ import {
     Spinner,
     Flex,
     VStack,
-    Text
+    Text,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalBody,
+    Button,
+    Icon
 } from '@chakra-ui/react';
+import { FaBookReader } from 'react-icons/fa';
 import { booksApi } from '../../books/api';
 import { useBookStats } from '../hooks/useBookStats';
 import { useBookStatsCalculations } from '../hooks/useBookStatsCalculations';
-import { usePinstripeBackground } from '../../../shared/hooks/usePinstripeBackground';
+
 import { useThemeTokens } from '../../../shared/hooks/useThemeTokens';
 import { FaBookOpen, FaChartLine, FaClock } from 'react-icons/fa';
 
@@ -28,6 +35,7 @@ import BookStatsCharts from '../components/BookStatsCharts';
 const BookStatsPage = () => {
     const { t } = useTranslation();
     const { id } = useParams();
+    const navigate = useNavigate();
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
@@ -62,7 +70,6 @@ const BookStatsPage = () => {
         }
     };
 
-    usePinstripeBackground();
     const { bgColor, cardBg, textColor, subTextColor, brandColor } = useThemeTokens();
 
     const hasSessions = sessions && sessions.length > 0;
@@ -97,11 +104,6 @@ const BookStatsPage = () => {
                     <GridItem w="full" h="full" display="flex" flexDirection="column" overflow="hidden">
                         <VStack spacing={5} align="stretch" w="full" h="full" overflow="hidden">
                             {/* KPI Cards */}
-                            {!hasSessions && (
-                                <Text fontSize="sm" color="gray.400" textAlign="center" py={1}>
-                                    {t('bookStats.noSessionsHint')}
-                                </Text>
-                            )}
                             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={5} flexShrink={0}>
                                 <StatsCard
                                     icon={FaClock}
@@ -152,6 +154,35 @@ const BookStatsPage = () => {
                     </GridItem>
                 </Grid>
             </Box>
+
+            {/* No Sessions Modal */}
+            <Modal isOpen={!hasSessions && !loading && !!book} onClose={() => {}} isCentered closeOnOverlayClick={false} closeOnEsc={false}>
+                <ModalOverlay bg="blackAlpha.700" backdropFilter="blur(4px)" />
+                <ModalContent bg="gray.900" border="1px solid" borderColor="whiteAlpha.100" borderRadius="2xl" mx={4}>
+                    <ModalBody py={10} px={8} textAlign="center">
+                        <Flex justify="center" mb={5}>
+                            <Flex w={16} h={16} borderRadius="full" bg="whiteAlpha.100" align="center" justify="center">
+                                <Icon as={FaBookReader} boxSize={7} color="teal.200" />
+                            </Flex>
+                        </Flex>
+                        <Text fontSize="lg" fontWeight="700" color="white" mb={2}>
+                            {t('bookStats.noSessions.title')}
+                        </Text>
+                        <Text fontSize="sm" color="gray.400" mb={6}>
+                            {t('bookStats.noSessions.desc')}
+                        </Text>
+                        <Button
+                            colorScheme="teal"
+                            size="lg"
+                            borderRadius="xl"
+                            px={10}
+                            onClick={() => navigate(`/books/${id}/session`)}
+                        >
+                            {t('bookStats.noSessions.button')}
+                        </Button>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
 
             {/* Set Goal Modal */}
             <BookGoalModal
