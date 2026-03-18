@@ -1,4 +1,4 @@
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import { Image, Center, Skeleton, Box } from '@chakra-ui/react';
 import { getHighResImage } from '../utils/googleBooks';
 
@@ -54,8 +54,9 @@ const BookCover = forwardRef(({
 
     const [imgSrc, setImgSrc] = useState(safeUrl);
     const [imageLoaded, setImageLoaded] = useState(false);
+    const prevUrlRef = useRef(safeUrl);
 
-    // Reset when book changes
+    // Only reset when the resolved URL actually changes
     useEffect(() => {
         let newSafeUrl = '';
         if (googleUrl && !googleSaysNoImage) {
@@ -63,8 +64,11 @@ const BookCover = forwardRef(({
         } else if (fallbackUrl) {
             newSafeUrl = fallbackUrl;
         }
-        setImgSrc(newSafeUrl);
-        setImageLoaded(false);
+        if (newSafeUrl !== prevUrlRef.current) {
+            prevUrlRef.current = newSafeUrl;
+            setImgSrc(newSafeUrl);
+            setImageLoaded(false);
+        }
     }, [googleSaysNoImage, googleUrl, fallbackUrl]);
 
     const handleImageError = () => {
@@ -83,10 +87,16 @@ const BookCover = forwardRef(({
     };
 
     const handleLoad = (e) => {
-        // OpenLibrary returns a tiny 1x1 pixel image when no cover exists
         const img = e.target;
+        // OpenLibrary returns a tiny 1x1 pixel image when no cover exists
         if (img.naturalWidth < 10 || img.naturalHeight < 10) {
-            // Treat as invalid - try next fallback or show text
+            handleImageError();
+            return;
+        }
+        // Google "image not available" placeholders are ~128px wide at zoom=0;
+        // real covers are typically 300px+. Only apply to Google URLs.
+        const isGoogleUrl = imgSrc.includes('books.google');
+        if (isGoogleUrl && img.naturalWidth < 200) {
             handleImageError();
             return;
         }
@@ -96,6 +106,18 @@ const BookCover = forwardRef(({
     // Extract author info
     const authors = info.authors || info.authorName;
     const authorText = Array.isArray(authors) ? authors[0] : authors;
+
+    // Merge forwarded ref with our internal ref to detect cached images
+    const imgRef = useRef(null);
+    const setRefs = useCallback((node) => {
+        imgRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+        // If the browser already has this image cached, skip the skeleton
+        if (node?.complete && node.naturalWidth > 0) {
+            setImageLoaded(true);
+        }
+    }, [ref]);
 
     // If we have no source at all after logic
     if (!imgSrc) {
@@ -140,7 +162,7 @@ const BookCover = forwardRef(({
     return (
         <Skeleton isLoaded={imageLoaded} w={w} h={h} borderRadius={borderRadius}>
             <Image
-                ref={ref}
+                ref={setRefs}
                 src={imgSrc}
                 onLoad={handleLoad}
                 onError={handleImageError}

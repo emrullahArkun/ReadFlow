@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaBook, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +18,32 @@ function Navbar() {
 
     const { registerTarget } = useAnimation();
     const { activeSession } = useReadingSessionContext();
+
+    const navRef = useRef(null);
+    const [indicator, setIndicator] = useState({ left: 0, width: 0, visible: false });
+
+    const updateIndicator = useCallback(() => {
+        const nav = navRef.current;
+        if (!nav) return;
+        const activeItem = nav.querySelector('.navbar-item.active');
+        if (!activeItem) {
+            setIndicator(prev => ({ ...prev, visible: false }));
+            return;
+        }
+        const navRect = nav.getBoundingClientRect();
+        const activeRect = activeItem.getBoundingClientRect();
+        setIndicator({
+            left: activeRect.left - navRect.left + 14,
+            width: activeRect.width - 28,
+            visible: true,
+        });
+    }, []);
+
+    useEffect(() => {
+        // Small delay to let AnimatePresence items settle
+        const timer = setTimeout(updateIndicator, 50);
+        return () => clearTimeout(timer);
+    }, [location.pathname, activeSession, updateIndicator]);
 
     const isStatsPage = location.pathname.match(/\/books\/\d+\/stats/);
     const isSessionPage = location.pathname.match(/\/books\/\d+\/session/);
@@ -48,7 +75,7 @@ function Navbar() {
             <div className="navbar-menu">
                 {user ? (
                     <>
-                        <div className="navbar-nav">
+                        <div className="navbar-nav" ref={navRef}>
                             {navItems.map(item => (
                                 <Link
                                     key={item.to}
@@ -57,13 +84,6 @@ function Navbar() {
                                     ref={item.ref || null}
                                 >
                                     <span className="navbar-text">{item.label}</span>
-                                    {isActive(item.to) && (
-                                        <motion.div
-                                            layoutId="nav-indicator"
-                                            className="nav-indicator"
-                                            transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                        />
-                                    )}
                                 </Link>
                             ))}
 
@@ -81,13 +101,6 @@ function Navbar() {
                                             className={`navbar-item${isSessionPage ? ' active' : ''}`}
                                         >
                                             <span className="navbar-text">{t('navbar.session')}</span>
-                                            {isSessionPage && (
-                                                <motion.div
-                                                    layoutId="nav-indicator"
-                                                    className="nav-indicator"
-                                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                                />
-                                            )}
                                         </Link>
                                     </motion.div>
                                 )}
@@ -105,15 +118,18 @@ function Navbar() {
                                             className="navbar-item active"
                                         >
                                             <span className="navbar-text">{t('navbar.stats')}</span>
-                                            <motion.div
-                                                layoutId="nav-indicator"
-                                                className="nav-indicator"
-                                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                            />
                                         </Link>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
+
+                            {indicator.visible && (
+                                <motion.div
+                                    className="nav-indicator"
+                                    animate={{ left: indicator.left, width: indicator.width }}
+                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                />
+                            )}
                         </div>
 
                         <div className="navbar-separator" />

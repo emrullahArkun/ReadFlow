@@ -7,9 +7,17 @@ export const getHighResImage = (url) => {
     return newUrl;
 };
 
+export const getOpenLibraryCoverUrl = (isbn) => {
+    if (!isbn || isbn.startsWith('ID:')) return '';
+    const clean = isbn.replace(/-/g, '');
+    return clean.length >= 10 ? `https://covers.openlibrary.org/b/isbn/${clean}-L.jpg` : '';
+};
+
 export const mapGoogleBookToNewBook = (volumeInfo, isbnInfo, id) => {
     const uniqueId = isbnInfo ? isbnInfo.identifier : `ID:${id}`;
-    const coverUrl = getHighResImage(volumeInfo.imageLinks?.thumbnail);
+    const googleHasImage = volumeInfo.readingModes?.image !== false;
+    const googleUrl = googleHasImage ? getHighResImage(volumeInfo.imageLinks?.thumbnail) : '';
+    const coverUrl = googleUrl || getOpenLibraryCoverUrl(uniqueId);
 
     return {
         title: volumeInfo.title,

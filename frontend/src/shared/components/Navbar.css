@@ -39,6 +39,7 @@
     align-items: center;
     height: 100%;
     gap: 2px;
+    position: relative;
 }
 
 .navbar-item {
@@ -71,16 +72,15 @@
     white-space: nowrap;
 }
 
-/* Animated underline indicator */
+/* Animated underline indicator — positioned by JS, only animates horizontally */
 .nav-indicator {
     position: absolute;
     bottom: 0;
-    left: 14px;
-    right: 14px;
     height: 2px;
     background: linear-gradient(90deg, rgba(129, 230, 217, 0.8), rgba(129, 230, 217, 0.4));
     border-radius: 2px 2px 0 0;
     box-shadow: 0 0 8px rgba(129, 230, 217, 0.3);
+    pointer-events: none;
 }
 
 /* Separator between nav and actions */
