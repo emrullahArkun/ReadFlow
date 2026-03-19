@@ -1,0 +1,11 @@
+language: "de-DE"
+reviews:
+  auto_review:
+    enabled: true
+    drafts: true
+  request_changes_workflow: true
+  path_instructions:
+    - path: "**/*.java"
+      instructions: "Review for clean code, security issues, and Spring Boot best practices."
+    - path: "**/*.tsx"
+      instructions: "Review for React best practices, accessibility, and TypeScript type safety."
