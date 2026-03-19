@@ -33,10 +33,10 @@ const AchievementCard = ({ achievement, cardBg, textColor }) => {
             bg={cardBg}
             borderRadius="2xl"
             border="1px solid"
-            borderColor={unlocked ? 'whiteAlpha.200' : 'whiteAlpha.50'}
+            borderColor={unlocked ? 'whiteAlpha.300' : 'whiteAlpha.100'}
             boxShadow="none"
             p={5}
-            opacity={unlocked ? 1 : 0.45}
+            opacity={unlocked ? 1 : 0.55}
         >
             <Flex align="center" gap={4}>
                 <Flex
@@ -45,7 +45,7 @@ const AchievementCard = ({ achievement, cardBg, textColor }) => {
                     w={12}
                     h={12}
                     borderRadius="xl"
-                    bg={unlocked ? 'whiteAlpha.100' : 'whiteAlpha.50'}
+                    bg={unlocked ? 'whiteAlpha.200' : 'whiteAlpha.100'}
                     color={unlocked ? meta.color : 'gray.600'}
                     flexShrink={0}
                 >
@@ -53,7 +53,7 @@ const AchievementCard = ({ achievement, cardBg, textColor }) => {
                 </Flex>
                 <Box flex={1} minW={0}>
                     <Flex align="center" gap={2} mb={0.5}>
-                        <Text fontSize="sm" fontWeight="700" color={unlocked ? textColor : 'gray.500'} noOfLines={1}>
+                        <Text fontSize="sm" fontWeight="700" color={unlocked ? textColor : 'gray.400'} noOfLines={1}>
                             {t(`stats.achievements.${achievement.id}.name`)}
                         </Text>
                         {unlocked && (
@@ -62,7 +62,7 @@ const AchievementCard = ({ achievement, cardBg, textColor }) => {
                             </Badge>
                         )}
                     </Flex>
-                    <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                    <Text fontSize="xs" color="gray.300" noOfLines={1}>
                         {t(`stats.achievements.${achievement.id}.desc`)}
                     </Text>
                     {achievement.unlockedDetail && (
