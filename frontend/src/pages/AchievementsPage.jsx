@@ -66,7 +66,7 @@ const AchievementCard = ({ achievement, cardBg, textColor }) => {
                         {t(`stats.achievements.${achievement.id}.desc`)}
                     </Text>
                     {achievement.unlockedDetail && (
-                        <Text fontSize="xs" color={unlocked ? 'teal.200' : 'gray.600'} mt={0.5}>
+                        <Text fontSize="xs" color={unlocked ? 'teal.200' : 'gray.400'} mt={0.5}>
                             {achievement.unlockedDetail}
                         </Text>
                     )}
