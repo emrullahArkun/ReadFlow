@@ -122,7 +122,7 @@ class OpenLibraryClientTest {
         mockResponse(Map.of("docs", List.of(bookDoc("Book", 99999))));
 
         var result = openLibraryClient.getBooksByQuery("test", 5);
-        assertEquals("https://covers.openlibrary.org/b/id/99999-L.jpg", result.get(0).coverUrl());
+        assertEquals("https://covers.openlibrary.org/b/id/99999-M.jpg", result.get(0).coverUrl());
     }
 
     @Test

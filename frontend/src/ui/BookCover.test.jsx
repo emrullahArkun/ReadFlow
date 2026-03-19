@@ -17,14 +17,14 @@ describe('BookCover', () => {
     it('renders with a given coverUrl successfully', async () => {
         const book = {
             title: 'Test Book',
-            coverUrl: 'https://covers.openlibrary.org/b/id/12345-L.jpg',
+            coverUrl: 'https://covers.openlibrary.org/b/id/12345-M.jpg',
         };
 
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
         expect(img).toBeDefined();
-        expect(img.src).toBe('https://covers.openlibrary.org/b/id/12345-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/id/12345-M.jpg');
 
         act(() => {
             simulateImageLoad(img);
@@ -43,7 +43,7 @@ describe('BookCover', () => {
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-M.jpg');
     });
 
     it('falls back to title/author text if no image URL is possible', () => {
@@ -62,13 +62,13 @@ describe('BookCover', () => {
     it('shows title fallback if coverUrl image errors and no ISBN', () => {
         const book = {
             title: 'Error Book',
-            coverUrl: 'https://covers.openlibrary.org/b/id/99999-L.jpg',
+            coverUrl: 'https://covers.openlibrary.org/b/id/99999-M.jpg',
         };
 
         render(<BookCover book={book} />);
 
         let img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-M.jpg');
 
         act(() => {
             simulateImageError(img);
@@ -81,14 +81,14 @@ describe('BookCover', () => {
     it('falls back to ISBN URL on primary error, then to text on second error', () => {
         const book = {
             title: 'Double Error Book',
-            coverUrl: 'https://covers.openlibrary.org/b/id/99999-L.jpg',
+            coverUrl: 'https://covers.openlibrary.org/b/id/99999-M.jpg',
             isbn: '1234567890',
         };
 
         render(<BookCover book={book} />);
 
         let img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-M.jpg');
 
         act(() => {
             simulateImageError(img); // Primary fails
@@ -96,7 +96,7 @@ describe('BookCover', () => {
 
         // Tries ISBN-based URL
         img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/1234567890-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/1234567890-M.jpg');
 
         act(() => {
             simulateImageError(img); // ISBN fallback fails
@@ -115,7 +115,7 @@ describe('BookCover', () => {
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0987654321-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0987654321-M.jpg');
 
         act(() => {
             simulateImageLoad(img, 1, 1);
@@ -143,6 +143,6 @@ describe('BookCover', () => {
         };
         render(<BookCover book={book} />);
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9780123456789-L.jpg');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9780123456789-M.jpg');
     });
 });

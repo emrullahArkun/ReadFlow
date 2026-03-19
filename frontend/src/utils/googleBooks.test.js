@@ -4,11 +4,11 @@ import { getOpenLibraryCoverUrl } from './googleBooks';
 describe('googleBooks utils', () => {
     describe('getOpenLibraryCoverUrl', () => {
         it('returns OpenLibrary URL for valid ISBN', () => {
-            expect(getOpenLibraryCoverUrl('9781234567890')).toBe('https://covers.openlibrary.org/b/isbn/9781234567890-L.jpg');
+            expect(getOpenLibraryCoverUrl('9781234567890')).toBe('https://covers.openlibrary.org/b/isbn/9781234567890-M.jpg');
         });
 
         it('strips hyphens from ISBN', () => {
-            expect(getOpenLibraryCoverUrl('978-1-234-56789-0')).toBe('https://covers.openlibrary.org/b/isbn/9781234567890-L.jpg');
+            expect(getOpenLibraryCoverUrl('978-1-234-56789-0')).toBe('https://covers.openlibrary.org/b/isbn/9781234567890-M.jpg');
         });
 
         it('returns empty string for ID: prefixed values', () => {

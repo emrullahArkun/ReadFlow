@@ -25,8 +25,7 @@ public class OpenLibraryClient {
 
     private static final String SEARCH_URL = "https://openlibrary.org/search.json";
     private static final String FIELDS = "key,title,author_name,cover_i,isbn,subject,first_publish_year,number_of_pages_median";
-    private static final String COVER_URL_TEMPLATE = "https://covers.openlibrary.org/b/id/%d-L.jpg";
-    private static final String DEFAULT_LANGUAGE = "ger";
+    private static final String COVER_URL_TEMPLATE = "https://covers.openlibrary.org/b/id/%d-M.jpg";
 
     private final RestTemplate restTemplate;
     private final HttpHeaders headers;
@@ -42,7 +41,6 @@ public class OpenLibraryClient {
     @Cacheable(value = "openLibraryBooks", key = "'author:' + #author + ':' + #maxResults")
     public List<RecommendedBookDto> getBooksByAuthor(String author, int maxResults) {
         String url = SEARCH_URL + "?author=" + encodeParam(author)
-                + "&language=" + DEFAULT_LANGUAGE
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
     }
@@ -50,7 +48,6 @@ public class OpenLibraryClient {
     @Cacheable(value = "openLibraryBooks", key = "'category:' + #category + ':' + #maxResults")
     public List<RecommendedBookDto> getBooksByCategory(String category, int maxResults) {
         String url = SEARCH_URL + "?subject=" + encodeParam(category)
-                + "&language=" + DEFAULT_LANGUAGE
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
     }
@@ -58,7 +55,6 @@ public class OpenLibraryClient {
     @Cacheable(value = "openLibraryBooks", key = "'query:' + #query + ':' + #maxResults")
     public List<RecommendedBookDto> getBooksByQuery(String query, int maxResults) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)
-                + "&language=" + DEFAULT_LANGUAGE
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
     }
@@ -66,7 +62,6 @@ public class OpenLibraryClient {
     @Cacheable(value = "openLibrarySearch", key = "#query + ':' + #offset + ':' + #limit")
     public SearchResultDto searchBooks(String query, int offset, int limit) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)
-                + "&language=" + DEFAULT_LANGUAGE
                 + "&fields=" + FIELDS + "&offset=" + offset + "&limit=" + limit;
         return fetchBooksWithTotal(url);
     }

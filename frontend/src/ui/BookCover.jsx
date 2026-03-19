@@ -133,6 +133,7 @@ const BookCover = forwardRef(({
             <Image
                 ref={setRefs}
                 src={imgSrc}
+                loading="lazy"
                 onLoad={handleLoad}
                 onError={handleImageError}
                 alt={title}
