@@ -84,7 +84,7 @@ const ReadingHeatmap = ({ dailyActivity = [] }) => {
             <Flex gap={`${CELL_GAP}px`} minW={`${totalWidth}px`}>
                 {grid.map((week, wi) => (
                     <Flex key={wi} direction="column" gap={`${CELL_GAP}px`}>
-                        {week.map((day, di) => (
+                        {week.map((day) => (
                             <Tooltip
                                 key={day.date}
                                 label={day.future ? '' : `${day.pages} ${t('stats.heatmap.pages')} — ${day.date}`}

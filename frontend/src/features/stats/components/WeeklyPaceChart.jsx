@@ -1,4 +1,4 @@
-import { useMemo, useState, useId } from 'react';
+import { useMemo, useState } from 'react';
 import { Box, Text, Flex, IconButton } from '@chakra-ui/react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useTranslation } from 'react-i18next';

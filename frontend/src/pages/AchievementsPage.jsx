@@ -129,7 +129,7 @@ const AchievementsPage = () => {
             </Flex>
 
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                {achievements.map((a, i) => (
+                {achievements.map((a) => (
                     <AchievementCard
                         key={a.id}
                         achievement={a}
