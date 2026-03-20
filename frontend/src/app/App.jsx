@@ -44,12 +44,12 @@ function App() {
                   <Route element={<ProtectedRoute />}>
                     {/* Standard Layout */}
                     <Route element={<MainLayout />}>
+                      <Route path="/" element={<HomePage />} />
                       <Route path="/search" element={<HomePage />} />
                     </Route>
 
                     {/* Full Width Layout */}
                     <Route element={<MainLayout fullWidth={true} />}>
-                      <Route path="/" element={<DiscoveryPage />} />
                       <Route path="/discovery" element={<DiscoveryPage />} />
                       <Route path="/goals" element={<GoalsPage />} />
                       <Route path="/my-books" element={<MyBooks />} />

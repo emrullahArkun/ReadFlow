@@ -10,22 +10,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
-      - name: Create PR for latest commit
+      # Uses PAT_TOKEN so the PR triggers other workflows (e.g. maven.yml)
+      - name: Create or update PR from dev to main
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%s)
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          BRANCH="review/${SHORT_SHA}"
+          EXISTING_PR=$(gh pr list --base main --head dev --state open --json number --jq '.[0].number // empty')
 
-          git checkout -b "$BRANCH"
-          git push origin "$BRANCH"
-
-          gh pr create \
-            --base main \
-            --head "$BRANCH" \
-            --title "$COMMIT_MSG" \
-            --body "Auto-generated PR for commit \`${SHORT_SHA}\`: ${COMMIT_MSG}"
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists, nothing to do."
+          else
+            gh pr create \
+              --base main \
+              --head dev \
+              --title "Merge dev into main" \
+              --body "Auto-generated PR to merge \`dev\` into \`main\`."
+          fi
