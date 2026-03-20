@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,7 +47,7 @@ class StatsServiceTest {
         ReadingSession s = new ReadingSession();
         s.setUser(user);
         s.setStatus(SessionStatus.COMPLETED);
-        Instant start = date.atTime(startHour, 0).atZone(ZoneId.systemDefault()).toInstant();
+        Instant start = date.atTime(startHour, 0).atZone(ZoneOffset.UTC).toInstant();
         s.setStartTime(start);
         s.setEndTime(start.plusSeconds(3600)); // 1 hour later
         s.setPagesRead(pagesRead);
@@ -142,6 +142,65 @@ class StatsServiceTest {
 
         StatsOverviewDto result = statsService.getOverview(user);
         assertEquals(0, result.totalReadingMinutes());
+    }
+
+    @Test
+    void getOverview_ShouldHandleNegativeDurationAfterPause() {
+        ReadingSession s = buildSession(LocalDate.now(), 10, 10);
+        s.setPausedMillis(7_200_000L); // 2h paused but session was only 1h
+
+        when(bookRepository.countByUser(user)).thenReturn(1);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(10L);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(List.of(s));
+        when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
+        when(streakService.calculateCurrentStreak(user)).thenReturn(0);
+        when(streakService.calculateLongestStreak(user)).thenReturn(0);
+
+        StatsOverviewDto result = statsService.getOverview(user);
+        assertEquals(0, result.totalReadingMinutes());
+    }
+
+    @Test
+    void getOverview_ShouldHandleSessionWithNullStartTime() {
+        ReadingSession s = new ReadingSession();
+        s.setUser(user);
+        s.setStatus(SessionStatus.COMPLETED);
+        s.setStartTime(null);
+        s.setEndTime(Instant.now());
+        s.setPagesRead(10);
+        s.setPausedMillis(0L);
+
+        when(bookRepository.countByUser(user)).thenReturn(1);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(10L);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(List.of(s));
+        when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
+        when(streakService.calculateCurrentStreak(user)).thenReturn(0);
+        when(streakService.calculateLongestStreak(user)).thenReturn(0);
+
+        StatsOverviewDto result = statsService.getOverview(user);
+        assertEquals(0, result.totalReadingMinutes());
+    }
+
+    @Test
+    void getOverview_ShouldHandleZeroPagesReadInDailyActivity() {
+        ReadingSession s = buildSession(LocalDate.now(), 0, 10);
+        s.setPagesRead(0);
+
+        when(bookRepository.countByUser(user)).thenReturn(1);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(0L);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(List.of(s));
+        when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
+        when(streakService.calculateCurrentStreak(user)).thenReturn(0);
+        when(streakService.calculateLongestStreak(user)).thenReturn(0);
+
+        StatsOverviewDto result = statsService.getOverview(user);
+        assertTrue(result.dailyActivity().isEmpty());
     }
 
     @Test
@@ -409,6 +468,60 @@ class StatsServiceTest {
         AchievementDto speed = result.stream()
                 .filter(a -> a.id().equals("SPEED_READER")).findFirst().orElseThrow();
         assertFalse(speed.unlocked());
+    }
+
+    @Test
+    void getAchievements_ShouldUnlockLibraryBuilder() {
+        when(bookRepository.countByUser(user)).thenReturn(10);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(0L);
+        when(sessionRepository.countCompletedByUser(user)).thenReturn(0L);
+        when(streakService.calculateCurrentStreak(user)).thenReturn(0);
+        when(streakService.calculateLongestStreak(user)).thenReturn(0);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(Collections.emptyList());
+        when(bookRepository.findByUser(user)).thenReturn(Collections.emptyList());
+
+        List<AchievementDto> result = statsService.getAchievements(user);
+        AchievementDto lib = result.stream()
+                .filter(a -> a.id().equals("LIBRARY_BUILDER")).findFirst().orElseThrow();
+        assertTrue(lib.unlocked());
+    }
+
+    @Test
+    void getAchievements_ShouldUnlockPageTurner() {
+        when(bookRepository.countByUser(user)).thenReturn(1);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(1000L);
+        when(sessionRepository.countCompletedByUser(user)).thenReturn(10L);
+        when(streakService.calculateCurrentStreak(user)).thenReturn(0);
+        when(streakService.calculateLongestStreak(user)).thenReturn(0);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(Collections.emptyList());
+        when(bookRepository.findByUser(user)).thenReturn(Collections.emptyList());
+
+        List<AchievementDto> result = statsService.getAchievements(user);
+        AchievementDto pt = result.stream()
+                .filter(a -> a.id().equals("PAGE_TURNER")).findFirst().orElseThrow();
+        assertTrue(pt.unlocked());
+    }
+
+    @Test
+    void getAchievements_ShouldUnlockMonthStreak() {
+        when(bookRepository.countByUser(user)).thenReturn(1);
+        when(bookRepository.countCompletedByUser(user)).thenReturn(0);
+        when(sessionRepository.sumPagesReadByUser(user)).thenReturn(100L);
+        when(sessionRepository.countCompletedByUser(user)).thenReturn(30L);
+        when(streakService.calculateCurrentStreak(user)).thenReturn(30);
+        when(streakService.calculateLongestStreak(user)).thenReturn(30);
+        when(sessionRepository.findCompletedSessionsSince(eq(user), any()))
+                .thenReturn(Collections.emptyList());
+        when(bookRepository.findByUser(user)).thenReturn(Collections.emptyList());
+
+        List<AchievementDto> result = statsService.getAchievements(user);
+        AchievementDto monthStreak = result.stream()
+                .filter(a -> a.id().equals("MONTH_STREAK")).findFirst().orElseThrow();
+        assertTrue(monthStreak.unlocked());
     }
 
     @Test
