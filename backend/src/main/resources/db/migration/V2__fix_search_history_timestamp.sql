@@ -1,0 +1,2 @@
+ALTER TABLE search_history
+    ALTER COLUMN timestamp TYPE TIMESTAMPTZ USING timestamp AT TIME ZONE 'UTC';

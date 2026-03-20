@@ -80,7 +80,9 @@ class BookControllerTest {
 
         private org.springframework.http.converter.json.MappingJackson2HttpMessageConverter createPageAwareMessageConverter() {
                 ObjectMapper om = new ObjectMapper();
-                om.registerModule(new org.springframework.data.web.config.SpringDataJacksonConfiguration.PageModule());
+                om.registerModule(new org.springframework.data.web.config.SpringDataJacksonConfiguration.PageModule(
+                        new org.springframework.data.web.config.SpringDataWebSettings(
+                                org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.DIRECT)));
                 return new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter(om);
         }
 

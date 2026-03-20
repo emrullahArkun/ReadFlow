@@ -45,8 +45,13 @@ export const useReadingSessionPageLogic = (bookId) => {
                     setBook(data);
                     if (data.currentPage) setEndPage(data.currentPage);
                 }
-            } catch (error) {
-                // Fetch failed — fetchingBook will still become false
+            } catch {
+                toast({
+                    title: t('readingSession.alerts.fetchError', 'Could not load book'),
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true
+                });
             } finally {
                 setFetchingBook(false);
             }

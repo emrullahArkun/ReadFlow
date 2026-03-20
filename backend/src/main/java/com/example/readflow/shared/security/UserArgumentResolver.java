@@ -32,7 +32,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
         Jwt jwt = (Jwt) auth.getPrincipal();
         User user = new User();
-        user.setId(jwt.getClaim("userId"));
+        user.setId(((Number) jwt.getClaim("userId")).longValue());
         user.setEmail(jwt.getSubject());
         user.setRole(Role.valueOf(jwt.getClaimAsString("role")));
         return user;

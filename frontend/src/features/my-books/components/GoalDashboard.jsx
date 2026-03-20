@@ -31,8 +31,8 @@ const GoalDashboard = () => {
     });
 
     const books = [...booksData].sort((a, b) => {
-        const progA = (a.readingGoalProgress || 0) / a.readingGoalPages;
-        const progB = (b.readingGoalProgress || 0) / b.readingGoalPages;
+        const progA = a.readingGoalPages ? (a.readingGoalProgress || 0) / a.readingGoalPages : 0;
+        const progB = b.readingGoalPages ? (b.readingGoalProgress || 0) / b.readingGoalPages : 0;
         const finishedA = progA >= 1;
         const finishedB = progB >= 1;
 
@@ -41,7 +41,7 @@ const GoalDashboard = () => {
         return progB - progA;
     });
 
-    const activeGoalsCount = books.filter(b => (b.readingGoalProgress || 0) < b.readingGoalPages).length;
+    const activeGoalsCount = books.filter(b => (b.readingGoalProgress || 0) < (b.readingGoalPages || 0)).length;
 
     return (
         <Box position="relative" zIndex="100">
@@ -87,7 +87,7 @@ const GoalDashboard = () => {
 
                     {books.map(book => {
                         const progress = book.readingGoalProgress || 0;
-                        const target = book.readingGoalPages;
+                        const target = book.readingGoalPages || 1;
                         const percent = Math.min(100, Math.round((progress / target) * 100));
                         const isFinished = progress >= target;
                         const multiplier = isFinished ? Math.floor(progress / target) : 0;

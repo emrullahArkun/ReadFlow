@@ -22,7 +22,7 @@ const MotionBox = motion(Box);
 
 const GoalCard = ({ book, index, t, navigate }) => {
     const progress = book.readingGoalProgress || 0;
-    const target = book.readingGoalPages;
+    const target = book.readingGoalPages || 1;
     const percent = Math.min(100, Math.round((progress / target) * 100));
     const isFinished = progress >= target;
     const multiplier = isFinished ? Math.floor(progress / target) : 0;
@@ -122,16 +122,16 @@ const GoalsPage = () => {
         const allBooks = booksData || [];
 
         return [...allBooks].sort((a, b) => {
-            const progA = (a.readingGoalProgress || 0) / a.readingGoalPages;
-            const progB = (b.readingGoalProgress || 0) / b.readingGoalPages;
+            const progA = a.readingGoalPages ? (a.readingGoalProgress || 0) / a.readingGoalPages : 0;
+            const progB = b.readingGoalPages ? (b.readingGoalProgress || 0) / b.readingGoalPages : 0;
             if (a.readingGoalType !== b.readingGoalType) return a.readingGoalType === 'WEEKLY' ? -1 : 1;
             return progB - progA;
         });
     }, [booksData]);
 
     const loading = booksLoading;
-    const activeBooks = books.filter(b => (b.readingGoalProgress || 0) < b.readingGoalPages);
-    const completedBooks = books.filter(b => (b.readingGoalProgress || 0) >= b.readingGoalPages);
+    const activeBooks = books.filter(b => (b.readingGoalProgress || 0) < (b.readingGoalPages || 0));
+    const completedBooks = books.filter(b => (b.readingGoalProgress || 0) >= (b.readingGoalPages || 0));
 
     return (
         <Box px={{ base: 4, md: 10 }} py={8} maxW="1100px" mx="auto" minH="calc(100vh - 80px)">

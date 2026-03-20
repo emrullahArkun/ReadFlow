@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.DayOfWeek;
 import java.time.temporal.TemporalAdjusters;
 
@@ -32,8 +32,7 @@ public class ReadingGoalProgressCalculator {
             startOfPeriod = now.withDayOfMonth(1).atStartOfDay();
         }
 
-        ZoneId zone = ZoneId.systemDefault();
-        Instant startInstant = startOfPeriod.atZone(zone).toInstant();
+        Instant startInstant = startOfPeriod.atZone(ZoneOffset.UTC).toInstant();
 
         return sessionRepository.sumPagesReadByBookSince(book, startInstant);
     }
