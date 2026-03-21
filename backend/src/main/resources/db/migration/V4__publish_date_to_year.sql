@@ -3,12 +3,9 @@
 -- Add new integer column
 ALTER TABLE books ADD COLUMN publish_year INTEGER;
 
--- Migrate existing data: extract year from string values like "2023" or "Unknown Date"
+-- Migrate existing data: extract first 4-digit year from any format (e.g. "2023", "1999-05-01", "June 1999")
 UPDATE books
-SET publish_year = CASE
-    WHEN publish_date ~ '^\d{4}$' THEN publish_date::INTEGER
-    ELSE NULL
-END;
+SET publish_year = substring(trim(publish_date) from '([0-9]{4})')::INTEGER;
 
 -- Drop old column
 ALTER TABLE books DROP COLUMN publish_date;

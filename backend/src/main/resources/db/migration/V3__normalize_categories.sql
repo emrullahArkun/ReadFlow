@@ -7,11 +7,15 @@ CREATE TABLE book_categories (
 
 CREATE INDEX idx_book_categories_book ON book_categories(book_id);
 
--- Migrate existing CSV data into the new table
+-- Migrate existing CSV data into the new table (filter empty strings from trailing commas)
 INSERT INTO book_categories (book_id, category)
-SELECT id, TRIM(unnest(string_to_array(categories, ',')))
-FROM books
-WHERE categories IS NOT NULL AND categories != '';
+SELECT id, cat
+FROM (
+    SELECT id, TRIM(unnest(string_to_array(categories, ','))) AS cat
+    FROM books
+    WHERE categories IS NOT NULL AND categories != ''
+) sub
+WHERE cat != '';
 
 -- Drop the old CSV column
 ALTER TABLE books DROP COLUMN categories;

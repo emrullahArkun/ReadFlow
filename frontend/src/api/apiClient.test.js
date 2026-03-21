@@ -47,10 +47,7 @@ describe('apiClient', () => {
         });
 
         it('should include X-XSRF-TOKEN header when CSRF cookie is present', async () => {
-            Object.defineProperty(document, 'cookie', {
-                writable: true,
-                value: 'XSRF-TOKEN=test-csrf-token',
-            });
+            document.cookie = 'XSRF-TOKEN=test-csrf-token';
 
             global.fetch.mockResolvedValue({ ok: true });
             await apiClient.request('/api/test');
@@ -61,7 +58,7 @@ describe('apiClient', () => {
                 }),
             }));
 
-            document.cookie = '';
+            document.cookie = 'XSRF-TOKEN=; Max-Age=0; path=/';
         });
 
         it('should throw on fetch failure', async () => {
