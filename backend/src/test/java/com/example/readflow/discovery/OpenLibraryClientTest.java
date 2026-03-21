@@ -215,7 +215,7 @@ class OpenLibraryClientTest {
         mockResponse(Map.of("docs", List.of(doc)));
 
         var result = openLibraryClient.getBooksByQuery("test", 5);
-        assertEquals("1984", result.get(0).publishedDate());
+        assertEquals(1984, result.get(0).publishYear());
     }
 
     @Test

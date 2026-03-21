@@ -1,13 +1,14 @@
 package com.example.readflow.books.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record BookDto(
                 Long id,
                 String isbn,
                 String title,
                 String authorName,
-                String publishDate,
+                Integer publishYear,
                 String coverUrl,
                 Integer pageCount,
                 Integer currentPage,
@@ -16,5 +17,5 @@ public record BookDto(
                 String readingGoalType,
                 Integer readingGoalPages,
                 Integer readingGoalProgress,
-                String categories) {
+                List<String> categories) {
 }

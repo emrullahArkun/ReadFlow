@@ -19,7 +19,7 @@ describe('SearchResultCard', () => {
         authors: ['Test Author'],
         isbn: '9781234567890',
         coverUrl: 'http://test.com/img.jpg',
-        publishedDate: '2023',
+        publishYear: 2023,
         pageCount: 200,
     };
 

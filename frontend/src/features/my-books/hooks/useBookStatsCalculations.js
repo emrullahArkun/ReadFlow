@@ -67,49 +67,14 @@ export const useBookStatsCalculations = (book, sessions) => {
 
     }, [sessions, book]);
 
-    // Goal Progress Calculation
+    // Goal Progress — derived from backend-calculated readingGoalProgress (single source of truth)
     const goalProgress = useMemo(() => {
-        if (!book?.readingGoalType || !book?.readingGoalPages || !sessions) return null;
+        if (!book?.readingGoalType || !book?.readingGoalPages) return null;
 
-        let startDate = new Date();
-        startOfTime(startDate, book.readingGoalType);
-
-        function startOfTime(date, type) {
-            date.setHours(0, 0, 0, 0);
-            if (type === 'WEEKLY') {
-                const day = date.getDay(); // 0=Sun
-                // EU Week starts Monday (1). 
-                const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-                date.setDate(diff);
-            } else {
-                date.setDate(1); // 1st of month
-            }
-        }
-
-        // Sort sessions to handle fallback calculation
-        const sortedSessions = [...sessions].sort((a, b) => new Date(a.endTime) - new Date(b.endTime));
-
-        let currentPagesRead = 0;
-
-        sortedSessions.forEach((session, index) => {
-            const sessionEnd = new Date(session.endTime);
-            if (sessionEnd < startDate) return;
-
-            let added = 0;
-            if (session.pagesRead != null) {
-                added = session.pagesRead;
-            } else {
-                // Fallback
-                const prevEndPage = index > 0 ? sortedSessions[index - 1].endPage : 0;
-                added = (session.endPage || 0) - (prevEndPage || 0);
-            }
-            if (added > 0) currentPagesRead += added;
-        });
-
+        const currentPagesRead = book.readingGoalProgress || 0;
         const isGoalReached = currentPagesRead >= book.readingGoalPages;
         const percent = Math.min(100, Math.round((currentPagesRead / book.readingGoalPages) * 100));
 
-        // Multiplier calculation (e.g. 100/20 = 5x)
         let multiplier = 0;
         if (isGoalReached && book.readingGoalPages > 0) {
             multiplier = Math.floor(currentPagesRead / book.readingGoalPages);
@@ -123,7 +88,7 @@ export const useBookStatsCalculations = (book, sessions) => {
             isGoalReached,
             multiplier
         };
-    }, [book, sessions]);
+    }, [book]);
 
     return { stats, goalProgress };
 };

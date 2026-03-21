@@ -74,7 +74,7 @@ class DiscoveryControllerTest {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getTopAuthors(any(), anyInt())).thenReturn(List.of("Author1"));
                 RecommendedBookDto book = new RecommendedBookDto(
-                                "title", List.of("Author1"), List.of("Cat1"), "2023", 100, "isbn123", "url");
+                                "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getRecommendationsByAuthor(anyString(), any(), anyInt()))
                                 .thenReturn(List.of(book));
 
@@ -100,7 +100,7 @@ class DiscoveryControllerTest {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getTopCategories(any(), anyInt())).thenReturn(List.of("Cat1"));
                 RecommendedBookDto book = new RecommendedBookDto(
-                                "title", List.of("Author1"), List.of("Cat1"), "2023", 100, "isbn123", "url");
+                                "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getRecommendationsByCategory(anyString(), any(), anyInt()))
                                 .thenReturn(List.of(book));
 
@@ -125,7 +125,7 @@ class DiscoveryControllerTest {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getRecentSearches(any(), anyInt())).thenReturn(List.of("Query1"));
                 RecommendedBookDto book = new RecommendedBookDto(
-                                "title", List.of("Author1"), List.of("Cat1"), "2023", 100, "isbn123", "url");
+                                "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getRecommendationsByQuery(anyString(), any(), anyInt()))
                                 .thenReturn(List.of(book));
 
@@ -167,7 +167,7 @@ class DiscoveryControllerTest {
                 when(discoveryService.getRecentSearches(any(), anyInt())).thenReturn(List.of("Query1"));
 
                 RecommendedBookDto book = new RecommendedBookDto(
-                                "title", List.of("Author1"), List.of("Cat1"), "2023", 100, "isbn123", "url");
+                                "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getRecommendationsByAuthor(anyString(), any(), anyInt()))
                                 .thenReturn(List.of(book));
                 when(discoveryService.getRecommendationsByCategory(anyString(), any(), anyInt()))

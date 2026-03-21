@@ -1,8 +1,29 @@
-# React + Vite
+# ReadFlow Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React SPA for the ReadFlow reading tracker, built with Vite.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 18** with React Router
+- **Chakra UI** for component library
+- **React Query** for server state management
+- **Vitest** for unit testing
+- **i18next** for internationalization
+
+## Getting Started
+
+```bash
+npm ci
+cp .env.example .env
+npm run dev
+```
+
+## Scripts
+
+| Command           | Description                  |
+|-------------------|------------------------------|
+| `npm run dev`     | Start dev server             |
+| `npm run build`   | Production build             |
+| `npm run lint`    | Run ESLint                   |
+| `npm run test`    | Run tests                    |
+| `npm run coverage`| Run tests with coverage      |

@@ -67,7 +67,7 @@ class StatsServiceTest {
                         buildSession(LocalDate.now().minusDays(1), 30, 10),
                         buildSession(LocalDate.now(), 50, 14)));
         when(bookRepository.findAllCategoriesByUser(user))
-                .thenReturn(List.of("Thriller, Krimi", "Thriller"));
+                .thenReturn(List.of("Thriller", "Krimi", "Thriller"));
         when(streakService.calculateCurrentStreak(user)).thenReturn(3);
         when(streakService.calculateLongestStreak(user)).thenReturn(7);
 
@@ -223,7 +223,7 @@ class StatsServiceTest {
 
     @Test
     void getOverview_ShouldLimitGenresToEight() {
-        List<String> cats = List.of("A, B, C, D, E, F, G, H, I, J");
+        List<String> cats = List.of("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
         when(bookRepository.countByUser(user)).thenReturn(1);
         when(bookRepository.countCompletedByUser(user)).thenReturn(0);
         when(sessionRepository.sumPagesReadByUser(user)).thenReturn(0L);

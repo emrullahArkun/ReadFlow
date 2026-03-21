@@ -31,7 +31,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         @Query("SELECT b.author FROM Book b WHERE b.user = :user AND b.author IS NOT NULL GROUP BY b.author ORDER BY COUNT(b) DESC")
         List<String> findTopAuthorsByUser(@Param("user") User user);
 
-        @Query("SELECT b.categories FROM Book b WHERE b.user = :user AND b.categories IS NOT NULL")
+        @Query("SELECT c FROM Book b JOIN b.categories c WHERE b.user = :user")
         List<String> findAllCategoriesByUser(@Param("user") User user);
 
         @Query("SELECT b.isbn FROM Book b WHERE b.user = :user")

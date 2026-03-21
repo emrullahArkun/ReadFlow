@@ -101,7 +101,7 @@ describe('useBookStatsCalculations', () => {
         expect(result.current.stats.graphData.length).toBe(0);
     });
 
-    // --- goalProgress ---
+    // --- goalProgress (uses backend-calculated readingGoalProgress) ---
 
     it('should return null goalProgress when no goal set', () => {
         const book = { currentPage: 50, pageCount: 200 };
@@ -109,25 +109,16 @@ describe('useBookStatsCalculations', () => {
         expect(result.current.goalProgress).toBeNull();
     });
 
-    it('should return null goalProgress when sessions is null', () => {
-        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 50, currentPage: 20 };
-        const { result } = renderHook(() => useBookStatsCalculations(book, null));
+    it('should return null goalProgress when readingGoalPages is missing', () => {
+        const book = { readingGoalType: 'WEEKLY', currentPage: 20 };
+        const { result } = renderHook(() => useBookStatsCalculations(book, []));
         expect(result.current.goalProgress).toBeNull();
     });
 
-    it('should calculate WEEKLY goal progress with pagesRead', () => {
-        const now = new Date();
-        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 100, currentPage: 60 };
-        const sessions = [
-            {
-                startTime: now.toISOString(),
-                endTime: now.toISOString(),
-                endPage: 60,
-                pagesRead: 60,
-            },
-        ];
+    it('should calculate WEEKLY goal progress from backend value', () => {
+        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 100, readingGoalProgress: 60 };
 
-        const { result } = renderHook(() => useBookStatsCalculations(book, sessions));
+        const { result } = renderHook(() => useBookStatsCalculations(book, []));
         expect(result.current.goalProgress).not.toBeNull();
         expect(result.current.goalProgress.current).toBe(60);
         expect(result.current.goalProgress.target).toBe(100);
@@ -136,58 +127,28 @@ describe('useBookStatsCalculations', () => {
         expect(result.current.goalProgress.isGoalReached).toBe(false);
     });
 
-    it('should use fallback calculation when pagesRead is null', () => {
-        const now = new Date();
-        const book = { readingGoalType: 'MONTHLY', readingGoalPages: 50, currentPage: 30 };
-        const sessions = [
-            {
-                startTime: now.toISOString(),
-                endTime: now.toISOString(),
-                endPage: 30,
-                pagesRead: null,
-            },
-        ];
+    it('should handle null readingGoalProgress as zero', () => {
+        const book = { readingGoalType: 'MONTHLY', readingGoalPages: 50, readingGoalProgress: null };
 
-        const { result } = renderHook(() => useBookStatsCalculations(book, sessions));
-        expect(result.current.goalProgress.current).toBe(30); // 30 - 0 (prev)
+        const { result } = renderHook(() => useBookStatsCalculations(book, []));
+        expect(result.current.goalProgress.current).toBe(0);
+        expect(result.current.goalProgress.percent).toBe(0);
     });
 
     it('should calculate multiplier when goal is reached', () => {
-        const now = new Date();
-        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 20, currentPage: 100 };
-        const sessions = [
-            { startTime: now.toISOString(), endTime: now.toISOString(), endPage: 100, pagesRead: 100 },
-        ];
+        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 20, readingGoalProgress: 100 };
 
-        const { result } = renderHook(() => useBookStatsCalculations(book, sessions));
+        const { result } = renderHook(() => useBookStatsCalculations(book, []));
         expect(result.current.goalProgress.isGoalReached).toBe(true);
         expect(result.current.goalProgress.multiplier).toBe(5); // 100/20
         expect(result.current.goalProgress.percent).toBe(100);
     });
 
-    it('should ignore sessions before the goal period start', () => {
-        const now = new Date();
-        const oldDate = new Date('2020-01-01T10:00:00Z');
-        const book = { readingGoalType: 'MONTHLY', readingGoalPages: 50, currentPage: 80 };
-        const sessions = [
-            { startTime: oldDate.toISOString(), endTime: oldDate.toISOString(), endPage: 30, pagesRead: 30 },
-            { startTime: now.toISOString(), endTime: now.toISOString(), endPage: 80, pagesRead: 50 },
-        ];
+    it('should cap percent at 100', () => {
+        const book = { readingGoalType: 'MONTHLY', readingGoalPages: 50, readingGoalProgress: 80 };
 
-        const { result } = renderHook(() => useBookStatsCalculations(book, sessions));
-        expect(result.current.goalProgress.current).toBe(50); // only the recent session
-    });
-
-    it('should skip negative added pages', () => {
-        const now = new Date();
-        const book = { readingGoalType: 'WEEKLY', readingGoalPages: 50, currentPage: 20 };
-        const sessions = [
-            { startTime: now.toISOString(), endTime: now.toISOString(), endPage: 10, pagesRead: null },
-            { startTime: now.toISOString(), endTime: now.toISOString(), endPage: 5, pagesRead: null },
-        ];
-
-        const { result } = renderHook(() => useBookStatsCalculations(book, sessions));
-        // First: 10-0=10, Second: 5-10=-5 (skipped)
-        expect(result.current.goalProgress.current).toBe(10);
+        const { result } = renderHook(() => useBookStatsCalculations(book, []));
+        expect(result.current.goalProgress.percent).toBe(100);
+        expect(result.current.goalProgress.isGoalReached).toBe(true);
     });
 });

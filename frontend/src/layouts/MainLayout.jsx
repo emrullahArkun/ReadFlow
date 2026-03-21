@@ -3,10 +3,8 @@ import { useToast } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import Navbar from '../shared/components/Navbar';
 import { useReadingSessionContext } from '../context/ReadingSessionContext';
-import { usePinstripeBackground } from '../shared/hooks/usePinstripeBackground';
 
 const MainLayout = ({ fullWidth = false }) => {
-    usePinstripeBackground();
     const { t } = useTranslation();
     const location = useLocation();
     const isSessionPage = location.pathname.match(/\/books\/\d+\/session/);
@@ -32,7 +30,19 @@ const MainLayout = ({ fullWidth = false }) => {
     const showSessionAlert = activeSession && !isSessionPage && activeSession.bookId;
 
     return (
-        <>
+        <div
+            style={{
+                minHeight: '100vh',
+                backgroundColor: 'var(--accent-800)',
+                backgroundImage: `repeating-linear-gradient(
+                    to right,
+                    transparent,
+                    transparent 39px,
+                    rgba(0, 0, 0, 0.1) 40px,
+                    rgba(0, 0, 0, 0.1) 41px
+                )`,
+            }}
+        >
             <div style={{ position: 'relative' }}>
                 {showSessionAlert && (
                     <div
@@ -89,7 +99,7 @@ const MainLayout = ({ fullWidth = false }) => {
             >
                 <Outlet />
             </div>
-        </>
+        </div>
     );
 };
 

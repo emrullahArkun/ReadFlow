@@ -41,14 +41,14 @@ export const useAddBookToLibrary = () => {
             const coverUrl = book.coverUrl || getOpenLibraryCoverUrl(isbn);
 
             const categories = Array.isArray(book.categories)
-                ? book.categories.join(', ')
-                : (book.categories || null);
+                ? book.categories
+                : (book.categories ? [book.categories] : []);
 
             const newBook = {
                 title: book.title,
                 isbn: isbn,
                 authorName: Array.isArray(book.authors) ? book.authors[0] : (book.authors || 'Unknown Author'),
-                publishDate: book.publishedDate || 'Unknown Date',
+                publishYear: book.publishYear || null,
                 coverUrl: coverUrl,
                 pageCount: book.pageCount || 0,
                 categories: categories,

@@ -6,7 +6,7 @@ public record RecommendedBookDto(
         String title,
         List<String> authors,
         List<String> categories,
-        String publishedDate,
+        Integer publishYear,
         Integer pageCount,
         String isbn,
         String coverUrl) {

@@ -1,13 +1,16 @@
 package com.example.readflow.books.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 public record CreateBookRequest(
         @NotBlank String isbn,
         @NotBlank String title,
         String authorName,
-        String publishDate,
+        @Min(1900) Integer publishYear,
         String coverUrl,
         Integer pageCount,
-        String categories) {
+        List<@NotBlank String> categories) {
 }

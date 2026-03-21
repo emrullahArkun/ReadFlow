@@ -84,7 +84,7 @@ class ReadingGoalProgressCalculatorTest {
         book.setId(1L);
         book.setIsbn("isbn123");
         book.setTitle("Test Book");
-        book.setPublishDate("2023");
+        book.setPublishYear(2023);
         book.setPageCount(300);
         book.setCurrentPage(50);
         return book;

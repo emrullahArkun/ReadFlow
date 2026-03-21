@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class Book {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String publishDate;
+    private Integer publishYear;
     private String coverUrl;
 
     private Integer pageCount;
@@ -54,8 +55,10 @@ public class Book {
     private ReadingGoalType readingGoalType;
     private Integer readingGoalPages;
 
-    @Column(length = 500)
-    private String categories;
+    @ElementCollection
+    @CollectionTable(name = "book_categories", joinColumns = @JoinColumn(name = "book_id"))
+    @Column(name = "category")
+    private List<String> categories = new ArrayList<>();
 
     // Deleting a book cascades to all its reading sessions
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -79,7 +82,7 @@ public class Book {
             currentPage = 0;
         }
         if (startDate == null) {
-            startDate = LocalDate.now();
+            startDate = LocalDate.now(ZoneOffset.UTC);
         }
         if (completed == null) {
             completed = false;

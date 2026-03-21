@@ -79,7 +79,6 @@ const MyBookCard = ({
                     h="100%"
                     objectFit="cover"
                     borderRadius="10px"
-                    fallbackIconSize={24}
                 />
 
                 {/* Finished Badge */}

@@ -46,6 +46,21 @@ describe('apiClient', () => {
             }));
         });
 
+        it('should include X-XSRF-TOKEN header when CSRF cookie is present', async () => {
+            document.cookie = 'XSRF-TOKEN=test-csrf-token';
+
+            global.fetch.mockResolvedValue({ ok: true });
+            await apiClient.request('/api/test');
+
+            expect(global.fetch).toHaveBeenCalledWith('/api/test', expect.objectContaining({
+                headers: expect.objectContaining({
+                    'X-XSRF-TOKEN': 'test-csrf-token',
+                }),
+            }));
+
+            document.cookie = 'XSRF-TOKEN=; Max-Age=0; path=/';
+        });
+
         it('should throw on fetch failure', async () => {
             const error = new Error('Network error');
             global.fetch.mockRejectedValue(error);

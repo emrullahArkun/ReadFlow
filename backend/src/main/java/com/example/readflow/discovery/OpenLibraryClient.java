@@ -132,9 +132,8 @@ public class OpenLibraryClient {
             subjects = subjects.subList(0, 3);
         }
 
-        Integer firstPublishYear = doc.containsKey("first_publish_year")
+        Integer publishYear = doc.containsKey("first_publish_year")
                 ? ((Number) doc.get("first_publish_year")).intValue() : null;
-        String publishedDate = firstPublishYear != null ? String.valueOf(firstPublishYear) : null;
 
         Integer pageCount = doc.containsKey("number_of_pages_median")
                 ? ((Number) doc.get("number_of_pages_median")).intValue() : null;
@@ -158,7 +157,7 @@ public class OpenLibraryClient {
                 ? String.format(COVER_URL_TEMPLATE, coverId.longValue())
                 : null;
 
-        return new RecommendedBookDto(title, authors, subjects, publishedDate, pageCount, isbn, coverUrl);
+        return new RecommendedBookDto(title, authors, subjects, publishYear, pageCount, isbn, coverUrl);
     }
 
     private String encodeParam(String param) {

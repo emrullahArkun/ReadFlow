@@ -22,7 +22,7 @@ public class ReadingGoalProgressCalculator {
             return null;
         }
 
-        LocalDate now = LocalDate.now();
+        LocalDate now = LocalDate.now(ZoneOffset.UTC);
         LocalDateTime startOfPeriod;
 
         if (ReadingGoalType.WEEKLY == book.getReadingGoalType()) {

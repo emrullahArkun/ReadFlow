@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -125,14 +126,14 @@ class BookTest {
     void allArgsConstructor_ShouldSetFields() {
         User user = new User();
         Book book = new Book(1L, "isbn", "title", "author", user,
-                "2023", "url", 300, 50, LocalDate.now(), false,
-                ReadingGoalType.WEEKLY, 100, "Fiction", new ArrayList<>());
+                2023, "url", 300, 50, LocalDate.now(), false,
+                ReadingGoalType.WEEKLY, 100, List.of("Fiction"), new ArrayList<>());
 
         assertEquals(1L, book.getId());
         assertEquals("isbn", book.getIsbn());
         assertEquals("author", book.getAuthor());
         assertEquals(user, book.getUser());
         assertEquals(ReadingGoalType.WEEKLY, book.getReadingGoalType());
-        assertEquals("Fiction", book.getCategories());
+        assertEquals(List.of("Fiction"), book.getCategories());
     }
 }

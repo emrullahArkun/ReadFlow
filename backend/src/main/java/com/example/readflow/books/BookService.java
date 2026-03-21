@@ -90,6 +90,12 @@ public class BookService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found"));
 
         book.setCompleted(completed);
+
+        // Keep currentPage consistent with completed status
+        if (completed && book.getPageCount() != null) {
+            book.setCurrentPage(book.getPageCount());
+        }
+
         return bookRepository.save(book);
     }
 

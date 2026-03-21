@@ -124,15 +124,11 @@ public class StatsService {
     }
 
     private List<GenreStatDto> buildGenreDistribution(User user) {
-        List<String> rawCategories = bookRepository.findAllCategoriesByUser(user);
+        List<String> categories = bookRepository.findAllCategoriesByUser(user);
         Map<String, Integer> counts = new HashMap<>();
-        for (String cat : rawCategories) {
-            if (cat == null) continue;
-            for (String part : cat.split(",")) {
-                String trimmed = part.trim();
-                if (!trimmed.isEmpty()) {
-                    counts.merge(trimmed, 1, Integer::sum);
-                }
+        for (String cat : categories) {
+            if (cat != null && !cat.isEmpty()) {
+                counts.merge(cat, 1, Integer::sum);
             }
         }
         return counts.entrySet().stream()

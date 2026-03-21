@@ -96,9 +96,9 @@ class DiscoveryServiceTest {
     // --- getTopCategories ---
 
     @Test
-    void getTopCategories_ShouldParseAndSort() {
+    void getTopCategories_ShouldCountAndSort() {
         when(bookRepository.findAllCategoriesByUser(user))
-                .thenReturn(List.of("Thriller, Krimi", "Thriller", "Sci-Fi"));
+                .thenReturn(List.of("Thriller", "Krimi", "Thriller", "Sci-Fi"));
 
         List<String> result = discoveryService.getTopCategories(user, 2);
         assertEquals(2, result.size());

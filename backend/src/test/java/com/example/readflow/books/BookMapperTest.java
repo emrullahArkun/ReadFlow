@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.mockito.Mock;
@@ -35,7 +37,7 @@ class BookMapperTest {
     void toDto_ShouldMapAllFields() {
         Book book = createBook();
         book.setAuthor("John Doe");
-        book.setCategories("Fiction, Thriller");
+        book.setCategories(List.of("Fiction", "Thriller"));
 
         when(calculator.calculateProgress(any(Book.class))).thenReturn(25);
 
@@ -45,11 +47,11 @@ class BookMapperTest {
         assertEquals("isbn123", dto.isbn());
         assertEquals("Test Book", dto.title());
         assertEquals("John Doe", dto.authorName());
-        assertEquals("2023", dto.publishDate());
+        assertEquals(2023, dto.publishYear());
         assertEquals("http://cover.jpg", dto.coverUrl());
         assertEquals(300, dto.pageCount());
         assertEquals(50, dto.currentPage());
-        assertEquals("Fiction, Thriller", dto.categories());
+        assertEquals(List.of("Fiction", "Thriller"), dto.categories());
         assertEquals(25, dto.readingGoalProgress());
     }
 
@@ -67,7 +69,7 @@ class BookMapperTest {
         assertEquals(1L, dto.id());
         assertNull(dto.authorName());
         assertNull(dto.coverUrl());
-        assertNull(dto.categories());
+        assertTrue(dto.categories().isEmpty());
         assertNull(dto.readingGoalType());
         assertNull(dto.readingGoalProgress());
     }
@@ -77,17 +79,17 @@ class BookMapperTest {
     @Test
     void toEntity_ShouldMapRequestToBook() {
         CreateBookRequest request = new CreateBookRequest(
-                "isbn123", "Test Book", "John Doe", "2023", "http://cover.jpg", 300, "Thriller");
+                "isbn123", "Test Book", "John Doe", 2023, "http://cover.jpg", 300, List.of("Thriller"));
 
         Book book = mapper.toEntity(request);
 
         assertEquals("isbn123", book.getIsbn());
         assertEquals("Test Book", book.getTitle());
         assertEquals("John Doe", book.getAuthor());
-        assertEquals("2023", book.getPublishDate());
+        assertEquals(2023, book.getPublishYear());
         assertEquals("http://cover.jpg", book.getCoverUrl());
         assertEquals(300, book.getPageCount());
-        assertEquals("Thriller", book.getCategories());
+        assertEquals(List.of("Thriller"), book.getCategories());
         // Ignored fields
         assertNull(book.getId());
         assertNull(book.getCurrentPage());
@@ -101,7 +103,7 @@ class BookMapperTest {
         book.setId(1L);
         book.setIsbn("isbn123");
         book.setTitle("Test Book");
-        book.setPublishDate("2023");
+        book.setPublishYear(2023);
         book.setCoverUrl("http://cover.jpg");
         book.setPageCount(300);
         book.setCurrentPage(50);

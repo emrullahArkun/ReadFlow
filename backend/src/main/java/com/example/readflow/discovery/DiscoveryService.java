@@ -60,12 +60,10 @@ public class DiscoveryService {
     }
 
     public List<String> getTopCategories(User user, int limit) {
-        List<String> allCategoriesRaw = bookRepository.findAllCategoriesByUser(user);
+        List<String> allCategories = bookRepository.findAllCategoriesByUser(user);
 
-        Map<String, Long> categoryCount = allCategoriesRaw.stream()
-                .flatMap(cats -> Arrays.stream(cats.split(",")))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
+        Map<String, Long> categoryCount = allCategories.stream()
+                .filter(s -> s != null && !s.isEmpty())
                 .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
 
         return categoryCount.entrySet().stream()

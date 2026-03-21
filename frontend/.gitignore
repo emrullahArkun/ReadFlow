@@ -26,6 +26,9 @@ dist-ssr
 # Env files
 .env
 .env.*
+!.env.example
 playwright-report/
 test-results/
 coverage/
+test-results.txt
+coverage_report.txt
