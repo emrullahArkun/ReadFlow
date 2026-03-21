@@ -97,7 +97,7 @@ class BookControllerTest {
 
                 when(bookService.findAllByUser(any(), any(Pageable.class))).thenReturn(page);
                 when(bookMapper.toDto(any(Book.class))).thenReturn(
-                                new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 0, null, false, null,
+                                new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
 
                 mockMvc.perform(get("/api/books")
@@ -122,7 +122,7 @@ class BookControllerTest {
                 Book book = new Book();
                 when(bookService.findByIdAndUser(eq(1L), any())).thenReturn(Optional.of(book));
                 when(bookMapper.toDto(book)).thenReturn(
-                                new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 0, null, false, null,
+                                new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
 
                 mockMvc.perform(get("/api/books/1"))
@@ -132,11 +132,11 @@ class BookControllerTest {
 
         @Test
         void createBook_ShouldReturnCreatedBook() throws Exception {
-                CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", "date", "url", 100, "cat");
+                CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
                 Book book = new Book();
                 when(bookService.createBook(any(), any())).thenReturn(book);
                 when(bookMapper.toDto(book)).thenReturn(
-                                new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 0, null, false, null,
+                                new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
 
                 mockMvc.perform(post("/api/books")
@@ -151,7 +151,7 @@ class BookControllerTest {
                 Book book = new Book();
                 when(bookService.updateBookProgress(eq(1L), eq(50), any())).thenReturn(book);
                 when(bookMapper.toDto(book))
-                                .thenReturn(new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 50, null,
+                                .thenReturn(new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 50, null,
                                                 false, null, null, null, null));
 
                 mockMvc.perform(patch("/api/books/1/progress")
@@ -166,7 +166,7 @@ class BookControllerTest {
                 Book book = new Book();
                 when(bookService.updateBookStatus(eq(1L), eq(true), any())).thenReturn(book);
                 when(bookMapper.toDto(book)).thenReturn(
-                                new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 0, null, true, null,
+                                new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, true, null,
                                                 null, null, null));
 
                 mockMvc.perform(patch("/api/books/1/status")
@@ -182,7 +182,7 @@ class BookControllerTest {
                 when(bookService.updateReadingGoal(eq(1L), eq(ReadingGoalType.WEEKLY), eq(100), any()))
                                 .thenReturn(book);
                 when(bookMapper.toDto(book))
-                                .thenReturn(new BookDto(1L, "isbn", "title", "author", "date", "url", 100, 0, null,
+                                .thenReturn(new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null,
                                                 false, "WEEKLY", 100, null, null));
 
                 mockMvc.perform(patch("/api/books/1/goal")

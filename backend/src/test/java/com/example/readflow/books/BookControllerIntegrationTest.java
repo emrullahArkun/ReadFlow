@@ -56,7 +56,7 @@ public class BookControllerIntegrationTest {
         @Test
         void shouldCreateBook() throws Exception {
                 CreateBookRequest request = new CreateBookRequest(
-                                "978-1234567890", "Harry Potter", "J.K. Rowling", "2001", "http://cover.url",
+                                "978-1234567890", "Harry Potter", "J.K. Rowling", 2001, "http://cover.url",
                                 250, null);
 
                 mockMvc.perform(post("/api/books")

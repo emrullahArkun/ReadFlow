@@ -71,7 +71,7 @@ class BookServiceTest {
 
     @Test
     void createBook_ShouldSaveBook() {
-        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", "2023", "url", 100, "cat");
+        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         Book book = new Book();
         book.setAuthor("author");
         when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(false);
@@ -84,7 +84,7 @@ class BookServiceTest {
 
     @Test
     void createBook_ShouldThrow_WhenDuplicateIsbn() {
-        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", "2023", "url", 100, "cat");
+        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> bookService.createBook(request, user));
