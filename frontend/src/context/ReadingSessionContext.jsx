@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { sessionsApi } from '../features/reading-sessions/api/sessionsApi';
 import { useControllerLock } from '../shared/hooks/useControllerLock';
 import { useSessionTimer } from '../shared/hooks/useSessionTimer';
@@ -9,6 +10,7 @@ const ReadingSessionContext = createContext(null);
 
 export const ReadingSessionProvider = ({ children }) => {
     const { token } = useAuth();
+    const queryClient = useQueryClient();
     const [activeSession, setActiveSession] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -60,11 +62,17 @@ export const ReadingSessionProvider = ({ children }) => {
             await sessionsApi.stop(endTime, endPage);
             setActiveSession(null);
             broadcastUpdate();
+            
+            // Invalidate caches to reflect the newly read pages immediately
+            queryClient.invalidateQueries({ queryKey: ['myBooks'] });
+            queryClient.invalidateQueries({ queryKey: ['book'] });
+            queryClient.invalidateQueries({ queryKey: ['stats'] });
+            queryClient.invalidateQueries({ queryKey: ['goals'] });
             return true;
         } catch {
             return false;
         }
-    }, [broadcastUpdate]);
+    }, [broadcastUpdate, queryClient]);
 
     const pauseSession = useCallback(async () => {
         if (!isController) return;

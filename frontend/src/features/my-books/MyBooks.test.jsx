@@ -32,13 +32,13 @@ const createTestWrapper = () => {
 
     return ({ children }) => (
         <AuthContext.Provider value={{ token: 'fake-token', user: { email: 'test@example.com' } }}>
-            <ReadingSessionProvider>
-                <QueryClientProvider client={queryClient}>
+            <QueryClientProvider client={queryClient}>
+                <ReadingSessionProvider>
                     <MemoryRouter>
                         {children}
                     </MemoryRouter>
-                </QueryClientProvider>
-            </ReadingSessionProvider>
+                </ReadingSessionProvider>
+            </QueryClientProvider>
         </AuthContext.Provider>
     );
 };

@@ -134,6 +134,34 @@ class ReadingSessionControllerIntegrationTest {
         }
 
         @Test
+        void testStopSession_WithEndTimeAndEndPage_ShouldPersistValues() throws Exception {
+                testBook.setPageCount(200);
+                testBook = bookRepository.save(testBook);
+
+                mockMvc.perform(post("/api/sessions/start")
+                                .with(jwtForUser()).with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(
+                                                new com.example.readflow.sessions.dto.StartSessionRequest(
+                                                                testBook.getId()))))
+                                .andExpect(status().isCreated());
+
+                var stopRequest = new com.example.readflow.sessions.dto.StopSessionRequest(Instant.now(), 50);
+                mockMvc.perform(post("/api/sessions/stop")
+                                .with(jwtForUser()).with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(stopRequest)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.status", is("COMPLETED")))
+                                .andExpect(jsonPath("$.endTime", notNullValue()))
+                                .andExpect(jsonPath("$.endPage", is(50)));
+
+                Book updatedBook = bookRepository.findById(testBook.getId()).orElseThrow();
+                assertEquals(50, updatedBook.getCurrentPage());
+                assertEquals(false, updatedBook.getCompleted());
+        }
+
+        @Test
         void testGetActiveSession_Found() throws Exception {
                 mockMvc.perform(post("/api/sessions/start")
                                 .with(jwtForUser()).with(csrf())

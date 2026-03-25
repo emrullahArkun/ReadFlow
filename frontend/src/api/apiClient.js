@@ -10,9 +10,17 @@ function getCsrfToken() {
 
 const MUTATION_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
+const getUserTimezone = () => {
+    try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+        return 'UTC';
+    }
+};
+
 const apiClient = {
     async request(url, options = {}) {
-        const headers = { ...options.headers };
+        const headers = { 'X-Timezone': getUserTimezone(), ...options.headers };
 
         const method = (options.method || 'GET').toUpperCase();
         if (MUTATION_METHODS.includes(method)) {

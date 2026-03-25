@@ -2,6 +2,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useReadingSessionContext } from '../../../context/ReadingSessionContext';
 import { ReadingSessionProvider } from '../../../context/ReadingSessionContext';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock AuthContext
 vi.mock('../../../context/AuthContext', () => ({
@@ -31,8 +32,11 @@ describe('useReadingSessionContext', () => {
             })
         });
 
+        const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
         const wrapper = ({ children }) => (
-            <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            <QueryClientProvider client={queryClient}>
+                <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            </QueryClientProvider>
         );
 
         const { result } = renderHook(() => useReadingSessionContext(), { wrapper });
@@ -53,8 +57,11 @@ describe('useReadingSessionContext', () => {
             status: 204
         });
 
+        const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
         const wrapper = ({ children }) => (
-            <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            <QueryClientProvider client={queryClient}>
+                <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            </QueryClientProvider>
         );
 
         const { result } = renderHook(() => useReadingSessionContext(), { wrapper });
@@ -68,8 +75,11 @@ describe('useReadingSessionContext', () => {
         // Mock initial fetch as empty
         global.fetch.mockResolvedValueOnce({ ok: true, status: 204 });
 
+        const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
         const wrapper = ({ children }) => (
-            <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            <QueryClientProvider client={queryClient}>
+                <ReadingSessionProvider>{children}</ReadingSessionProvider>
+            </QueryClientProvider>
         );
 
         const { result } = renderHook(() => useReadingSessionContext(), { wrapper });

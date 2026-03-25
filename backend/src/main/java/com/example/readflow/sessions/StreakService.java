@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,9 +19,19 @@ public class StreakService {
     public record StreakInfo(int current, int longest) {}
 
     public StreakInfo calculateStreaks(User user) {
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
-        List<LocalDate> readingDays = sessionRepository.findAllDistinctReadingDays(
-                user, SessionStatus.COMPLETED);
+        return calculateStreaks(user, ZoneOffset.UTC);
+    }
+
+    public StreakInfo calculateStreaks(User user, ZoneId zoneId) {
+        LocalDate today = LocalDate.now(zoneId);
+
+        List<LocalDate> readingDays = sessionRepository
+                .findAllCompletedEndTimes(user, SessionStatus.COMPLETED)
+                .stream()
+                .map(instant -> instant.atZone(zoneId).toLocalDate())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
 
         if (readingDays.isEmpty()) return new StreakInfo(0, 0);
 

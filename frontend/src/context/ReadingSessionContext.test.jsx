@@ -1,6 +1,7 @@
 import { render, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReadingSessionProvider, useReadingSessionContext } from './ReadingSessionContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Mock dependencies
 vi.mock('./AuthContext', () => ({
@@ -66,9 +67,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -83,9 +86,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -106,9 +111,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -124,9 +131,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -146,9 +155,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -169,9 +180,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -190,9 +203,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -213,9 +228,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -233,9 +250,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -252,9 +271,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -275,9 +296,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -294,9 +317,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -313,9 +338,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -340,9 +367,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -361,9 +390,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -385,9 +416,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -402,9 +435,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -431,9 +466,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -456,9 +493,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -482,9 +521,11 @@ describe('ReadingSessionContext', () => {
 
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={() => { }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -503,9 +544,11 @@ describe('ReadingSessionContext', () => {
 
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={() => { }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -532,9 +575,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 
@@ -560,9 +605,11 @@ describe('ReadingSessionContext', () => {
         let captured;
         await act(async () => {
             render(
-                <ReadingSessionProvider>
+                <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+                    <ReadingSessionProvider>
                     <TestConsumer onRender={(ctx) => { captured = ctx; }} />
                 </ReadingSessionProvider>
+                </QueryClientProvider>
             );
         });
 

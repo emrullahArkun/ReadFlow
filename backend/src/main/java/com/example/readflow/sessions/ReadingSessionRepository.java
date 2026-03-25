@@ -37,6 +37,11 @@ public interface ReadingSessionRepository extends JpaRepository<ReadingSession, 
     List<LocalDate> findAllDistinctReadingDays(@Param("user") User user,
             @Param("status") SessionStatus status);
 
+    @Query("SELECT s.endTime FROM ReadingSession s " +
+           "WHERE s.user = :user AND s.status = :status AND s.endTime IS NOT NULL")
+    List<Instant> findAllCompletedEndTimes(@Param("user") User user,
+            @Param("status") SessionStatus status);
+
     @Query("SELECT COALESCE(SUM(s.pagesRead), 0) FROM ReadingSession s " +
            "WHERE s.user = :user AND s.status = :status")
     long sumPagesReadByUser(@Param("user") User user, @Param("status") SessionStatus status);
