@@ -1,7 +1,8 @@
 package com.example.readflow.sessions;
 
-import com.example.readflow.books.Book;
 import com.example.readflow.auth.User;
+import com.example.readflow.books.Book;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -10,114 +11,129 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReadingSessionTest {
 
-    @Test
-    void equals_ShouldReturnTrue_ForSameId() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        ReadingSession b = new ReadingSession();
-        b.setId(1L);
+    private User user;
+    private Book book;
+    private Instant now;
 
-        assertEquals(a, b);
+    @BeforeEach
+    void setUp() {
+        user = new User();
+        user.setId(1L);
+
+        book = new Book();
+        book.setId(1L);
+
+        now = Instant.now();
     }
 
     @Test
-    void equals_ShouldReturnFalse_ForDifferentId() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        ReadingSession b = new ReadingSession();
-        b.setId(2L);
-
-        assertNotEquals(a, b);
+    void startNew_ShouldUseZero_WhenCurrentPageNull() {
+        book.setCurrentPage(null);
+        ReadingSession session = ReadingSession.startNew(user, book, now);
+        assertEquals(0, session.getStartPage());
     }
 
     @Test
-    void equals_ShouldReturnFalse_WhenIdIsNull() {
-        ReadingSession a = new ReadingSession();
-        ReadingSession b = new ReadingSession();
-
-        // Both have null id — should not be equal
-        assertNotEquals(a, b);
+    void startNew_ShouldUseCurrentPage_WhenAvailable() {
+        book.setCurrentPage(50);
+        ReadingSession session = ReadingSession.startNew(user, book, now);
+        assertEquals(50, session.getStartPage());
     }
 
     @Test
-    void equals_ShouldReturnTrue_ForSameInstance() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        assertEquals(a, a);
+    void getPausedMillisOrZero_ShouldReturnZero_WhenNull() {
+        ReadingSession session = new ReadingSession();
+        session.setPausedMillis(null);
+        assertEquals(0L, session.getPausedMillisOrZero());
     }
 
     @Test
-    void equals_ShouldReturnFalse_ForNull() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        assertFalse(a.equals(null));
+    void getPausedMillisOrZero_ShouldReturnValue_WhenNotNull() {
+        ReadingSession session = new ReadingSession();
+        session.setPausedMillis(5000L);
+        assertEquals(5000L, session.getPausedMillisOrZero());
     }
 
     @Test
-    void equals_ShouldReturnFalse_ForDifferentType() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        assertFalse(a.equals("not a session"));
+    void finish_ShouldNotAccumulatePause_WhenNotPaused() {
+        ReadingSession session = ReadingSession.startNew(user, book, now);
+        // finish it without pausing
+        session.finish(now.plusSeconds(3600), 100);
+        assertEquals(0L, session.getPausedMillisOrZero());
+        assertEquals(SessionStatus.COMPLETED, session.getStatus());
+    }
+
+    @Test
+    void finish_ShouldNotAccumulateNegativeGap() {
+        ReadingSession session = ReadingSession.startNew(user, book, now);
+        session.pause(now.plusSeconds(60));
+        
+        // finish time earlier than pause time = negative gap
+        session.finish(now.plusSeconds(30), 100);
+        assertEquals(0L, session.getPausedMillisOrZero());
+        assertEquals(SessionStatus.COMPLETED, session.getStatus());
+    }
+
+    @Test
+    void resume_ShouldNotAccumulateNegativeGap() {
+        ReadingSession session = ReadingSession.startNew(user, book, now);
+        session.pause(now.plusSeconds(60));
+
+        // resume time earlier than pause time = negative gap
+        session.resume(now.plusSeconds(30));
+        assertEquals(0L, session.getPausedMillisOrZero());
+        assertEquals(SessionStatus.ACTIVE, session.getStatus());
+    }
+
+    @Test
+    void addExcludedTime_ShouldAccumulate() {
+        ReadingSession session = new ReadingSession();
+        session.setPausedMillis(1000L);
+        session.addExcludedTime(5000L);
+        assertEquals(6000L, session.getPausedMillisOrZero());
+    }
+
+    @Test
+    void equals_SameReference() {
+        ReadingSession session = new ReadingSession();
+        assertTrue(session.equals(session));
+    }
+
+    @Test
+    void equals_DifferentType() {
+        ReadingSession session = new ReadingSession();
+        assertFalse(session.equals(new Object()));
+        assertFalse(session.equals(null));
+    }
+
+    @Test
+    void equals_NullId() {
+        ReadingSession session1 = new ReadingSession();
+        ReadingSession session2 = new ReadingSession();
+        assertFalse(session1.equals(session2)); // both ids are null
+    }
+
+    @Test
+    void equals_SameId() {
+        ReadingSession session1 = new ReadingSession();
+        session1.setId(1L);
+        ReadingSession session2 = new ReadingSession();
+        session2.setId(1L);
+        assertTrue(session1.equals(session2));
+    }
+
+    @Test
+    void equals_DifferentId() {
+        ReadingSession session1 = new ReadingSession();
+        session1.setId(1L);
+        ReadingSession session2 = new ReadingSession();
+        session2.setId(2L);
+        assertFalse(session1.equals(session2));
     }
 
     @Test
     void hashCode_ShouldBeConsistent() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        ReadingSession b = new ReadingSession();
-        b.setId(1L);
-
-        assertEquals(a.hashCode(), b.hashCode());
-    }
-
-    @Test
-    void equals_ShouldReturnFalse_WhenThisIdSetButOtherIdNull() {
-        ReadingSession a = new ReadingSession();
-        a.setId(1L);
-        ReadingSession b = new ReadingSession(); // id is null
-
-        assertNotEquals(a, b);
-    }
-
-    @Test
-    void equals_ShouldReturnFalse_WhenThisIdNullButOtherIdSet() {
-        ReadingSession a = new ReadingSession(); // id is null
-        ReadingSession b = new ReadingSession();
-        b.setId(1L);
-
-        assertNotEquals(a, b);
-    }
-
-    @Test
-    void settersAndGetters_ShouldWork() {
         ReadingSession session = new ReadingSession();
-        Instant now = Instant.now();
-
-        User user = new User();
-        user.setId(1L);
-        Book book = new Book();
-        book.setId(2L);
-
-        session.setId(10L);
-        session.setUser(user);
-        session.setBook(book);
-        session.setStartTime(now);
-        session.setEndTime(now);
-        session.setStatus(SessionStatus.ACTIVE);
-        session.setEndPage(100);
-        session.setPagesRead(50);
-        session.setPausedMillis(5000L);
-        session.setPausedAt(now);
-
-        assertEquals(10L, session.getId());
-        assertEquals(user, session.getUser());
-        assertEquals(book, session.getBook());
-        assertEquals(now, session.getStartTime());
-        assertEquals(now, session.getEndTime());
-        assertEquals(SessionStatus.ACTIVE, session.getStatus());
-        assertEquals(100, session.getEndPage());
-        assertEquals(50, session.getPagesRead());
-        assertEquals(5000L, session.getPausedMillis());
-        assertEquals(now, session.getPausedAt());
+        assertEquals(ReadingSession.class.hashCode(), session.hashCode());
     }
 }

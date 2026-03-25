@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.PageRequest;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +88,8 @@ class DiscoveryServiceTest {
 
     @Test
     void getTopAuthors_ShouldReturnLimitedList() {
-        when(bookRepository.findTopAuthorsByUser(user)).thenReturn(List.of("A", "B", "C", "D"));
+        when(bookRepository.findTopAuthorsByUser(user, PageRequest.of(0, 2)))
+                .thenReturn(List.of("A", "B"));
 
         List<String> result = discoveryService.getTopAuthors(user, 2);
         assertEquals(2, result.size());
@@ -96,13 +99,13 @@ class DiscoveryServiceTest {
     // --- getTopCategories ---
 
     @Test
-    void getTopCategories_ShouldCountAndSort() {
-        when(bookRepository.findAllCategoriesByUser(user))
-                .thenReturn(List.of("Thriller", "Krimi", "Thriller", "Sci-Fi"));
+    void getTopCategories_ShouldReturnLimitedList() {
+        when(bookRepository.findTopCategoriesByUser(user, PageRequest.of(0, 2)))
+                .thenReturn(List.of("Thriller", "Krimi"));
 
         List<String> result = discoveryService.getTopCategories(user, 2);
         assertEquals(2, result.size());
-        assertEquals("Thriller", result.get(0)); // count 2
+        assertEquals("Thriller", result.get(0));
     }
 
     // --- getRecentSearches ---
@@ -180,5 +183,104 @@ class DiscoveryServiceTest {
         Set<String> result = discoveryService.getOwnedIsbns(user);
         assertEquals(2, result.size());
         assertTrue(result.contains("isbn1"));
+    }
+
+    // --- Sections ---
+
+    @Test
+    void getAuthorSection_ShouldReturnEmpty_WhenNoAuthors() {
+        when(bookRepository.findTopAuthorsByUser(eq(user), any())).thenReturn(List.of());
+
+        var result = discoveryService.getAuthorSection(user, Set.of());
+        assertTrue(result.authors().isEmpty());
+        assertTrue(result.books().isEmpty());
+    }
+
+    @Test
+    void getAuthorSection_ShouldReturnBooks_WhenAuthorsExist() {
+        when(bookRepository.findTopAuthorsByUser(eq(user), any())).thenReturn(List.of("Author1"));
+        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        when(openLibraryClient.getBooksByAuthor("Author1", 10)).thenReturn(List.of(book));
+
+        var result = discoveryService.getAuthorSection(user, Set.of());
+        assertEquals(List.of("Author1"), result.authors());
+        assertEquals(1, result.books().size());
+    }
+
+    @Test
+    void getCategorySection_ShouldReturnEmpty_WhenNoCategories() {
+        when(bookRepository.findTopCategoriesByUser(eq(user), any())).thenReturn(List.of());
+
+        var result = discoveryService.getCategorySection(user, Set.of());
+        assertTrue(result.categories().isEmpty());
+        assertTrue(result.books().isEmpty());
+    }
+
+    @Test
+    void getCategorySection_ShouldReturnBooks_WhenCategoriesExist() {
+        when(bookRepository.findTopCategoriesByUser(eq(user), any())).thenReturn(List.of("Cat1"));
+        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        when(openLibraryClient.getBooksByCategory("Cat1", 10)).thenReturn(List.of(book));
+
+        var result = discoveryService.getCategorySection(user, Set.of());
+        assertEquals(List.of("Cat1"), result.categories());
+        assertEquals(1, result.books().size());
+    }
+
+    @Test
+    void getSearchSection_ShouldReturnEmpty_WhenNoSearches() {
+        when(searchHistoryRepository.findDistinctQueriesByUserOrderByTimestampDesc(user)).thenReturn(List.of());
+
+        var result = discoveryService.getSearchSection(user, Set.of());
+        assertTrue(result.queries().isEmpty());
+        assertTrue(result.books().isEmpty());
+    }
+
+    @Test
+    void getSearchSection_ShouldReturnBooks_WhenSearchesExist() {
+        when(searchHistoryRepository.findDistinctQueriesByUserOrderByTimestampDesc(user)).thenReturn(List.of("query1"));
+        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        when(openLibraryClient.getBooksByQuery("query1", 10)).thenReturn(List.of(book));
+
+        var result = discoveryService.getSearchSection(user, Set.of());
+        assertEquals(List.of("query1"), result.queries());
+        assertEquals(1, result.books().size());
+    }
+
+    @Test
+    void getDiscoveryData_ShouldHandleEmptyData() {
+        when(bookRepository.findAllIsbnsByUser(user)).thenReturn(List.of());
+        when(bookRepository.findTopAuthorsByUser(eq(user), any())).thenReturn(List.of());
+        when(bookRepository.findTopCategoriesByUser(eq(user), any())).thenReturn(List.of());
+        when(searchHistoryRepository.findDistinctQueriesByUserOrderByTimestampDesc(user)).thenReturn(List.of());
+
+        var result = discoveryService.getDiscoveryData(user);
+        assertTrue(result.byAuthor().authors().isEmpty());
+        assertTrue(result.byAuthor().books().isEmpty());
+        assertTrue(result.byCategory().categories().isEmpty());
+        assertTrue(result.byCategory().books().isEmpty());
+        assertTrue(result.bySearch().queries().isEmpty());
+        assertTrue(result.bySearch().books().isEmpty());
+    }
+
+    @Test
+    void getDiscoveryData_ShouldReturnAllSections() {
+        when(bookRepository.findAllIsbnsByUser(user)).thenReturn(List.of());
+        when(bookRepository.findTopAuthorsByUser(eq(user), any())).thenReturn(List.of("Author1"));
+        when(bookRepository.findTopCategoriesByUser(eq(user), any())).thenReturn(List.of("Cat1"));
+        when(searchHistoryRepository.findDistinctQueriesByUserOrderByTimestampDesc(user)).thenReturn(List.of("query1"));
+
+        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        when(openLibraryClient.getBooksByAuthor("Author1", 10)).thenReturn(List.of(book));
+        when(openLibraryClient.getBooksByCategory("Cat1", 10)).thenReturn(List.of(book));
+        when(openLibraryClient.getBooksByQuery("query1", 10)).thenReturn(List.of(book));
+
+        var result = discoveryService.getDiscoveryData(user);
+        assertEquals(List.of("Author1"), result.byAuthor().authors());
+        assertEquals(1, result.byAuthor().books().size());
+        assertEquals(List.of("Cat1"), result.byCategory().categories());
+        assertEquals(1, result.byCategory().books().size());
+        assertEquals(List.of("query1"), result.bySearch().queries());
+        assertEquals(1, result.bySearch().books().size());
     }
 }
