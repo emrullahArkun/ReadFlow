@@ -17,7 +17,6 @@ import BookCover from '../../../ui/BookCover';
 const MyBookCard = ({
     book,
     isSelected,
-    onUpdateProgress,
     onToggleSelect
 }) => {
     const { t } = useTranslation();

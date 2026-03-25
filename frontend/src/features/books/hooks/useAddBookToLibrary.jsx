@@ -52,9 +52,9 @@ export const useAddBookToLibrary = () => {
                 categories: categories,
             };
 
-            return { result: await booksApi.create(newBook), isbn };
+            return { result: await booksApi.create(newBook) };
         },
-        onSuccess: ({ isbn }) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['myBooks'] });
             queryClient.invalidateQueries({ queryKey: ['ownedIsbns', user?.email] });
             queryClient.invalidateQueries({ queryKey: ['discovery'] });
