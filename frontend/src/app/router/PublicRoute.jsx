@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../features/auth/model/AuthContext';
+import { useAuth } from '../../features/auth/model';
 import { ROUTES } from './routes';
 import AuthGateLoader from './AuthGateLoader';
 

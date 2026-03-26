@@ -28,15 +28,20 @@ class DiscoveryServiceTest {
     @Mock
     private DiscoveryRecommendationService recommendationService;
 
+    private DiscoverySectionsService discoverySectionsService;
     private DiscoveryService discoveryService;
     private User user;
 
     @BeforeEach
     void setUp() {
-        discoveryService = new DiscoveryService(
+        discoverySectionsService = new DiscoverySectionsService(
                 userDataService,
                 recommendationService,
                 Executors.newVirtualThreadPerTaskExecutor());
+        discoveryService = new DiscoveryService(
+                userDataService,
+                recommendationService,
+                discoverySectionsService);
         user = new User();
         user.setId(1L);
     }
@@ -109,7 +114,7 @@ class DiscoveryServiceTest {
     void getAuthorSection_ShouldReturnEmpty_WhenNoAuthors() {
         when(userDataService.getTopAuthors(eq(user), anyInt())).thenReturn(List.of());
 
-        var result = discoveryService.getAuthorSection(user, Set.of());
+        var result = discoveryService.getAuthorSection(user);
 
         assertTrue(result.authors().isEmpty());
         assertTrue(result.books().isEmpty());
@@ -121,7 +126,9 @@ class DiscoveryServiceTest {
         when(userDataService.getTopAuthors(eq(user), anyInt())).thenReturn(List.of("Author1"));
         when(recommendationService.getRecommendationsByAuthor("Author1", Set.of(), 10)).thenReturn(List.of(book));
 
-        var result = discoveryService.getAuthorSection(user, Set.of());
+        when(userDataService.getOwnedIsbns(user)).thenReturn(Set.of());
+
+        var result = discoveryService.getAuthorSection(user);
 
         assertEquals(List.of("Author1"), result.authors());
         assertEquals(1, result.books().size());
@@ -131,7 +138,7 @@ class DiscoveryServiceTest {
     void getCategorySection_ShouldReturnEmpty_WhenNoCategories() {
         when(userDataService.getTopCategories(eq(user), anyInt())).thenReturn(List.of());
 
-        var result = discoveryService.getCategorySection(user, Set.of());
+        var result = discoveryService.getCategorySection(user);
 
         assertTrue(result.categories().isEmpty());
         assertTrue(result.books().isEmpty());
@@ -143,7 +150,9 @@ class DiscoveryServiceTest {
         when(userDataService.getTopCategories(eq(user), anyInt())).thenReturn(List.of("Cat1"));
         when(recommendationService.getRecommendationsByCategory("Cat1", Set.of(), 10)).thenReturn(List.of(book));
 
-        var result = discoveryService.getCategorySection(user, Set.of());
+        when(userDataService.getOwnedIsbns(user)).thenReturn(Set.of());
+
+        var result = discoveryService.getCategorySection(user);
 
         assertEquals(List.of("Cat1"), result.categories());
         assertEquals(1, result.books().size());
@@ -153,7 +162,7 @@ class DiscoveryServiceTest {
     void getSearchSection_ShouldReturnEmpty_WhenNoSearches() {
         when(userDataService.getRecentSearches(eq(user), anyInt())).thenReturn(List.of());
 
-        var result = discoveryService.getSearchSection(user, Set.of());
+        var result = discoveryService.getSearchSection(user);
 
         assertTrue(result.queries().isEmpty());
         assertTrue(result.books().isEmpty());
@@ -165,7 +174,9 @@ class DiscoveryServiceTest {
         when(userDataService.getRecentSearches(eq(user), anyInt())).thenReturn(List.of("query1"));
         when(recommendationService.getRecommendationsByQuery("query1", Set.of(), 10)).thenReturn(List.of(book));
 
-        var result = discoveryService.getSearchSection(user, Set.of());
+        when(userDataService.getOwnedIsbns(user)).thenReturn(Set.of());
+
+        var result = discoveryService.getSearchSection(user);
 
         assertEquals(List.of("query1"), result.queries());
         assertEquals(1, result.books().size());

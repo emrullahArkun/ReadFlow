@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation, useMatch } from 'react-router-dom';
 import { FaBook, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../features/auth/model/AuthContext';
+import { useAuth } from '../../features/auth/model';
 import { useAnimation } from '../providers/AnimationProvider';
 import { useReadingSessionContext } from '../../features/reading-session/model/ReadingSessionContext';
 import { ROUTES } from '../router/routes';

@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useQueryClient } from '@tanstack/react-query';
-import { sessionsApi } from '../api/sessionsApi';
+import { sessionsApi } from '../api';
 import { useControllerLock } from './useControllerLock';
 import {
     createInitialReadingSessionState,

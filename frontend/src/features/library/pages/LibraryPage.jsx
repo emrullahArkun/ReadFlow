@@ -1,27 +1,21 @@
 import { useEffect } from 'react';
-import { FaTrash, FaTrashAlt, FaChevronLeft, FaChevronRight, FaSearch } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useMyBooks } from '../model/useMyBooks';
 import ConfirmDialog from '../../../shared/ui/ConfirmDialog';
-
 import MyBookCard from '../ui/MyBookCard';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../../../app/router/routes';
+import LibraryActionsBar from '../ui/LibraryActionsBar';
+import LibraryEmptyState from '../ui/LibraryEmptyState';
+import LibraryPagination from '../ui/LibraryPagination';
 import {
     Flex,
-    Button,
     Center,
-    Text,
     Box,
-    Icon,
-    IconButton,
     useToast,
     useDisclosure,
 } from '@chakra-ui/react';
 
 function LibraryPage() {
     const { t } = useTranslation();
-    const navigate = useNavigate();
 
     const {
         books,
@@ -70,63 +64,14 @@ function LibraryPage() {
 
     return (
         <Box w="100%" px={{ base: 4, md: 8 }} py={6} minH="calc(100vh - 80px)">
-            {/* Actions */}
-            <Flex justify="flex-end" align="center" mb={6} wrap="wrap" gap={3}>
-                {selectedBooks.size > 0 && (
-                    <Button
-                        size="sm"
-                        leftIcon={<FaTrash />}
-                        onClick={onDeleteSelectedOpen}
-                        bg="whiteAlpha.100"
-                        color="red.300"
-                        border="1px solid"
-                        borderColor="red.800"
-                        _hover={{ bg: 'red.900', borderColor: 'red.700' }}
-                        _active={{ bg: 'red.800' }}
-                    >
-                        {t('myBooks.deleteSelectedCount', { count: selectedBooks.size })}
-                    </Button>
-                )}
-                <Button
-                    size="sm"
-                    leftIcon={<FaTrashAlt />}
-                    onClick={onDeleteAllOpen}
-                    bg="whiteAlpha.100"
-                    color="gray.300"
-                    border="1px solid"
-                    borderColor="whiteAlpha.200"
-                    _hover={{ color: 'red.300', bg: 'whiteAlpha.200', borderColor: 'red.800' }}
-                    _active={{ bg: 'whiteAlpha.300' }}
-                >
-                    {t('myBooks.deleteAll')}
-                </Button>
-            </Flex>
+            <LibraryActionsBar
+                selectedCount={selectedBooks.size}
+                onDeleteSelected={onDeleteSelectedOpen}
+                onDeleteAll={onDeleteAllOpen}
+            />
 
             {books.length === 0 ? (
-                <Center flexDirection="column" py={16}>
-                    <Box
-                        textAlign="center"
-                        py={12}
-                        px={8}
-                        bg="whiteAlpha.50"
-                        borderRadius="2xl"
-                        border="1px dashed"
-                        borderColor="whiteAlpha.200"
-                        maxW="400px"
-                    >
-                        <Icon as={FaSearch} color="gray.400" boxSize={10} mb={4} />
-                        <Text color="gray.300" fontSize="lg" mb={2}>{t('myBooks.empty.line1')}</Text>
-                        <Text color="gray.400" fontSize="sm" mb={5}>{t('myBooks.empty.line2')}</Text>
-                        <Button
-                            size="sm"
-                            colorScheme="teal"
-                            variant="outline"
-                            onClick={() => navigate(ROUTES.SEARCH)}
-                        >
-                            {t('search.button')}
-                        </Button>
-                    </Box>
-                </Center>
+                <LibraryEmptyState />
             ) : (
                 <>
                     <Flex wrap="wrap" gap={6} justify="flex-start" alignContent="flex-start">
@@ -142,33 +87,12 @@ function LibraryPage() {
                         ))}
                     </Flex>
 
-                    {totalPages > 1 && (
-                        <Flex justify="center" align="center" mt={10} gap={4}>
-                            <IconButton
-                                icon={<FaChevronLeft />}
-                                onClick={() => setPage(p => Math.max(0, p - 1))}
-                                isDisabled={page === 0}
-                                color="white"
-                                variant="ghost"
-                                fontSize="lg"
-                                aria-label="Previous Page"
-                                _hover={{ bg: 'whiteAlpha.100' }}
-                            />
-                            <Text color="gray.500" fontSize="sm">
-                                {page + 1} / {totalPages}
-                            </Text>
-                            <IconButton
-                                icon={<FaChevronRight />}
-                                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-                                isDisabled={page >= totalPages - 1}
-                                color="white"
-                                variant="ghost"
-                                fontSize="lg"
-                                aria-label="Next Page"
-                                _hover={{ bg: 'whiteAlpha.100' }}
-                            />
-                        </Flex>
-                    )}
+                    <LibraryPagination
+                        page={page}
+                        totalPages={totalPages}
+                        onPreviousPage={() => setPage((currentPage) => Math.max(0, currentPage - 1))}
+                        onNextPage={() => setPage((currentPage) => Math.min(totalPages - 1, currentPage + 1))}
+                    />
 
                     <ConfirmDialog
                         isOpen={isDeleteSelectedOpen}

@@ -28,7 +28,7 @@ export const useReadingSessionStopFlow = ({
                 currentPage: book.currentPage,
             });
         }
-    }, [book]);
+    }, [book?.currentPage]);
 
     const handleStopClick = () => {
         if (isBusy) {

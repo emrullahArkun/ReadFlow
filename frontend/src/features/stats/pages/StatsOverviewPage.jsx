@@ -3,7 +3,7 @@ import { FaBook, FaBookOpen, FaClock, FaFire } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useThemeTokens } from '../../../shared/theme/useThemeTokens';
 import StatsCard from '../../../shared/ui/StatsCard';
 import ReadingHeatmap from '../ui/ReadingHeatmap';

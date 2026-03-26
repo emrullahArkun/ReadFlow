@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { goalsApi } from '../api/goalsApi';
 
 const EMPTY_STREAK = { currentStreak: 0, longestStreak: 0 };

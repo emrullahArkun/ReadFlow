@@ -145,4 +145,46 @@ describe('BookCover', () => {
         const img = screen.getByRole('img');
         expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9780123456789-M.jpg');
     });
+
+    it('falls back to ISBN_10 when ISBN_13 is not available', () => {
+        const book = {
+            volumeInfo: {
+                title: 'Isbn10 Book',
+                industryIdentifiers: [{ type: 'ISBN_10', identifier: '0123456789' }],
+            }
+        };
+
+        render(<BookCover book={book} />);
+
+        const img = screen.getByRole('img');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0123456789-M.jpg');
+    });
+
+    it('shows the unknown title fallback when no title exists', () => {
+        render(<BookCover book={{}} />);
+
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByText('Unbekannter Titel')).toBeDefined();
+    });
+
+    it('marks cached images as loaded immediately when the ref receives a completed image', () => {
+        const book = {
+            title: 'Cached Book',
+            coverUrl: 'https://covers.openlibrary.org/b/id/11111-M.jpg',
+        };
+
+        render(<BookCover book={book} />);
+
+        const img = screen.getByRole('img');
+        expect(img).toBeDefined();
+
+        Object.defineProperty(img, 'complete', { value: true, configurable: true });
+        Object.defineProperty(img, 'naturalWidth', { value: 200, configurable: true });
+
+        act(() => {
+            simulateImageLoad(img);
+        });
+
+        expect(screen.queryByText('Cached Book')).toBeNull();
+    });
 });

@@ -7,7 +7,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useThemeTokens } from '../../../shared/theme/useThemeTokens';
 import statsApi from '../api/statsApi';
 

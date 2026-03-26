@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { booksApi } from '../api/booksApi';
+import { booksApi } from '../api';
 
 const createOptimisticMutation = (queryClient, queryKey, mutationFn, updater) => ({
     mutationFn,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useReadingSessionContext } from './ReadingSessionContext';
 import { useToast } from '@chakra-ui/react';
 import { useReadingSessionBook } from './useReadingSessionBook';

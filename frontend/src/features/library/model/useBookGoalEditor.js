@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { booksApi } from '../api/booksApi';
+import { booksApi } from '../api';
 
 export const useBookGoalEditor = ({ book, bookId, refetch, onClose }) => {
     const { t } = useTranslation();

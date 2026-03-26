@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../auth/model/AuthContext';
+import { useAuth } from '../../auth/model';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import discoveryApi from '../../discovery/api/discoveryApi';
+import { discoveryApi } from '../../discovery/api';
 import { useAddSearchResultToLibrary } from './useAddSearchResultToLibrary.jsx';
 
 const PAGE_SIZE = 36;

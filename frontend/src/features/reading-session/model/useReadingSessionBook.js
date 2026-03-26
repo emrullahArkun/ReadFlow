@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { readingSessionBooksApi } from '../api/readingSessionBooksApi';
+import { readingSessionBooksApi } from '../api';
 
 export const useReadingSessionBook = ({ bookId, token, toast, t }) => {
     const [book, setBook] = useState(null);

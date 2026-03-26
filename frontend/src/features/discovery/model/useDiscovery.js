@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../auth/model/AuthContext';
-import discoveryApi from '../api/discoveryApi';
+import { useAuth } from '../../auth/model';
+import { discoveryApi } from '../api';
 
 /**
  * Hook for managing discovery data

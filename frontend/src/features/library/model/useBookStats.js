@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { booksApi } from '../api/booksApi';
-import { sessionsApi } from '../../reading-session/api/sessionsApi';
-import { useAuth } from '../../auth/model/AuthContext';
+import { booksApi } from '../api';
+import { sessionsApi } from '../../reading-session/api';
+import { useAuth } from '../../auth/model';
 
 /**
  * Hook to fetch book details and reading sessions for a specific book.

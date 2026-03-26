@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../auth/model/AuthContext';
-import { booksApi } from '../../library/api/booksApi';
-import { buildLibraryBookPayload } from '../../library/api/libraryBookPayload';
+import { useAuth } from '../../auth/model';
+import { booksApi, buildLibraryBookPayload } from '../../library/api';
 
 const TOAST_STYLE = {
     containerStyle: { marginTop: '80px' },

@@ -61,7 +61,7 @@ Jedes Feature besitzt seinen Code selbst.
 Typische interne Struktur:
 
 - `api`: Requests zum Backend
-- `model`: Hooks, Contexts, Zustand, Use-Case-Logik
+- `model`: Hooks, Contexts, Reducer-State, Use-Case-Logik
 - `ui`: Feature-spezifische Komponenten
 - `pages`: routbare Seiten des Features
 
@@ -93,7 +93,8 @@ Wenn etwas nur für ein Feature da ist, gehört es nicht nach `shared`.
 5. Contexts liegen beim owning Feature oder in `app/providers`, nicht global in `src/context`.
 6. `shared` importiert nichts aus `app` oder `features`.
 7. Features importieren keine `ui`- oder `pages`-Ordner anderer Features.
-8. Wenn ein Feature ein anderes braucht, dann bevorzugt über dessen `api` statt über `model`.
+8. Wenn ein Feature ein anderes braucht, dann bevorzugt über dessen öffentlichen Entry-Point wie `feature/api` oder `feature/model`.
+9. Komplexe Workflow-States bleiben im owning Feature und werden dort explizit modelliert, statt über verteilte Flags zu kippen.
 
 Ein Teil dieser Regeln wird direkt per ESLint erzwungen.
 

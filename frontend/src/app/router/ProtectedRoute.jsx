@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../features/auth/model/AuthContext';
+import { useAuth } from '../../features/auth/model';
 import { ROUTES } from './routes';
 import { ReadingSessionProvider } from '../../features/reading-session/model/ReadingSessionContext';
 import AuthGateLoader from './AuthGateLoader';

@@ -23,7 +23,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -80,10 +79,9 @@ class DiscoveryControllerTest {
 
         @Test
         void getAuthorRecommendations_ShouldReturnData() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
-                when(discoveryService.getAuthorSection(any(), any()))
+                when(discoveryService.getAuthorSection(any()))
                                 .thenReturn(new AuthorRecommendations(List.of("Author1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/authors"))
@@ -94,8 +92,7 @@ class DiscoveryControllerTest {
 
         @Test
         void getAuthorRecommendations_ShouldReturnEmptyBooks_WhenNoAuthors() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                when(discoveryService.getAuthorSection(any(), any()))
+                when(discoveryService.getAuthorSection(any()))
                                 .thenReturn(new AuthorRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/authors"))
@@ -106,10 +103,9 @@ class DiscoveryControllerTest {
 
         @Test
         void getCategoryRecommendations_ShouldReturnData() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
-                when(discoveryService.getCategorySection(any(), any()))
+                when(discoveryService.getCategorySection(any()))
                                 .thenReturn(new CategoryRecommendations(List.of("Cat1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/categories"))
@@ -119,8 +115,7 @@ class DiscoveryControllerTest {
 
         @Test
         void getCategoryRecommendations_ShouldReturnEmptyBooks_WhenNoCategories() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                when(discoveryService.getCategorySection(any(), any()))
+                when(discoveryService.getCategorySection(any()))
                                 .thenReturn(new CategoryRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/categories"))
@@ -131,10 +126,9 @@ class DiscoveryControllerTest {
 
         @Test
         void getRecentSearchRecommendations_ShouldReturnData() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
-                when(discoveryService.getSearchSection(any(), any()))
+                when(discoveryService.getSearchSection(any()))
                                 .thenReturn(new SearchRecommendations(List.of("Query1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/recent-searches"))
@@ -144,8 +138,7 @@ class DiscoveryControllerTest {
 
         @Test
         void getRecentSearchRecommendations_ShouldReturnEmptyBooks_WhenNoSearches() throws Exception {
-                when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                when(discoveryService.getSearchSection(any(), any()))
+                when(discoveryService.getSearchSection(any()))
                                 .thenReturn(new SearchRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/recent-searches"))

@@ -39,20 +39,17 @@ public class DiscoveryController {
 
     @GetMapping("/authors")
     public ResponseEntity<DiscoveryResponse.AuthorSection> getAuthorRecommendations(@CurrentUser User user) {
-        Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getAuthorSection(user, ownedIsbns)));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getAuthorSection(user)));
     }
 
     @GetMapping("/categories")
     public ResponseEntity<DiscoveryResponse.CategorySection> getCategoryRecommendations(@CurrentUser User user) {
-        Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getCategorySection(user, ownedIsbns)));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getCategorySection(user)));
     }
 
     @GetMapping("/recent-searches")
     public ResponseEntity<DiscoveryResponse.SearchSection> getRecentSearchRecommendations(@CurrentUser User user) {
-        Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getSearchSection(user, ownedIsbns)));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getSearchSection(user)));
     }
 
     @GetMapping

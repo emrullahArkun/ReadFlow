@@ -1,4 +1,4 @@
-import { AuthProvider } from '../features/auth/model/AuthContext';
+import { AuthProvider } from '../features/auth/model';
 import { AnimationProvider } from './providers/AnimationProvider';
 import ErrorBoundary from '../shared/ui/ErrorBoundary';
 import AppRouter from './router/AppRouter';
