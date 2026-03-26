@@ -15,14 +15,21 @@ const SearchResultCard = ({ book, onAdd }) => {
         e.stopPropagation();
         if (isAdding) return;
 
-        // Start animation
-        if (imageRef.current) {
-            flyBook(imageRef.current.getBoundingClientRect(), book.coverUrl);
-        }
+        const animationPayload = imageRef.current
+            ? {
+                rect: imageRef.current.getBoundingClientRect(),
+                coverUrl: book.coverUrl,
+            }
+            : null;
 
         setIsAdding(true);
         try {
             await onAdd(book);
+            if (animationPayload) {
+                flyBook(animationPayload.rect, animationPayload.coverUrl);
+            }
+        } catch {
+            // The mutation hook already handles user-facing error feedback.
         } finally {
             setIsAdding(false);
         }

@@ -51,6 +51,19 @@ describe('SearchResultCard', () => {
         expect(mockOnAdd).toHaveBeenCalledWith(mockBook);
     });
 
+    it('does not trigger the animation when adding the book fails', async () => {
+        mockOnAdd.mockRejectedValue(new Error('Duplicate book'));
+        renderCard();
+        const card = screen.getByRole('button');
+
+        await act(async () => {
+            fireEvent.click(card);
+        });
+
+        expect(mockOnAdd).toHaveBeenCalledWith(mockBook);
+        expect(mockFlyBook).not.toHaveBeenCalled();
+    });
+
     it('triggers handleAddClick on Enter key press', async () => {
         renderCard();
         const card = screen.getByRole('button');

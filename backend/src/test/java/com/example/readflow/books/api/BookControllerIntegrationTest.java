@@ -90,6 +90,20 @@ public class BookControllerIntegrationTest {
         }
 
         @Test
+        void shouldCreateBookWithPublishYearBefore1900() throws Exception {
+                CreateBookRequest request = new CreateBookRequest(
+                                "978-1111111111", "Frankenstein", "Mary Shelley", 1818, null, null, null);
+
+                mockMvc.perform(post("/api/books")
+                                .with(jwtForUser()).with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.title", is("Frankenstein")))
+                                .andExpect(jsonPath("$.publishYear", is(1818)));
+        }
+
+        @Test
         void shouldGetMyBooks() throws Exception {
                 createBook("My Book", "111-111", "Test Author");
 

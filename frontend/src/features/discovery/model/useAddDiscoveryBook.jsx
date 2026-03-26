@@ -24,6 +24,11 @@ const ToastMessage = ({ bgColor, children }) => (
     </div>
 );
 
+const removeBookFromDiscoverySection = (section, isbn) => ({
+    ...section,
+    books: (section?.books || []).filter((book) => book.isbn !== isbn),
+});
+
 export const useAddDiscoveryBook = () => {
     const { token, user } = useAuth();
     const toast = useToast();
@@ -38,10 +43,20 @@ export const useAddDiscoveryBook = () => {
 
             return booksApi.create(buildLibraryBookPayload(book));
         },
-        onSuccess: () => {
+        onSuccess: (_, addedBook) => {
+            queryClient.setQueryData(['discovery', user?.email], (currentDiscovery) => {
+                if (!currentDiscovery) {
+                    return currentDiscovery;
+                }
+
+                return {
+                    byAuthor: removeBookFromDiscoverySection(currentDiscovery.byAuthor, addedBook.isbn),
+                    byCategory: removeBookFromDiscoverySection(currentDiscovery.byCategory, addedBook.isbn),
+                    bySearch: removeBookFromDiscoverySection(currentDiscovery.bySearch, addedBook.isbn),
+                };
+            });
             queryClient.invalidateQueries({ queryKey: ['myBooks'] });
             queryClient.invalidateQueries({ queryKey: ['ownedIsbns', user?.email] });
-            queryClient.invalidateQueries({ queryKey: ['discovery'] });
             toast.close('add-book-toast');
             toast({
                 id: 'add-book-toast',
