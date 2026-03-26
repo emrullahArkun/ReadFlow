@@ -1,4 +1,4 @@
-import apiClient from '../../../api/apiClient';
+import apiClient from '../../../shared/api/apiClient';
 
 export const authApi = {
     login: (email, password) => apiClient.post('/api/auth/login', { email, password }),

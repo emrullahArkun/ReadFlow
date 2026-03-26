@@ -1,4 +1,4 @@
-@import "../styles/tokens.css";
+@import "../shared/theme/tokens.css";
 
 :root {
   font-family: 'Open Sans', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -67,4 +67,3 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
-

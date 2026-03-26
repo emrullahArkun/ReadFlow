@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import discoveryApi from './discoveryApi';
-import apiClient from '../../../api/apiClient';
+import apiClient from '../../../shared/api/apiClient';
 
-vi.mock('../../../api/apiClient', () => ({
+vi.mock('../../../shared/api/apiClient', () => ({
     default: {
         get: vi.fn(),
         post: vi.fn(),

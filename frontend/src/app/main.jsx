@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import App from './App.jsx'
 import './index.css'
-import '../i18n' // Initialize i18n
-import theme from '../styles/theme'
+import './i18n'
+import theme from '../shared/theme/theme'
 
 const queryClient = new QueryClient({
   defaultOptions: {
