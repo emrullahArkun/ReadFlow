@@ -1,0 +1,15 @@
+package com.example.chapterflow.books.api.dto;
+
+import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
+
+public record CreateBookRequest(
+        @NotBlank String isbn,
+        @NotBlank String title,
+        String authorName,
+        Integer publishYear,
+        String coverUrl,
+        Integer pageCount,
+        List<@NotBlank String> categories) {
+}

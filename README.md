@@ -1,4 +1,4 @@
-# ReadFlow
+# ChapterFlow
 
 A full stack web application for tracking your reading journey, from discovering new books to visualizing detailed statistics about your reading habits.
 

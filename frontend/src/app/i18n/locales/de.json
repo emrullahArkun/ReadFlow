@@ -1,6 +1,6 @@
 {
     "navbar": {
-        "brand": "ReadFlow",
+        "brand": "ChapterFlow",
         "goals": "Meine Ziele",
         "discovery": "Entdecken",
         "search": "Suche",
@@ -132,7 +132,7 @@
         "enterPassword": "Passwort eingeben",
         "errorTitle": "Fehler",
         "brand": {
-            "appName": "ReadFlow",
+            "appName": "ChapterFlow",
             "tagline": "Dein persönlicher gemütlicher Leseplatz.",
             "features": {
                 "track": "Verwalte deine Bibliothek",
