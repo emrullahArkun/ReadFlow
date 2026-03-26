@@ -2,13 +2,14 @@ package com.example.readflow.stats.api;
 
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.stats.application.AchievementService;
+import com.example.readflow.stats.application.DailyActivity;
+import com.example.readflow.stats.application.GenreStat;
 import com.example.readflow.stats.application.StatsService;
-import com.example.readflow.stats.domain.streak.StreakService;
-import com.example.readflow.stats.api.dto.AchievementDto;
-import com.example.readflow.stats.api.dto.DailyActivityDto;
-import com.example.readflow.stats.api.dto.GenreStatDto;
-import com.example.readflow.stats.api.dto.StatsOverviewDto;
+import com.example.readflow.stats.application.StatsOverview;
+import com.example.readflow.stats.application.StreakService;
+import com.example.readflow.stats.domain.achievements.Achievement;
 import com.example.readflow.stats.domain.achievements.AchievementType;
+import com.example.readflow.stats.domain.streak.StreakInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,12 +73,12 @@ class StatsControllerTest {
 
     @Test
     void getOverview_ShouldReturnStats() throws Exception {
-        StatsOverviewDto dto = new StatsOverviewDto(
+        StatsOverview overview = new StatsOverview(
                 10, 3, 1500, 600, 5, 12,
-                List.of(new GenreStatDto("Thriller", 4)),
-                List.of(new DailyActivityDto(LocalDate.now(), 30)));
+                List.of(new GenreStat("Thriller", 4)),
+                List.of(new DailyActivity(LocalDate.now(), 30)));
 
-        when(statsService.getOverview(any())).thenReturn(dto);
+        when(statsService.getOverview(any())).thenReturn(overview);
 
         mockMvc.perform(get("/api/stats/overview"))
                 .andExpect(status().isOk())
@@ -91,9 +92,9 @@ class StatsControllerTest {
 
     @Test
     void getAchievements_ShouldReturnList() throws Exception {
-        List<AchievementDto> achievements = List.of(
-                new AchievementDto(AchievementType.FIRST_SESSION, true, "1 sessions"),
-                new AchievementDto(AchievementType.BOOKWORM, false, "0/5"));
+        List<Achievement> achievements = List.of(
+                new Achievement(AchievementType.FIRST_SESSION, true, "1 sessions"),
+                new Achievement(AchievementType.BOOKWORM, false, "0/5"));
 
         when(achievementService.getAchievements(any(), eq((String) null))).thenReturn(achievements);
 
@@ -108,7 +109,7 @@ class StatsControllerTest {
     @Test
     void getAchievements_ShouldUseTimezoneHeader() throws Exception {
         when(achievementService.getAchievements(any(), eq("Europe/Berlin")))
-                .thenReturn(List.of(new AchievementDto(AchievementType.EARLY_BIRD, true, null)));
+                .thenReturn(List.of(new Achievement(AchievementType.EARLY_BIRD, true, null)));
 
         mockMvc.perform(get("/api/stats/achievements")
                 .header("X-Timezone", "Europe/Berlin"))
@@ -120,7 +121,7 @@ class StatsControllerTest {
     @Test
     void getStreak_ShouldReturnStreakData() throws Exception {
         when(streakService.calculateStreaks(any(), eq((String) null)))
-                .thenReturn(new StreakService.StreakInfo(5, 12));
+                .thenReturn(new StreakInfo(5, 12));
 
         mockMvc.perform(get("/api/stats/streak"))
                 .andExpect(status().isOk())
@@ -131,7 +132,7 @@ class StatsControllerTest {
     @Test
     void getStreak_ShouldUseTimezoneHeader() throws Exception {
         when(streakService.calculateStreaks(any(), eq("Europe/Berlin")))
-                .thenReturn(new StreakService.StreakInfo(3, 7));
+                .thenReturn(new StreakInfo(3, 7));
 
         mockMvc.perform(get("/api/stats/streak")
                 .header("X-Timezone", "Europe/Berlin"))
@@ -143,7 +144,7 @@ class StatsControllerTest {
     @Test
     void getStreak_ShouldFallbackToUtc_WhenInvalidTimezone() throws Exception {
         when(streakService.calculateStreaks(any(), eq("Invalid/Zone")))
-                .thenReturn(new StreakService.StreakInfo(1, 1));
+                .thenReturn(new StreakInfo(1, 1));
 
         mockMvc.perform(get("/api/stats/streak")
                 .header("X-Timezone", "Invalid/Zone"))

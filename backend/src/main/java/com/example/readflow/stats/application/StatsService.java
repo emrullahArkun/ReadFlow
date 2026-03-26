@@ -3,13 +3,10 @@ package com.example.readflow.stats.application;
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.infra.persistence.BookRepository;
 import com.example.readflow.sessions.domain.ReadingSession;
-import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
 import com.example.readflow.sessions.domain.SessionStatus;
-import com.example.readflow.stats.domain.streak.StreakService;
+import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
 import com.example.readflow.stats.domain.activity.SessionAnalyzer;
-import com.example.readflow.stats.api.dto.DailyActivityDto;
-import com.example.readflow.stats.api.dto.GenreStatDto;
-import com.example.readflow.stats.api.dto.StatsOverviewDto;
+import com.example.readflow.stats.domain.streak.StreakInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +27,7 @@ public class StatsService {
     private final StreakService streakService;
     private final Clock clock;
 
-    public StatsOverviewDto getOverview(User user) {
+    public StatsOverview getOverview(User user) {
         long totalBooks = bookRepository.countByUser(user);
         long completedBooks = bookRepository.countByUserAndCompletedTrue(user);
         long totalPagesRead = sessionRepository.sumPagesReadByUser(user, SessionStatus.COMPLETED);
@@ -40,14 +37,14 @@ public class StatsService {
 
         long totalReadingMinutes = calculateTotalMinutes(sessions);
         Map<LocalDate, Integer> dailyPagesMap = SessionAnalyzer.getDailyPagesMap(sessions);
-        List<DailyActivityDto> dailyActivity = dailyPagesMap.entrySet().stream()
-                .map(e -> new DailyActivityDto(e.getKey(), e.getValue()))
+        List<DailyActivity> dailyActivity = dailyPagesMap.entrySet().stream()
+                .map(e -> new DailyActivity(e.getKey(), e.getValue()))
                 .toList();
-        List<GenreStatDto> genreDistribution = buildGenreDistribution(user);
+        List<GenreStat> genreDistribution = buildGenreDistribution(user);
 
-        StreakService.StreakInfo streakInfo = streakService.calculateStreaks(user);
+        StreakInfo streakInfo = streakService.calculateStreaks(user);
 
-        return new StatsOverviewDto(
+        return new StatsOverview(
                 totalBooks, completedBooks, totalPagesRead, totalReadingMinutes,
                 streakInfo.current(), streakInfo.longest(), genreDistribution, dailyActivity);
     }
@@ -66,7 +63,7 @@ public class StatsService {
         return totalMs / 60_000;
     }
 
-    private List<GenreStatDto> buildGenreDistribution(User user) {
+    private List<GenreStat> buildGenreDistribution(User user) {
         List<String> categories = bookRepository.findAllCategoriesByUser(user);
         Map<String, Integer> counts = new HashMap<>();
         for (String cat : categories) {
@@ -77,7 +74,7 @@ public class StatsService {
         return counts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(8)
-                .map(e -> new GenreStatDto(e.getKey(), e.getValue()))
+                .map(e -> new GenreStat(e.getKey(), e.getValue()))
                 .toList();
     }
 

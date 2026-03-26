@@ -1,8 +1,6 @@
 package com.example.readflow.books.application;
 
 import com.example.readflow.auth.domain.User;
-import com.example.readflow.books.api.BookMapper;
-import com.example.readflow.books.api.dto.CreateBookRequest;
 import com.example.readflow.books.domain.Book;
 import com.example.readflow.books.domain.BookCollectionChangedEvent;
 import com.example.readflow.books.domain.ReadingGoalType;
@@ -31,7 +29,7 @@ import java.util.Optional;
 public class BookService {
 
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final CreateBookCommandMapper createBookCommandMapper;
     private final Clock clock;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -61,12 +59,12 @@ public class BookService {
     }
 
     @Transactional
-    public Book createBook(CreateBookRequest request, User user) {
-        if (existsByIsbnAndUser(request.isbn(), user)) {
-            throw duplicateIsbnException(request.isbn());
+    public Book createBook(CreateBookCommand command, User user) {
+        if (existsByIsbnAndUser(command.isbn(), user)) {
+            throw duplicateIsbnException(command.isbn());
         }
 
-        Book book = bookMapper.toEntity(request);
+        Book book = createBookCommandMapper.toEntity(command);
         book.setUser(user);
         applyDefaults(book);
 
@@ -75,7 +73,7 @@ public class BookService {
             publishCollectionChanged(user);
             return savedBook;
         } catch (DataIntegrityViolationException e) {
-            throw duplicateIsbnException(request.isbn());
+            throw duplicateIsbnException(command.isbn());
         }
     }
 

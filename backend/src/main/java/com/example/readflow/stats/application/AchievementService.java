@@ -2,10 +2,9 @@ package com.example.readflow.stats.application;
 
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.shared.time.ZoneIdResolver;
-import com.example.readflow.stats.api.dto.AchievementDto;
+import com.example.readflow.stats.domain.achievements.Achievement;
 import com.example.readflow.stats.domain.achievements.AchievementChecker;
 import com.example.readflow.stats.domain.achievements.AchievementContext;
-import com.example.readflow.stats.domain.achievements.AchievementContextFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +25,11 @@ public class AchievementService {
                 .toList();
     }
 
-    public List<AchievementDto> getAchievements(User user) {
+    public List<Achievement> getAchievements(User user) {
         return getAchievements(user, (String) null);
     }
 
-    public List<AchievementDto> getAchievements(User user, String timezone) {
+    public List<Achievement> getAchievements(User user, String timezone) {
         AchievementContext context = contextFactory.build(user, ZoneIdResolver.resolveOrUtc(timezone));
         return checkers.stream()
                 .map(checker -> checker.check(context))

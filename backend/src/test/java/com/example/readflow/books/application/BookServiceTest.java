@@ -1,7 +1,5 @@
 package com.example.readflow.books.application;
 
-import com.example.readflow.books.api.dto.CreateBookRequest;
-import com.example.readflow.books.api.BookMapper;
 import com.example.readflow.shared.exception.DuplicateResourceException;
 import com.example.readflow.shared.exception.ResourceNotFoundException;
 import com.example.readflow.auth.domain.User;
@@ -37,7 +35,7 @@ class BookServiceTest {
     @Mock
     private BookRepository bookRepository;
     @Mock
-    private BookMapper bookMapper;
+    private CreateBookCommandMapper createBookCommandMapper;
     @Spy
     private Clock clock = Clock.systemUTC();
     @Mock
@@ -81,14 +79,14 @@ class BookServiceTest {
 
     @Test
     void createBook_ShouldSaveBook() {
-        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
+        CreateBookCommand command = new CreateBookCommand("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         Book book = new Book();
         book.setAuthor("author");
         when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(false);
-        when(bookMapper.toEntity(request)).thenReturn(book);
+        when(createBookCommandMapper.toEntity(command)).thenReturn(book);
         when(bookRepository.saveAndFlush(any(Book.class))).thenAnswer(i -> i.getArgument(0));
 
-        Book result = bookService.createBook(request, user);
+        Book result = bookService.createBook(command, user);
         assertEquals(user, result.getUser());
         assertEquals(0, result.getCurrentPage());
         assertNotNull(result.getStartDate());
@@ -98,22 +96,22 @@ class BookServiceTest {
 
     @Test
     void createBook_ShouldThrow_WhenDuplicateIsbn() {
-        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
+        CreateBookCommand command = new CreateBookCommand("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(true);
 
-        assertThrows(DuplicateResourceException.class, () -> bookService.createBook(request, user));
+        assertThrows(DuplicateResourceException.class, () -> bookService.createBook(command, user));
     }
 
     @Test
     void createBook_ShouldTranslateConstraintViolation_WhenDuplicateRaceOccurs() {
-        CreateBookRequest request = new CreateBookRequest("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
+        CreateBookCommand command = new CreateBookCommand("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         Book book = new Book();
         when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(false);
-        when(bookMapper.toEntity(request)).thenReturn(book);
+        when(createBookCommandMapper.toEntity(command)).thenReturn(book);
         when(bookRepository.saveAndFlush(any(Book.class)))
                 .thenThrow(new DataIntegrityViolationException("duplicate key"));
 
-        assertThrows(DuplicateResourceException.class, () -> bookService.createBook(request, user));
+        assertThrows(DuplicateResourceException.class, () -> bookService.createBook(command, user));
     }
 
     @Test

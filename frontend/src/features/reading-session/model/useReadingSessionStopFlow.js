@@ -4,6 +4,7 @@ import { ROUTES } from '../../../app/router/routes';
 export const useReadingSessionStopFlow = ({
     book,
     isPaused,
+    isBusy,
     pauseSession,
     resumeSession,
     stopSession,
@@ -23,6 +24,9 @@ export const useReadingSessionStopFlow = ({
     }, [book]);
 
     const handleStopClick = () => {
+        if (isBusy) {
+            return;
+        }
         if (!isPaused) {
             pauseSession();
             setResumeOnCancel(true);

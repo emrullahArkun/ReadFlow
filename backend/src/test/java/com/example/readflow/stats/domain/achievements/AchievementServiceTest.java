@@ -3,8 +3,8 @@ package com.example.readflow.stats.domain.achievements;
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.domain.Book;
 import com.example.readflow.sessions.domain.ReadingSession;
+import com.example.readflow.stats.application.AchievementContextFactory;
 import com.example.readflow.stats.application.AchievementService;
-import com.example.readflow.stats.api.dto.AchievementDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,17 +55,17 @@ class AchievementServiceTest {
     void getAchievements_ShouldReturnAllTen() {
         when(contextFactory.build(user, ZoneOffset.UTC)).thenReturn(context());
 
-        List<AchievementDto> result = achievementService.getAchievements(user);
+        List<Achievement> result = achievementService.getAchievements(user);
 
         assertEquals(10, result.size());
-        assertTrue(result.stream().noneMatch(AchievementDto::unlocked));
+        assertTrue(result.stream().noneMatch(Achievement::unlocked));
     }
 
     @Test
     void getAchievements_ShouldUnlockFirstSession() {
         when(contextFactory.build(user, ZoneOffset.UTC)).thenReturn(context(0, 0, 0, 1, 0, 0, ZoneOffset.UTC, List.of()));
 
-        AchievementDto firstSession = getAchievement(achievementService.getAchievements(user), AchievementType.FIRST_SESSION);
+        Achievement firstSession = getAchievement(achievementService.getAchievements(user), AchievementType.FIRST_SESSION);
 
         assertTrue(firstSession.unlocked());
         assertEquals("1 sessions", firstSession.unlockedDetail());
@@ -75,7 +75,7 @@ class AchievementServiceTest {
     void getAchievements_ShouldUnlockThresholdAchievements() {
         when(contextFactory.build(user, ZoneOffset.UTC)).thenReturn(context(10, 5, 1000, 5, 120, 30, ZoneOffset.UTC, List.of()));
 
-        List<AchievementDto> result = achievementService.getAchievements(user);
+        List<Achievement> result = achievementService.getAchievements(user);
 
         assertTrue(getAchievement(result, AchievementType.BOOKWORM).unlocked());
         assertTrue(getAchievement(result, AchievementType.LIBRARY_BUILDER).unlocked());
@@ -101,7 +101,7 @@ class AchievementServiceTest {
         when(contextFactory.build(user, ZoneId.of("Europe/Berlin")))
                 .thenReturn(context(1, 0, 10, 1, 10, 0, ZoneId.of("Europe/Berlin"), List.of(session)));
 
-        AchievementDto earlyBird = getAchievement(
+        Achievement earlyBird = getAchievement(
                 achievementService.getAchievements(user, "Europe/Berlin"),
                 AchievementType.EARLY_BIRD);
 
@@ -114,7 +114,7 @@ class AchievementServiceTest {
         when(contextFactory.build(user, ZoneOffset.UTC))
                 .thenReturn(context(1, 0, 10, 1, 10, 0, ZoneOffset.UTC, List.of(session)));
 
-        AchievementDto nightOwl = getAchievement(achievementService.getAchievements(user), AchievementType.NIGHT_OWL);
+        Achievement nightOwl = getAchievement(achievementService.getAchievements(user), AchievementType.NIGHT_OWL);
 
         assertTrue(nightOwl.unlocked());
     }
@@ -134,7 +134,7 @@ class AchievementServiceTest {
         when(contextFactory.build(user, ZoneOffset.UTC))
                 .thenReturn(context(1, 1, 200, 5, 50, 0, ZoneOffset.UTC, List.of(session)));
 
-        AchievementDto speedReader = getAchievement(achievementService.getAchievements(user), AchievementType.SPEED_READER);
+        Achievement speedReader = getAchievement(achievementService.getAchievements(user), AchievementType.SPEED_READER);
 
         assertTrue(speedReader.unlocked());
     }
@@ -149,7 +149,7 @@ class AchievementServiceTest {
         when(contextFactory.build(user, ZoneOffset.UTC))
                 .thenReturn(context(1, 0, 10, 1, 10, 0, ZoneOffset.UTC, List.of(session)));
 
-        AchievementDto speedReader = getAchievement(achievementService.getAchievements(user), AchievementType.SPEED_READER);
+        Achievement speedReader = getAchievement(achievementService.getAchievements(user), AchievementType.SPEED_READER);
 
         assertFalse(speedReader.unlocked());
     }
@@ -160,12 +160,12 @@ class AchievementServiceTest {
         when(contextFactory.build(user, ZoneOffset.UTC))
                 .thenReturn(context(1, 0, 10, 1, 10, 0, ZoneOffset.UTC, List.of(session)));
 
-        AchievementDto earlyBird = getAchievement(achievementService.getAchievements(user), AchievementType.EARLY_BIRD);
+        Achievement earlyBird = getAchievement(achievementService.getAchievements(user), AchievementType.EARLY_BIRD);
 
         assertFalse(earlyBird.unlocked());
     }
 
-    private AchievementDto getAchievement(List<AchievementDto> achievements, AchievementType type) {
+    private Achievement getAchievement(List<Achievement> achievements, AchievementType type) {
         return achievements.stream()
                 .filter(achievement -> achievement.id() == type)
                 .findFirst()

@@ -27,8 +27,8 @@ public class DiscoveryController {
             @RequestParam(defaultValue = "36") int maxResults,
             @CurrentUser User user) {
         Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        SearchResultDto result = discoveryService.searchBooks(q, ownedIsbns, startIndex, maxResults);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(
+                discoveryService.searchBooks(q, ownedIsbns, startIndex, maxResults)));
     }
 
     @PostMapping("/search-log")
@@ -40,23 +40,23 @@ public class DiscoveryController {
     @GetMapping("/authors")
     public ResponseEntity<DiscoveryResponse.AuthorSection> getAuthorRecommendations(@CurrentUser User user) {
         Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(discoveryService.getAuthorSection(user, ownedIsbns));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getAuthorSection(user, ownedIsbns)));
     }
 
     @GetMapping("/categories")
     public ResponseEntity<DiscoveryResponse.CategorySection> getCategoryRecommendations(@CurrentUser User user) {
         Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(discoveryService.getCategorySection(user, ownedIsbns));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getCategorySection(user, ownedIsbns)));
     }
 
     @GetMapping("/recent-searches")
     public ResponseEntity<DiscoveryResponse.SearchSection> getRecentSearchRecommendations(@CurrentUser User user) {
         Set<String> ownedIsbns = discoveryService.getOwnedIsbns(user);
-        return ResponseEntity.ok(discoveryService.getSearchSection(user, ownedIsbns));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getSearchSection(user, ownedIsbns)));
     }
 
     @GetMapping
     public ResponseEntity<DiscoveryResponse> getDiscoveryData(@CurrentUser User user) {
-        return ResponseEntity.ok(discoveryService.getDiscoveryData(user));
+        return ResponseEntity.ok(DiscoveryApiMapper.toDto(discoveryService.getDiscoveryData(user)));
     }
 }

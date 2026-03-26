@@ -68,4 +68,16 @@ public class ArchitectureTest {
                         .resideInAPackage("..shared.security..")
                         .should().dependOnClassesThat()
                         .resideInAnyPackage("..books..", "..discovery..", "..sessions..", "..stats..");
+
+        @ArchTest
+        static final ArchRule application_should_not_depend_on_api_packages = noClasses().that()
+                        .resideInAPackage("..application..")
+                        .should().dependOnClassesThat()
+                        .resideInAnyPackage("..api..", "..api.dto..");
+
+        @ArchTest
+        static final ArchRule domain_should_not_depend_on_api_or_infra_packages = noClasses().that()
+                        .resideInAPackage("..domain..")
+                        .should().dependOnClassesThat()
+                        .resideInAnyPackage("..api..", "..api.dto..", "..infra..", "..infra.persistence..", "..infra.external..", "..infra.cache..");
 }

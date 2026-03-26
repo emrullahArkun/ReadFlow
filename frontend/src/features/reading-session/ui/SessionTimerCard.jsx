@@ -22,6 +22,8 @@ const MotionBox = motion(Box);
 const SessionTimerCard = ({
     cardBg,
     brandColor,
+    sessionPhase,
+    isBusy,
     isPaused,
     formattedTime,
     isController,
@@ -76,7 +78,7 @@ const SessionTimerCard = ({
                         fontSize="sm"
                         letterSpacing="wide"
                     >
-                        {isPaused ? t('readingSession.paused') : t('readingSession.readingPrompt')}
+                        {getSessionStatusLabel({ isPaused, isBusy, sessionPhase, t })}
                     </Text>
                 </Box>
 
@@ -102,11 +104,32 @@ const SessionTimerCard = ({
                         pauseSession={pauseSession}
                         handleStopClick={handleStopClick}
                         isController={isController}
+                        isBusy={isBusy}
                     />
                 )}
             </VStack>
         </MotionCard>
     );
+};
+
+const getSessionStatusLabel = ({ isPaused, isBusy, sessionPhase, t }) => {
+    if (isPaused) {
+        return t('readingSession.paused');
+    }
+
+    if (isBusy && sessionPhase === 'stopping') {
+        return t('readingSession.controls.stop');
+    }
+
+    if (isBusy && sessionPhase === 'pausing') {
+        return t('readingSession.controls.pause');
+    }
+
+    if (isBusy && sessionPhase === 'resuming') {
+        return t('readingSession.controls.resume');
+    }
+
+    return t('readingSession.readingPrompt');
 };
 
 const RemoteAlert = ({ t, takeControl }) => (
@@ -163,7 +186,7 @@ const StopConfirm = ({ t, subTextColor, endPage, setEndPage, currentPage, handle
     </MotionBox>
 );
 
-const Controls = ({ t, isPaused, resumeSession, pauseSession, handleStopClick, isController }) => (
+const Controls = ({ t, isPaused, resumeSession, pauseSession, handleStopClick, isController, isBusy }) => (
     <HStack spacing={4} pt={2}>
         {isPaused ? (
             <Button
@@ -174,7 +197,8 @@ const Controls = ({ t, isPaused, resumeSession, pauseSession, handleStopClick, i
                 h="56px"
                 leftIcon={<FaPlay />}
                 onClick={resumeSession}
-                isDisabled={!isController}
+                isDisabled={!isController || isBusy}
+                isLoading={isBusy}
                 fontSize="md"
                 _hover={{ transform: 'scale(1.03)' }}
                 transition="all 0.15s"
@@ -190,7 +214,8 @@ const Controls = ({ t, isPaused, resumeSession, pauseSession, handleStopClick, i
                 h="56px"
                 leftIcon={<FaPause />}
                 onClick={pauseSession}
-                isDisabled={!isController}
+                isDisabled={!isController || isBusy}
+                isLoading={isBusy}
                 fontSize="md"
                 _hover={{ transform: 'scale(1.03)' }}
                 transition="all 0.15s"
@@ -207,7 +232,8 @@ const Controls = ({ t, isPaused, resumeSession, pauseSession, handleStopClick, i
             h="56px"
             leftIcon={<FaStop />}
             onClick={handleStopClick}
-            isDisabled={!isController}
+            isDisabled={!isController || isBusy}
+            isLoading={isBusy}
             color="red.300"
             borderColor="whiteAlpha.200"
             _hover={{ bg: 'whiteAlpha.100', borderColor: 'red.400' }}

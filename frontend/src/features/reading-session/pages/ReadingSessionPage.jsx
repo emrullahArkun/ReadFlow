@@ -23,6 +23,8 @@ const ReadingSessionPage = () => {
         book,
         fetchingBook,
         sessionLoading,
+        sessionPhase,
+        isBusy,
         formattedTime,
         isPaused,
         resumeSession,
@@ -67,6 +69,8 @@ const ReadingSessionPage = () => {
                             <SessionTimerCard
                                 cardBg={cardBg}
                                 brandColor={brandColor}
+                                sessionPhase={sessionPhase}
+                                isBusy={isBusy}
                                 isPaused={isPaused}
                                 formattedTime={formattedTime}
                                 isController={isController}

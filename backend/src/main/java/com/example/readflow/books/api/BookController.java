@@ -2,13 +2,14 @@ package com.example.readflow.books.api;
 
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.application.BookService;
+import com.example.readflow.books.application.CreateBookCommand;
+import com.example.readflow.books.application.ReadingGoalProgressService;
 import com.example.readflow.books.api.dto.BookDto;
 import com.example.readflow.books.api.dto.CreateBookRequest;
 import com.example.readflow.books.api.dto.SetGoalRequest;
 import com.example.readflow.books.api.dto.UpdateProgressRequest;
 import com.example.readflow.books.api.dto.UpdateStatusRequest;
 import com.example.readflow.books.domain.Book;
-import com.example.readflow.books.domain.ReadingGoalProgressCalculator;
 import com.example.readflow.shared.security.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +31,14 @@ public class BookController {
 
     private final BookService bookService;
     private final BookMapper bookMapper;
-    private final ReadingGoalProgressCalculator progressCalculator;
+    private final ReadingGoalProgressService progressService;
 
     @GetMapping
     public ResponseEntity<Page<BookDto>> getAllBooks(
             @PageableDefault(size = 10) Pageable pageable,
             @CurrentUser User user) {
         Page<Book> bookPage = bookService.findAllByUser(user, pageable);
-        Map<Long, Integer> progressMap = progressCalculator.calculateProgressBatch(bookPage.getContent());
+        Map<Long, Integer> progressMap = progressService.calculateProgressBatch(bookPage.getContent());
 
         Page<BookDto> dtoPage = bookPage.map(book -> toDtoWithProgress(book, progressMap.get(book.getId())));
 
@@ -52,7 +53,7 @@ public class BookController {
     @GetMapping("/with-goals")
     public ResponseEntity<List<BookDto>> getBooksWithGoals(@CurrentUser User user) {
         List<Book> books = bookService.findBooksWithGoals(user);
-        Map<Long, Integer> progressMap = progressCalculator.calculateProgressBatch(books);
+        Map<Long, Integer> progressMap = progressService.calculateProgressBatch(books);
 
         List<BookDto> dtos = books.stream()
                 .map(book -> toDtoWithProgress(book, progressMap.get(book.getId())))
@@ -71,7 +72,7 @@ public class BookController {
     public ResponseEntity<BookDto> createBook(
             @RequestBody @Valid CreateBookRequest request,
             @CurrentUser User user) {
-        Book savedBook = bookService.createBook(request, user);
+        Book savedBook = bookService.createBook(toCommand(request), user);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -122,11 +123,22 @@ public class BookController {
     }
 
     private BookDto toDtoWithProgress(Book book) {
-        return toDtoWithProgress(book, progressCalculator.calculateProgress(book));
+        return toDtoWithProgress(book, progressService.calculateProgress(book));
     }
 
     private BookDto toDtoWithProgress(Book book, Integer progress) {
         BookDto dto = bookMapper.toDto(book);
         return progress != null ? BookDto.copyWithProgress(dto, progress) : dto;
+    }
+
+    private CreateBookCommand toCommand(CreateBookRequest request) {
+        return new CreateBookCommand(
+                request.isbn(),
+                request.title(),
+                request.authorName(),
+                request.publishYear(),
+                request.coverUrl(),
+                request.pageCount(),
+                request.categories());
     }
 }

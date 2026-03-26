@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { ROUTES } from '../../../app/router/routes';
+import { READING_SESSION_PHASES } from './readingSessionPhase';
 
 export const useReadingSessionLifecycle = ({
     activeSession,
+    sessionPhase,
     book,
     bookId,
-    sessionLoading,
     hasStopped,
     startSession,
     navigate,
@@ -34,7 +35,7 @@ export const useReadingSessionLifecycle = ({
             return;
         }
 
-        if (hasSeenActiveSessionRef.current && !hasStopped) {
+        if (sessionPhase === READING_SESSION_PHASES.IDLE && hasSeenActiveSessionRef.current && !hasStopped) {
             toast({
                 title: t('readingSession.alerts.endedRemote'),
                 status: 'info',
@@ -43,10 +44,16 @@ export const useReadingSessionLifecycle = ({
             });
             navigate(ROUTES.MY_BOOKS);
         }
-    }, [activeSession, hasStopped, navigate, t, toast]);
+    }, [activeSession, sessionPhase, hasStopped, navigate, t, toast]);
 
     useEffect(() => {
-        if (sessionLoading || activeSession || !book || hasStopped || startFailed) {
+        if (
+            sessionPhase !== READING_SESSION_PHASES.IDLE
+            || activeSession
+            || !book
+            || hasStopped
+            || startFailed
+        ) {
             return;
         }
         if (isStartingRef.current) {
@@ -69,7 +76,7 @@ export const useReadingSessionLifecycle = ({
             .finally(() => {
                 isStartingRef.current = false;
             });
-    }, [sessionLoading, activeSession, book, hasStopped, startFailed, startSession, bookId, toast, t]);
+    }, [sessionPhase, activeSession, book, hasStopped, startFailed, startSession, bookId, toast, t]);
 
     useEffect(() => {
         const handleBeforeUnload = (event) => {

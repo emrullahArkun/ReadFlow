@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/model/AuthContext';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useAddBookToLibrary } from '../../library/model/useAddBookToLibrary';
 import discoveryApi from '../../discovery/api/discoveryApi';
+import { useAddSearchResultToLibrary } from './useAddSearchResultToLibrary.jsx';
 
 const PAGE_SIZE = 36;
 const MIN_QUERY_LENGTH = 3;
@@ -60,7 +60,7 @@ export const useBookSearch = () => {
 
     const results = data ? data.pages.flatMap(page => page.items || []) : [];
 
-    const addBookMutation = useAddBookToLibrary();
+    const addBookMutation = useAddSearchResultToLibrary();
 
     // Clear results when input is emptied
     useEffect(() => {

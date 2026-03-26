@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { booksApi } from '../../library/api/booksApi';
+import { readingSessionBooksApi } from '../api/readingSessionBooksApi';
 
 export const useReadingSessionBook = ({ bookId, token, toast, t }) => {
     const [book, setBook] = useState(null);
@@ -14,7 +14,7 @@ export const useReadingSessionBook = ({ bookId, token, toast, t }) => {
 
         const fetchBook = async () => {
             try {
-                const data = await booksApi.getById(bookId);
+                const data = await readingSessionBooksApi.getById(bookId);
                 setBook(data ?? null);
             } catch {
                 toast({

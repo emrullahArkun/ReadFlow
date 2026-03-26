@@ -1,10 +1,13 @@
 package com.example.readflow.discovery.api;
 
 import com.example.readflow.auth.domain.User;
+import com.example.readflow.discovery.application.AuthorRecommendations;
+import com.example.readflow.discovery.application.CategoryRecommendations;
+import com.example.readflow.discovery.application.DiscoveryData;
 import com.example.readflow.discovery.application.DiscoveryService;
+import com.example.readflow.discovery.application.SearchRecommendations;
 import com.example.readflow.discovery.application.SearchHistoryService;
-import com.example.readflow.discovery.api.dto.DiscoveryResponse;
-import com.example.readflow.discovery.api.dto.RecommendedBookDto;
+import com.example.readflow.discovery.domain.DiscoveryBook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -78,10 +81,10 @@ class DiscoveryControllerTest {
         @Test
         void getAuthorRecommendations_ShouldReturnData() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                RecommendedBookDto book = new RecommendedBookDto(
+                DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getAuthorSection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.AuthorSection(List.of("Author1"), List.of(book)));
+                                .thenReturn(new AuthorRecommendations(List.of("Author1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/authors"))
                                 .andExpect(status().isOk())
@@ -93,7 +96,7 @@ class DiscoveryControllerTest {
         void getAuthorRecommendations_ShouldReturnEmptyBooks_WhenNoAuthors() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getAuthorSection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.AuthorSection(Collections.emptyList(), Collections.emptyList()));
+                                .thenReturn(new AuthorRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/authors"))
                                 .andExpect(status().isOk())
@@ -104,10 +107,10 @@ class DiscoveryControllerTest {
         @Test
         void getCategoryRecommendations_ShouldReturnData() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                RecommendedBookDto book = new RecommendedBookDto(
+                DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getCategorySection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.CategorySection(List.of("Cat1"), List.of(book)));
+                                .thenReturn(new CategoryRecommendations(List.of("Cat1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/categories"))
                                 .andExpect(status().isOk())
@@ -118,7 +121,7 @@ class DiscoveryControllerTest {
         void getCategoryRecommendations_ShouldReturnEmptyBooks_WhenNoCategories() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getCategorySection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.CategorySection(Collections.emptyList(), Collections.emptyList()));
+                                .thenReturn(new CategoryRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/categories"))
                                 .andExpect(status().isOk())
@@ -129,10 +132,10 @@ class DiscoveryControllerTest {
         @Test
         void getRecentSearchRecommendations_ShouldReturnData() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
-                RecommendedBookDto book = new RecommendedBookDto(
+                DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getSearchSection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.SearchSection(List.of("Query1"), List.of(book)));
+                                .thenReturn(new SearchRecommendations(List.of("Query1"), List.of(book)));
 
                 mockMvc.perform(get("/api/discovery/recent-searches"))
                                 .andExpect(status().isOk())
@@ -143,7 +146,7 @@ class DiscoveryControllerTest {
         void getRecentSearchRecommendations_ShouldReturnEmptyBooks_WhenNoSearches() throws Exception {
                 when(discoveryService.getOwnedIsbns(any())).thenReturn(new HashSet<>());
                 when(discoveryService.getSearchSection(any(), any()))
-                                .thenReturn(new DiscoveryResponse.SearchSection(Collections.emptyList(), Collections.emptyList()));
+                                .thenReturn(new SearchRecommendations(Collections.emptyList(), Collections.emptyList()));
 
                 mockMvc.perform(get("/api/discovery/recent-searches"))
                                 .andExpect(status().isOk())
@@ -154,10 +157,10 @@ class DiscoveryControllerTest {
         @Test
         void getDiscoveryData_ShouldReturnAllSections() throws Exception {
                 when(discoveryService.getDiscoveryData(any()))
-                                .thenReturn(new DiscoveryResponse(
-                                        new DiscoveryResponse.AuthorSection(Collections.emptyList(), Collections.emptyList()),
-                                        new DiscoveryResponse.CategorySection(Collections.emptyList(), Collections.emptyList()),
-                                        new DiscoveryResponse.SearchSection(Collections.emptyList(), Collections.emptyList())));
+                                .thenReturn(new DiscoveryData(
+                                        new AuthorRecommendations(Collections.emptyList(), Collections.emptyList()),
+                                        new CategoryRecommendations(Collections.emptyList(), Collections.emptyList()),
+                                        new SearchRecommendations(Collections.emptyList(), Collections.emptyList())));
 
                 mockMvc.perform(get("/api/discovery"))
                                 .andExpect(status().isOk())
@@ -168,13 +171,13 @@ class DiscoveryControllerTest {
 
         @Test
         void getDiscoveryData_ShouldReturnAllSections_WithNonEmptyData() throws Exception {
-                RecommendedBookDto book = new RecommendedBookDto(
+                DiscoveryBook book = new DiscoveryBook(
                                 "title", List.of("Author1"), List.of("Cat1"), 2023, 100, "isbn123", "url");
                 when(discoveryService.getDiscoveryData(any()))
-                                .thenReturn(new DiscoveryResponse(
-                                        new DiscoveryResponse.AuthorSection(List.of("Author1"), List.of(book)),
-                                        new DiscoveryResponse.CategorySection(List.of("Cat1"), List.of(book)),
-                                        new DiscoveryResponse.SearchSection(List.of("Query1"), List.of(book))));
+                                .thenReturn(new DiscoveryData(
+                                        new AuthorRecommendations(List.of("Author1"), List.of(book)),
+                                        new CategoryRecommendations(List.of("Cat1"), List.of(book)),
+                                        new SearchRecommendations(List.of("Query1"), List.of(book))));
 
                 mockMvc.perform(get("/api/discovery"))
                                 .andExpect(status().isOk())

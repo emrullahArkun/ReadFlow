@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/model/AuthContext';
-import { booksApi } from '../../library/api/booksApi';
-import apiClient from '../../../shared/api/apiClient';
+import { goalsApi } from '../api/goalsApi';
 
 const EMPTY_STREAK = { currentStreak: 0, longestStreak: 0 };
 
@@ -25,13 +24,13 @@ export const useGoalsData = () => {
 
     const booksQuery = useQuery({
         queryKey: ['goals', user?.email, 'books'],
-        queryFn: () => booksApi.getWithGoals(),
+        queryFn: () => goalsApi.getBooks(),
         enabled: !!token,
     });
 
     const streakQuery = useQuery({
         queryKey: ['goals', user?.email, 'streak'],
-        queryFn: () => apiClient.get('/api/stats/streak'),
+        queryFn: () => goalsApi.getStreak(),
         enabled: !!token,
     });
 

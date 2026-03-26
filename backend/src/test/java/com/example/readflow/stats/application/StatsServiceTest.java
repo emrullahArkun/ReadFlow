@@ -3,10 +3,9 @@ package com.example.readflow.stats.application;
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.infra.persistence.BookRepository;
 import com.example.readflow.sessions.domain.ReadingSession;
-import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
-import com.example.readflow.stats.domain.streak.StreakService;
+import com.example.readflow.stats.domain.streak.StreakInfo;
 import com.example.readflow.sessions.domain.SessionStatus;
-import com.example.readflow.stats.api.dto.StatsOverviewDto;
+import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,9 +68,9 @@ class StatsServiceTest {
                         buildSession(LocalDate.now(), 50, 14)));
         when(bookRepository.findAllCategoriesByUser(user))
                 .thenReturn(List.of("Thriller", "Krimi", "Thriller"));
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(3, 7));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(3, 7));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
 
         assertEquals(5, result.totalBooks());
         assertEquals(2, result.completedBooks());
@@ -92,9 +91,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(Collections.emptyList());
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
 
         assertEquals(0, result.totalBooks());
         assertEquals(0, result.totalReadingMinutes());
@@ -113,9 +112,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(noPages));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertTrue(result.dailyActivity().isEmpty());
     }
 
@@ -135,9 +134,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(noEnd));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertEquals(0, result.totalReadingMinutes());
     }
 
@@ -152,9 +151,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(s));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertEquals(0, result.totalReadingMinutes());
     }
 
@@ -174,9 +173,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(s));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertEquals(0, result.totalReadingMinutes());
     }
 
@@ -191,9 +190,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(s));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertTrue(result.dailyActivity().isEmpty());
     }
 
@@ -208,9 +207,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(s));
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(Collections.emptyList());
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertEquals(30, result.totalReadingMinutes()); // 60min - 30min paused
     }
 
@@ -223,9 +222,9 @@ class StatsServiceTest {
         when(sessionRepository.findCompletedSessionsSince(eq(user), any(), eq(SessionStatus.COMPLETED)))
                 .thenReturn(Collections.emptyList());
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(cats);
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertTrue(result.genreDistribution().size() <= 8);
     }
 
@@ -240,9 +239,9 @@ class StatsServiceTest {
         catsWithNull.add(null);
         catsWithNull.add("Fiction");
         when(bookRepository.findAllCategoriesByUser(user)).thenReturn(catsWithNull);
-        when(streakService.calculateStreaks(user)).thenReturn(new StreakService.StreakInfo(0, 0));
+        when(streakService.calculateStreaks(user)).thenReturn(new StreakInfo(0, 0));
 
-        StatsOverviewDto result = statsService.getOverview(user);
+        StatsOverview result = statsService.getOverview(user);
         assertEquals(1, result.genreDistribution().size());
         assertEquals("Fiction", result.genreDistribution().get(0).genre());
     }

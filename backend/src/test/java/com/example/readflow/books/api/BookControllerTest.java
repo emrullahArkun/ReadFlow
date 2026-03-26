@@ -7,8 +7,8 @@ import com.example.readflow.books.api.dto.UpdateStatusRequest;
 import com.example.readflow.books.api.dto.SetGoalRequest;
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.application.BookService;
+import com.example.readflow.books.application.ReadingGoalProgressService;
 import com.example.readflow.books.domain.Book;
-import com.example.readflow.books.domain.ReadingGoalProgressCalculator;
 import com.example.readflow.books.domain.ReadingGoalType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +51,7 @@ class BookControllerTest {
         private BookMapper bookMapper;
 
         @Mock
-        private ReadingGoalProgressCalculator progressCalculator;
+        private ReadingGoalProgressService progressService;
 
         @InjectMocks
         private BookController bookController;
@@ -101,7 +101,7 @@ class BookControllerTest {
                 Page<Book> page = new PageImpl<>(books);
 
                 when(bookService.findAllByUser(any(), any(Pageable.class))).thenReturn(page);
-                when(progressCalculator.calculateProgressBatch(anyList())).thenReturn(Map.of());
+                when(progressService.calculateProgressBatch(anyList())).thenReturn(Map.of());
                 when(bookMapper.toDto(any(Book.class))).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -122,7 +122,7 @@ class BookControllerTest {
                 Page<Book> page = new PageImpl<>(books);
 
                 when(bookService.findAllByUser(any(), any(Pageable.class))).thenReturn(page);
-                when(progressCalculator.calculateProgressBatch(anyList())).thenReturn(Map.of(1L, 40));
+                when(progressService.calculateProgressBatch(anyList())).thenReturn(Map.of(1L, 40));
                 when(bookMapper.toDto(any(Book.class))).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -149,7 +149,7 @@ class BookControllerTest {
                 Book book = new Book();
                 book.setId(1L);
                 when(bookService.findBooksWithGoals(any())).thenReturn(List.of(book));
-                when(progressCalculator.calculateProgressBatch(anyList())).thenReturn(Map.of());
+                when(progressService.calculateProgressBatch(anyList())).thenReturn(Map.of());
                 when(bookMapper.toDto(any(Book.class))).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -165,7 +165,7 @@ class BookControllerTest {
                 Book book = new Book();
                 book.setId(1L);
                 when(bookService.findBooksWithGoals(any())).thenReturn(List.of(book));
-                when(progressCalculator.calculateProgressBatch(anyList())).thenReturn(Map.of(1L, 75));
+                when(progressService.calculateProgressBatch(anyList())).thenReturn(Map.of(1L, 75));
                 when(bookMapper.toDto(any(Book.class))).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -194,7 +194,7 @@ class BookControllerTest {
                 Book book = new Book();
                 book.setId(1L);
                 when(bookService.getBookByIdOrThrow(eq(1L), any())).thenReturn(book);
-                when(progressCalculator.calculateProgress(book)).thenReturn(60);
+                when(progressService.calculateProgress(book)).thenReturn(60);
                 when(bookMapper.toDto(book)).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -212,7 +212,7 @@ class BookControllerTest {
                 Book book = new Book();
                 book.setId(1L);
                 when(bookService.createBook(any(), any())).thenReturn(book);
-                when(progressCalculator.calculateProgress(book)).thenReturn(30);
+                when(progressService.calculateProgress(book)).thenReturn(30);
                 when(bookMapper.toDto(book)).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, false, null,
                                                 null, null, null));
@@ -230,7 +230,7 @@ class BookControllerTest {
                 UpdateProgressRequest request = new UpdateProgressRequest(50);
                 Book book = new Book();
                 when(bookService.updateBookProgress(eq(1L), eq(50), any())).thenReturn(book);
-                when(progressCalculator.calculateProgress(book)).thenReturn(55);
+                when(progressService.calculateProgress(book)).thenReturn(55);
                 when(bookMapper.toDto(book))
                                 .thenReturn(new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 50, null,
                                                 false, null, null, null, null));
@@ -247,7 +247,7 @@ class BookControllerTest {
                 UpdateStatusRequest request = new UpdateStatusRequest(true);
                 Book book = new Book();
                 when(bookService.updateBookStatus(eq(1L), eq(true), any())).thenReturn(book);
-                when(progressCalculator.calculateProgress(book)).thenReturn(65);
+                when(progressService.calculateProgress(book)).thenReturn(65);
                 when(bookMapper.toDto(book)).thenReturn(
                                 new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null, true, null,
                                                 null, null, null));
@@ -265,7 +265,7 @@ class BookControllerTest {
                 Book book = new Book();
                 when(bookService.updateReadingGoal(eq(1L), eq(ReadingGoalType.WEEKLY), eq(100), any()))
                                 .thenReturn(book);
-                when(progressCalculator.calculateProgress(book)).thenReturn(75);
+                when(progressService.calculateProgress(book)).thenReturn(75);
                 when(bookMapper.toDto(book))
                                 .thenReturn(new BookDto(1L, "isbn", "title", "author", 2023, "url", 100, 0, null,
                                                 false, ReadingGoalType.WEEKLY, 100, null, null));

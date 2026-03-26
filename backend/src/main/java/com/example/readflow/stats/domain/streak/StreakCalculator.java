@@ -1,47 +1,17 @@
 package com.example.readflow.stats.domain.streak;
 
-import com.example.readflow.auth.domain.User;
-import com.example.readflow.sessions.domain.SessionStatus;
-import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
-import com.example.readflow.shared.time.ZoneIdResolver;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Comparator;
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class StreakService {
+@Component
+public class StreakCalculator {
 
-    private final ReadingSessionRepository sessionRepository;
-    private final Clock clock;
-
-    public record StreakInfo(int current, int longest) {}
-
-    public StreakInfo calculateStreaks(User user) {
-        return calculateStreaks(user, ZoneIdResolver.resolveOrUtc(null));
-    }
-
-    public StreakInfo calculateStreaks(User user, String timezone) {
-        return calculateStreaks(user, ZoneIdResolver.resolveOrUtc(timezone));
-    }
-
-    public StreakInfo calculateStreaks(User user, ZoneId zoneId) {
-        LocalDate today = LocalDate.now(clock.withZone(zoneId));
-
-        List<LocalDate> readingDays = sessionRepository
-                .findAllCompletedEndTimes(user, SessionStatus.COMPLETED)
-                .stream()
-                .map(instant -> instant.atZone(zoneId).toLocalDate())
-                .distinct()
-                .sorted(Comparator.reverseOrder())
-                .toList();
-
-        if (readingDays.isEmpty()) return new StreakInfo(0, 0);
+    public StreakInfo calculate(List<LocalDate> readingDays, LocalDate today) {
+        if (readingDays.isEmpty()) {
+            return new StreakInfo(0, 0);
+        }
 
         int current = calculateCurrentStreak(readingDays, today);
         int longest = calculateLongestStreak(readingDays);

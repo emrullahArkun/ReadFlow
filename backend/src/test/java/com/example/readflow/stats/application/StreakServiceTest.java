@@ -1,8 +1,10 @@
-package com.example.readflow.stats.domain.streak;
+package com.example.readflow.stats.application;
 
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.sessions.domain.SessionStatus;
 import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
+import com.example.readflow.stats.domain.streak.StreakCalculator;
+import com.example.readflow.stats.domain.streak.StreakInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +39,7 @@ class StreakServiceTest {
 
     @BeforeEach
     void setUp() {
-        streakService = new StreakService(sessionRepository, FIXED_CLOCK);
+        streakService = new StreakService(sessionRepository, new StreakCalculator(), FIXED_CLOCK);
         user = new User();
         user.setId(1L);
     }
@@ -47,7 +49,7 @@ class StreakServiceTest {
         when(sessionRepository.findAllCompletedEndTimes(eq(user), eq(SessionStatus.COMPLETED)))
                 .thenReturn(Collections.emptyList());
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(0, result.current());
         assertEquals(0, result.longest());
     }
@@ -61,7 +63,7 @@ class StreakServiceTest {
                         FIXED_DATE.minusDays(2).atStartOfDay(ZoneOffset.UTC).plusHours(8).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(3, result.current());
         assertEquals(3, result.longest());
     }
@@ -75,7 +77,7 @@ class StreakServiceTest {
                         yesterday.minusDays(1).atStartOfDay(ZoneOffset.UTC).plusHours(15).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(2, result.current());
         assertEquals(2, result.longest());
     }
@@ -89,7 +91,7 @@ class StreakServiceTest {
                         FIXED_DATE.minusDays(3).atStartOfDay(ZoneOffset.UTC).plusHours(10).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(2, result.current());
         assertEquals(2, result.longest());
     }
@@ -102,7 +104,7 @@ class StreakServiceTest {
                         twoDaysAgo.atStartOfDay(ZoneOffset.UTC).plusHours(12).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(0, result.current());
         assertEquals(1, result.longest());
     }
@@ -118,7 +120,7 @@ class StreakServiceTest {
                         FIXED_DATE.minusDays(7).atStartOfDay(ZoneOffset.UTC).plusHours(10).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(2, result.current());
         assertEquals(3, result.longest());
     }
@@ -130,7 +132,7 @@ class StreakServiceTest {
                         FIXED_DATE.atStartOfDay(ZoneOffset.UTC).plusHours(18).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(1, result.current());
         assertEquals(1, result.longest());
     }
@@ -151,7 +153,7 @@ class StreakServiceTest {
         when(sessionRepository.findAllCompletedEndTimes(eq(user), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(lateEvening, earlyMorning));
 
-        StreakService.StreakInfo berlinResult = streakService.calculateStreaks(user, berlin);
+        StreakInfo berlinResult = streakService.calculateStreaks(user, berlin);
         assertEquals(2, berlinResult.current());
     }
 
@@ -164,7 +166,7 @@ class StreakServiceTest {
                         FIXED_DATE.atStartOfDay(ZoneOffset.UTC).plusHours(20).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(1, result.current());
         assertEquals(1, result.longest());
     }
@@ -176,7 +178,7 @@ class StreakServiceTest {
                         FIXED_DATE.atStartOfDay(ZoneOffset.UTC).plusHours(10).toInstant()
                 ));
 
-        StreakService.StreakInfo result = streakService.calculateStreaks(user);
+        StreakInfo result = streakService.calculateStreaks(user);
         assertEquals(1, result.current());
         assertEquals(1, result.longest());
     }

@@ -1,5 +1,8 @@
-package com.example.readflow.books.domain;
+package com.example.readflow.books.application;
 
+import com.example.readflow.books.domain.Book;
+import com.example.readflow.books.domain.ReadingGoalPeriodCalculator;
+import com.example.readflow.books.domain.ReadingGoalType;
 import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
 import com.example.readflow.sessions.domain.SessionStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,12 +23,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ReadingGoalProgressCalculatorTest {
+class ReadingGoalProgressServiceTest {
 
     @Mock
     private ReadingSessionRepository sessionRepository;
 
-    private ReadingGoalProgressCalculator calculator;
+    private ReadingGoalProgressService progressService;
 
     // Fixed to Wednesday 2026-03-25T10:00:00Z
     // -> Start of week (Monday) = 2026-03-23T00:00:00Z
@@ -37,7 +40,7 @@ class ReadingGoalProgressCalculatorTest {
     @BeforeEach
     void setUp() {
         Clock fixedClock = Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
-        calculator = new ReadingGoalProgressCalculator(sessionRepository, fixedClock);
+        progressService = new ReadingGoalProgressService(sessionRepository, fixedClock, new ReadingGoalPeriodCalculator());
     }
 
     @Test
@@ -46,7 +49,7 @@ class ReadingGoalProgressCalculatorTest {
         book.setReadingGoalType(null);
         book.setReadingGoalPages(100);
 
-        assertNull(calculator.calculateProgress(book));
+        assertNull(progressService.calculateProgress(book));
         verifyNoInteractions(sessionRepository);
     }
 
@@ -56,7 +59,7 @@ class ReadingGoalProgressCalculatorTest {
         book.setReadingGoalType(ReadingGoalType.WEEKLY);
         book.setReadingGoalPages(null);
 
-        assertNull(calculator.calculateProgress(book));
+        assertNull(progressService.calculateProgress(book));
         verifyNoInteractions(sessionRepository);
     }
 
@@ -68,7 +71,7 @@ class ReadingGoalProgressCalculatorTest {
 
         when(sessionRepository.sumPagesReadByBookSince(eq(book), eq(EXPECTED_WEEK_START), eq(SessionStatus.COMPLETED))).thenReturn(25);
 
-        assertEquals(25, calculator.calculateProgress(book));
+        assertEquals(25, progressService.calculateProgress(book));
         verify(sessionRepository).sumPagesReadByBookSince(eq(book), eq(EXPECTED_WEEK_START), eq(SessionStatus.COMPLETED));
     }
 
@@ -80,7 +83,7 @@ class ReadingGoalProgressCalculatorTest {
 
         when(sessionRepository.sumPagesReadByBookSince(eq(book), eq(EXPECTED_MONTH_START), eq(SessionStatus.COMPLETED))).thenReturn(50);
 
-        assertEquals(50, calculator.calculateProgress(book));
+        assertEquals(50, progressService.calculateProgress(book));
         verify(sessionRepository).sumPagesReadByBookSince(eq(book), eq(EXPECTED_MONTH_START), eq(SessionStatus.COMPLETED));
     }
 
@@ -92,7 +95,7 @@ class ReadingGoalProgressCalculatorTest {
 
         when(sessionRepository.sumPagesReadByBookSince(eq(book), eq(EXPECTED_WEEK_START), eq(SessionStatus.COMPLETED))).thenReturn(0);
 
-        assertEquals(0, calculator.calculateProgress(book));
+        assertEquals(0, progressService.calculateProgress(book));
     }
 
     @Test
@@ -114,7 +117,7 @@ class ReadingGoalProgressCalculatorTest {
         when(sessionRepository.sumPagesReadByBooksSince(eq(List.of(monthlyBook)), eq(EXPECTED_MONTH_START), eq(SessionStatus.COMPLETED)))
                 .thenReturn(List.of(monthlySum));
 
-        Map<Long, Integer> result = calculator.calculateProgressBatch(List.of(weeklyBook, monthlyBook));
+        Map<Long, Integer> result = progressService.calculateProgressBatch(List.of(weeklyBook, monthlyBook));
 
         assertEquals(25, result.get(1L));
         assertEquals(50, result.get(2L));
@@ -130,7 +133,7 @@ class ReadingGoalProgressCalculatorTest {
         when(sessionRepository.sumPagesReadByBooksSince(anyList(), eq(EXPECTED_WEEK_START), eq(SessionStatus.COMPLETED)))
                 .thenReturn(java.util.Collections.emptyList());
 
-        Map<Long, Integer> result = calculator.calculateProgressBatch(List.of(book));
+        Map<Long, Integer> result = progressService.calculateProgressBatch(List.of(book));
 
         assertEquals(0, result.get(1L));
     }
@@ -141,7 +144,7 @@ class ReadingGoalProgressCalculatorTest {
         bookNoGoal.setId(1L);
         bookNoGoal.setReadingGoalType(null);
 
-        Map<Long, Integer> result = calculator.calculateProgressBatch(List.of(bookNoGoal));
+        Map<Long, Integer> result = progressService.calculateProgressBatch(List.of(bookNoGoal));
 
         assertTrue(result.isEmpty());
         verifyNoInteractions(sessionRepository);

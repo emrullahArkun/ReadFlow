@@ -1,8 +1,8 @@
 package com.example.readflow.discovery.infra.external;
 
-import com.example.readflow.discovery.api.dto.RecommendedBookDto;
-import com.example.readflow.discovery.api.dto.SearchResultDto;
 import com.example.readflow.discovery.domain.BookDiscoveryProvider;
+import com.example.readflow.discovery.domain.DiscoveryBook;
+import com.example.readflow.discovery.domain.DiscoverySearchResult;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
 
     @Cacheable(value = "openLibraryBooks", key = "'author:' + #author + ':' + #maxResults")
     @Override
-    public List<RecommendedBookDto> getBooksByAuthor(String author, int maxResults) {
+    public List<DiscoveryBook> getBooksByAuthor(String author, int maxResults) {
         String url = SEARCH_URL + "?author=" + encodeParam(author)
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
@@ -45,7 +45,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
 
     @Cacheable(value = "openLibraryBooks", key = "'category:' + #category + ':' + #maxResults")
     @Override
-    public List<RecommendedBookDto> getBooksByCategory(String category, int maxResults) {
+    public List<DiscoveryBook> getBooksByCategory(String category, int maxResults) {
         String url = SEARCH_URL + "?subject=" + encodeParam(category)
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
@@ -53,7 +53,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
 
     @Cacheable(value = "openLibraryBooks", key = "'query:' + #query + ':' + #maxResults")
     @Override
-    public List<RecommendedBookDto> getBooksByQuery(String query, int maxResults) {
+    public List<DiscoveryBook> getBooksByQuery(String query, int maxResults) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)
                 + "&fields=" + FIELDS + "&limit=" + maxResults;
         return fetchBooks(url);
@@ -61,13 +61,13 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
 
     @Cacheable(value = "openLibrarySearch", key = "#query + ':' + #offset + ':' + #limit")
     @Override
-    public SearchResultDto searchBooks(String query, int offset, int limit) {
+    public DiscoverySearchResult searchBooks(String query, int offset, int limit) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)
                 + "&fields=" + FIELDS + "&offset=" + offset + "&limit=" + limit;
         return fetchBooksWithTotal(url);
     }
 
-    private List<RecommendedBookDto> fetchBooks(String url) {
+    private List<DiscoveryBook> fetchBooks(String url) {
         try {
             OpenLibraryResponse response = doGet(url);
             if (response == null || response.docs() == null) {
@@ -84,28 +84,28 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
         }
     }
 
-    private SearchResultDto fetchBooksWithTotal(String url) {
+    private DiscoverySearchResult fetchBooksWithTotal(String url) {
         try {
             OpenLibraryResponse response = doGet(url);
             if (response == null) {
-                return new SearchResultDto(Collections.emptyList(), 0);
+                return new DiscoverySearchResult(Collections.emptyList(), 0);
             }
 
             int numFound = response.numFound() != null ? response.numFound() : 0;
 
             if (response.docs() == null) {
-                return new SearchResultDto(Collections.emptyList(), numFound);
+                return new DiscoverySearchResult(Collections.emptyList(), numFound);
             }
 
-            List<RecommendedBookDto> books = response.docs().stream()
+            List<DiscoveryBook> books = response.docs().stream()
                     .filter(doc -> doc.coverI() != null)
                     .map(this::mapToDto)
                     .toList();
 
-            return new SearchResultDto(books, numFound);
+            return new DiscoverySearchResult(books, numFound);
         } catch (RestClientException e) {
             log.error("Failed to search books from Open Library: {}", e.getMessage());
-            return new SearchResultDto(Collections.emptyList(), 0);
+            return new DiscoverySearchResult(Collections.emptyList(), 0);
         }
     }
 
@@ -116,7 +116,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
                 .body(OpenLibraryResponse.class);
     }
 
-    private RecommendedBookDto mapToDto(OpenLibraryDoc doc) {
+    private DiscoveryBook mapToDto(OpenLibraryDoc doc) {
         List<String> subjects = doc.subject();
         if (subjects != null && subjects.size() > 3) {
             subjects = subjects.subList(0, 3);
@@ -138,7 +138,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
                 ? String.format(COVER_URL_TEMPLATE, doc.coverI())
                 : null;
 
-        return new RecommendedBookDto(doc.title(), doc.authorName(), subjects,
+        return new DiscoveryBook(doc.title(), doc.authorName(), subjects,
                 doc.firstPublishYear(), doc.numberOfPagesMedian(), isbn, coverUrl);
     }
 

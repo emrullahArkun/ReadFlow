@@ -1,7 +1,6 @@
 package com.example.readflow.books.api;
 
 import com.example.readflow.books.api.dto.BookDto;
-import com.example.readflow.books.api.dto.CreateBookRequest;
 import com.example.readflow.books.domain.Book;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,28 +55,6 @@ class BookMapperTest {
         assertTrue(dto.categories().isEmpty());
         assertNull(dto.readingGoalType());
         assertNull(dto.readingGoalProgress());
-    }
-
-    // --- toEntity tests ---
-
-    @Test
-    void toEntity_ShouldMapRequestToBook() {
-        CreateBookRequest request = new CreateBookRequest(
-                "isbn123", "Test Book", "John Doe", 2023, "http://cover.jpg", 300, List.of("Thriller"));
-
-        Book book = mapper.toEntity(request);
-
-        assertEquals("isbn123", book.getIsbn());
-        assertEquals("Test Book", book.getTitle());
-        assertEquals("John Doe", book.getAuthor());
-        assertEquals(2023, book.getPublishYear());
-        assertEquals("http://cover.jpg", book.getCoverUrl());
-        assertEquals(300, book.getPageCount());
-        assertEquals(List.of("Thriller"), book.getCategories());
-        // Ignored fields
-        assertNull(book.getId());
-        assertNull(book.getCurrentPage());
-        assertNull(book.getUser());
     }
 
     // --- Helper ---

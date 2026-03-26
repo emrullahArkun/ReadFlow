@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { FaPen, FaBook, FaSearch, FaPlus, FaSpinner, FaBookOpen } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useAnimation } from '../../../app/providers/AnimationProvider';
-import { useAddBookToLibrary } from '../../library/model/useAddBookToLibrary';
+import { useAddDiscoveryBook } from '../model/useAddDiscoveryBook.jsx';
 import BookCover from '../../../shared/ui/BookCover';
 import styles from './DiscoverySection.module.css';
 
@@ -24,7 +24,7 @@ const DiscoverySection = ({
     emptyMessage
 }) => {
     const Icon = ICONS[iconType] || FaBook;
-    const addBookMutation = useAddBookToLibrary();
+    const addBookMutation = useAddDiscoveryBook();
 
     if (!books || books.length === 0) {
         return (

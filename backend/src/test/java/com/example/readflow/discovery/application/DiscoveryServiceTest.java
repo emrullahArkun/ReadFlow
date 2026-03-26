@@ -1,7 +1,7 @@
 package com.example.readflow.discovery.application;
 
 import com.example.readflow.auth.domain.User;
-import com.example.readflow.discovery.api.dto.RecommendedBookDto;
+import com.example.readflow.discovery.domain.DiscoveryBook;
 import com.example.readflow.discovery.domain.DiscoverySnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getRecommendationsByAuthor_ShouldDelegate() {
-        RecommendedBookDto book = new RecommendedBookDto("Book Title", List.of("Author"), null, null, 200, "isbn456", null);
+        DiscoveryBook book = new DiscoveryBook("Book Title", List.of("Author"), null, null, 200, "isbn456", null);
         when(recommendationService.getRecommendationsByAuthor("Author", Set.of("owned123"), 5))
                 .thenReturn(List.of(book));
 
@@ -75,7 +75,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getRecommendationsByCategory_ShouldDelegate() {
-        RecommendedBookDto book = new RecommendedBookDto("Cat Book", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Cat Book", null, null, null, null, null, null);
         when(recommendationService.getRecommendationsByCategory("Fiction", Set.of(), 5))
                 .thenReturn(List.of(book));
 
@@ -86,7 +86,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getRecommendationsByQuery_ShouldDelegate() {
-        RecommendedBookDto book = new RecommendedBookDto("Search Book", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Search Book", null, null, null, null, null, null);
         when(recommendationService.getRecommendationsByQuery("Java", Set.of(), 5))
                 .thenReturn(List.of(book));
 
@@ -117,7 +117,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getAuthorSection_ShouldReturnBooks_WhenAuthorsExist() {
-        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Book1", null, null, null, null, null, null);
         when(userDataService.getTopAuthors(eq(user), anyInt())).thenReturn(List.of("Author1"));
         when(recommendationService.getRecommendationsByAuthor("Author1", Set.of(), 10)).thenReturn(List.of(book));
 
@@ -139,7 +139,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getCategorySection_ShouldReturnBooks_WhenCategoriesExist() {
-        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Book1", null, null, null, null, null, null);
         when(userDataService.getTopCategories(eq(user), anyInt())).thenReturn(List.of("Cat1"));
         when(recommendationService.getRecommendationsByCategory("Cat1", Set.of(), 10)).thenReturn(List.of(book));
 
@@ -161,7 +161,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getSearchSection_ShouldReturnBooks_WhenSearchesExist() {
-        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Book1", null, null, null, null, null, null);
         when(userDataService.getRecentSearches(eq(user), anyInt())).thenReturn(List.of("query1"));
         when(recommendationService.getRecommendationsByQuery("query1", Set.of(), 10)).thenReturn(List.of(book));
 
@@ -188,7 +188,7 @@ class DiscoveryServiceTest {
 
     @Test
     void getDiscoveryData_ShouldReturnAllSections() {
-        RecommendedBookDto book = new RecommendedBookDto("Book1", null, null, null, null, null, null);
+        DiscoveryBook book = new DiscoveryBook("Book1", null, null, null, null, null, null);
         when(userDataService.getSnapshot(user, 3, 5))
                 .thenReturn(new DiscoverySnapshot(Set.of(), List.of("Author1"), List.of("Cat1"), List.of("query1")));
         when(recommendationService.getRecommendationsByAuthor("Author1", Set.of(), 10)).thenReturn(List.of(book));

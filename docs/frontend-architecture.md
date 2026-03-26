@@ -91,6 +91,11 @@ Wenn etwas nur für ein Feature da ist, gehört es nicht nach `shared`.
 3. Gemeinsamer Code kommt nur dann nach `shared`, wenn er wirklich fachneutral ist.
 4. Neue Seiten liegen im passenden Feature unter `pages`, nicht in einem globalen `pages`-Ordner.
 5. Contexts liegen beim owning Feature oder in `app/providers`, nicht global in `src/context`.
+6. `shared` importiert nichts aus `app` oder `features`.
+7. Features importieren keine `ui`- oder `pages`-Ordner anderer Features.
+8. Wenn ein Feature ein anderes braucht, dann bevorzugt über dessen `api` statt über `model`.
+
+Ein Teil dieser Regeln wird direkt per ESLint erzwungen.
 
 ## Warum diese Architektur
 

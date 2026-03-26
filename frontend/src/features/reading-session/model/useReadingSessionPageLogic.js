@@ -17,6 +17,8 @@ export const useReadingSessionPageLogic = (bookId) => {
     // Global Session logic
     const {
         activeSession,
+        sessionPhase,
+        isBusy,
         startSession,
         stopSession,
         formattedTime,
@@ -34,9 +36,9 @@ export const useReadingSessionPageLogic = (bookId) => {
 
     useReadingSessionLifecycle({
         activeSession,
+        sessionPhase,
         book,
         bookId,
-        sessionLoading,
         hasStopped,
         startSession,
         navigate,
@@ -54,6 +56,7 @@ export const useReadingSessionPageLogic = (bookId) => {
     } = useReadingSessionStopFlow({
         book,
         isPaused,
+        isBusy,
         pauseSession,
         resumeSession,
         stopSession,
@@ -68,6 +71,8 @@ export const useReadingSessionPageLogic = (bookId) => {
         fetchingBook,
         activeSession,
         sessionLoading,
+        sessionPhase,
+        isBusy,
         formattedTime,
         isPaused,
         resumeSession,

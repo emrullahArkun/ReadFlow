@@ -1,12 +1,13 @@
-package com.example.readflow.stats.domain.achievements;
+package com.example.readflow.stats.application;
 
 import com.example.readflow.auth.domain.User;
 import com.example.readflow.books.infra.persistence.BookRepository;
-import com.example.readflow.sessions.domain.ReadingSession;
 import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
+import com.example.readflow.sessions.domain.ReadingSession;
 import com.example.readflow.sessions.domain.SessionStatus;
 import com.example.readflow.stats.domain.activity.SessionAnalyzer;
-import com.example.readflow.stats.domain.streak.StreakService;
+import com.example.readflow.stats.domain.achievements.AchievementContext;
+import com.example.readflow.stats.domain.streak.StreakInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,8 @@ public class AchievementContextFactory {
         long completedBooks = bookRepository.countByUserAndCompletedTrue(user);
         long totalPages = sessionRepository.sumPagesReadByUser(user, SessionStatus.COMPLETED);
         long totalSessions = sessionRepository.countCompletedByUser(user, SessionStatus.COMPLETED);
-        int bestStreak = streakService.calculateStreaks(user, zoneId).longest();
+        StreakInfo streakInfo = streakService.calculateStreaks(user, zoneId);
+        int bestStreak = streakInfo.longest();
 
         Instant since = LocalDate.now(clock.withZone(zoneId)).minusYears(1).atStartOfDay(zoneId).toInstant();
         List<ReadingSession> sessions = sessionRepository.findCompletedSessionsSince(user, since, SessionStatus.COMPLETED);

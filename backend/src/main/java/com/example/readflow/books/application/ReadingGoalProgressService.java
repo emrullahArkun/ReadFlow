@@ -1,32 +1,33 @@
-package com.example.readflow.books.domain;
+package com.example.readflow.books.application;
 
-import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
+import com.example.readflow.books.domain.Book;
+import com.example.readflow.books.domain.ReadingGoalPeriodCalculator;
+import com.example.readflow.books.domain.ReadingGoalType;
 import com.example.readflow.sessions.domain.SessionStatus;
+import com.example.readflow.sessions.infra.persistence.ReadingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
-import java.time.DayOfWeek;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class ReadingGoalProgressCalculator {
+public class ReadingGoalProgressService {
 
     private final ReadingSessionRepository sessionRepository;
     private final Clock clock;
+    private final ReadingGoalPeriodCalculator readingGoalPeriodCalculator;
 
     public Integer calculateProgress(Book book) {
         if (book.getReadingGoalType() == null || book.getReadingGoalPages() == null) {
             return null;
         }
 
-        Instant startInstant = getStartOfPeriod(book.getReadingGoalType());
+        Instant startInstant = readingGoalPeriodCalculator.getStartOfPeriod(book.getReadingGoalType(), clock);
         return sessionRepository.sumPagesReadByBookSince(book, startInstant, SessionStatus.COMPLETED);
     }
 
@@ -42,7 +43,7 @@ public class ReadingGoalProgressCalculator {
                 .toList();
 
         if (!weeklyBooks.isEmpty()) {
-            Instant weekStart = getStartOfPeriod(ReadingGoalType.WEEKLY);
+            Instant weekStart = readingGoalPeriodCalculator.getStartOfPeriod(ReadingGoalType.WEEKLY, clock);
             for (var row : sessionRepository.sumPagesReadByBooksSince(weeklyBooks, weekStart, SessionStatus.COMPLETED)) {
                 result.put(row.getBookId(), row.getTotalPages());
             }
@@ -53,7 +54,7 @@ public class ReadingGoalProgressCalculator {
         }
 
         if (!monthlyBooks.isEmpty()) {
-            Instant monthStart = getStartOfPeriod(ReadingGoalType.MONTHLY);
+            Instant monthStart = readingGoalPeriodCalculator.getStartOfPeriod(ReadingGoalType.MONTHLY, clock);
             for (var row : sessionRepository.sumPagesReadByBooksSince(monthlyBooks, monthStart, SessionStatus.COMPLETED)) {
                 result.put(row.getBookId(), row.getTotalPages());
             }
@@ -63,17 +64,5 @@ public class ReadingGoalProgressCalculator {
         }
 
         return result;
-    }
-
-    private Instant getStartOfPeriod(ReadingGoalType goalType) {
-        LocalDate now = LocalDate.now(clock);
-        return switch (goalType) {
-            case WEEKLY -> now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                    .atStartOfDay(clock.getZone())
-                    .toInstant();
-            case MONTHLY -> now.withDayOfMonth(1)
-                    .atStartOfDay(clock.getZone())
-                    .toInstant();
-        };
     }
 }

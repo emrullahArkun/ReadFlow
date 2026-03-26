@@ -1,6 +1,6 @@
 package com.example.readflow.discovery.infra.external;
 
-import com.example.readflow.discovery.api.dto.SearchResultDto;
+import com.example.readflow.discovery.domain.DiscoverySearchResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -143,7 +143,7 @@ class OpenLibraryClientTest {
                 "numFound", 42,
                 "docs", List.of(bookDocWithIsbn("Found Book", 12345, "9781234567890"))));
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 0, 10);
         assertEquals(42, result.totalItems());
         assertEquals(1, result.items().size());
         assertEquals("Found Book", result.items().get(0).title());
@@ -153,7 +153,7 @@ class OpenLibraryClientTest {
     void searchBooks_ShouldReturnEmptyWithTotal_WhenNoDocs() {
         mockApiResponse(Map.of("numFound", 100));
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 50, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 50, 10);
         assertEquals(100, result.totalItems());
         assertTrue(result.items().isEmpty());
     }
@@ -163,7 +163,7 @@ class OpenLibraryClientTest {
         mockServer.expect(requestTo(org.hamcrest.Matchers.startsWith("https://openlibrary.org/search.json")))
                 .andRespond(withServerError());
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 0, 10);
         assertEquals(0, result.totalItems());
         assertTrue(result.items().isEmpty());
     }
@@ -257,7 +257,7 @@ class OpenLibraryClientTest {
     void searchBooks_ShouldDefaultTotalToZero_WhenNumFoundMissing() {
         mockApiResponse(Map.of("docs", List.of(bookDoc("Book", 1))));
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 0, 10);
         assertEquals(0, result.totalItems());
         assertEquals(1, result.items().size());
     }
@@ -266,7 +266,7 @@ class OpenLibraryClientTest {
     void searchBooks_ShouldReturnZeroTotal_WhenNoDocsAndNoNumFound() {
         mockApiResponse(Map.of("someKey", "someValue"));
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 0, 10);
         assertEquals(0, result.totalItems());
         assertTrue(result.items().isEmpty());
     }
@@ -286,7 +286,7 @@ class OpenLibraryClientTest {
         mockServer.expect(requestTo(org.hamcrest.Matchers.startsWith("https://openlibrary.org/search.json")))
                 .andRespond(withSuccess("null", MediaType.APPLICATION_JSON));
 
-        SearchResultDto result = openLibraryClient.searchBooks("test", 0, 10);
+        DiscoverySearchResult result = openLibraryClient.searchBooks("test", 0, 10);
         assertTrue(result.items().isEmpty());
         assertEquals(0, result.totalItems());
     }

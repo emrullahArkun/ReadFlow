@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import { Box, Button, Heading, Text, VStack } from '@chakra-ui/react';
-import i18n from '../../app/i18n';
+import { withTranslation } from 'react-i18next';
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -22,16 +22,18 @@ class ErrorBoundary extends Component {
     };
 
     render() {
+        const { t } = this.props;
+
         if (this.state.hasError) {
             return (
                 <Box minH="100dvh" display="flex" alignItems="center" justifyContent="center" bg="transparent">
                     <VStack spacing={4} textAlign="center" p={8}>
                         <Heading size="lg" color="white">
-                            {i18n.t('error.title')}
+                            {t('error.title')}
                         </Heading>
                         <Text color="gray.300">{this.state.error?.message}</Text>
                         <Button colorScheme="teal" onClick={this.handleReset}>
-                            {i18n.t('error.retry')}
+                            {t('error.retry')}
                         </Button>
                     </VStack>
                 </Box>
@@ -42,4 +44,4 @@ class ErrorBoundary extends Component {
     }
 }
 
-export default ErrorBoundary;
+export default withTranslation()(ErrorBoundary);
