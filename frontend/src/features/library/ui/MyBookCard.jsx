@@ -109,7 +109,7 @@ const MyBookCard = ({
             </Box>
 
             <MyBookCardMeta
-                title={book.title}
+                title={info.title}
                 authorText={authorText}
                 currentPage={book.currentPage}
                 pageCount={book.pageCount}

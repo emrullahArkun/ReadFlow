@@ -22,7 +22,10 @@ function MyBookCardMeta({ title, authorText, currentPage, pageCount }) {
             )}
             {pageCount > 0 && (
                 <Text fontSize="xs" color="gray.400" mt={0.5}>
-                    {currentPage || 0} / {pageCount} {t('bookStats.pages')}
+                    {t('bookStats.pageProgress', {
+                        current: currentPage ?? 0,
+                        total: pageCount,
+                    })}
                 </Text>
             )}
         </VStack>

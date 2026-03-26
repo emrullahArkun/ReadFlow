@@ -18,7 +18,7 @@ vi.mock('react-router-dom', async () => {
 
 // Mock UI Components
 vi.mock('../../../shared/ui/BookCover', () => ({
-    default: ({ book }) => <div data-testid="book-cover">{book?.title}</div>
+    default: ({ book }) => <div data-testid="book-cover">{book?.volumeInfo?.title ?? book?.title}</div>
 }));
 
 describe('MyBookCard', () => {
@@ -55,8 +55,7 @@ describe('MyBookCard', () => {
         renderCard();
         expect(screen.getByTestId('book-cover')).toBeInTheDocument();
         expect(screen.getAllByText('Test Book').length).toBeGreaterThanOrEqual(1);
-        // Pages text (e.g. "10 / 100 bookStats.pages")
-        expect(screen.getByText(/bookStats\.pages/)).toBeInTheDocument();
+        expect(screen.getByText('bookStats.pageProgress')).toBeInTheDocument();
     });
 
     it('renders completed badge if completed', () => {
@@ -67,7 +66,20 @@ describe('MyBookCard', () => {
     it('renders no page count if pageCount is 0', () => {
         renderCard({ ...defaultBook, pageCount: 0 });
         // When pageCount is 0, no page info is rendered
-        expect(screen.queryByText('bookStats.pages')).toBeNull();
+        expect(screen.queryByText('bookStats.pageProgress')).toBeNull();
+    });
+
+    it('uses the volumeInfo title when provided', () => {
+        renderCard({
+            ...defaultBook,
+            title: 'Outer Title',
+            volumeInfo: {
+                title: 'Inner Title',
+            },
+        });
+
+        expect(screen.getAllByText('Inner Title').length).toBeGreaterThanOrEqual(1);
+        expect(screen.queryByText('Outer Title')).toBeNull();
     });
 
     it('triggers onToggleSelect when checkbox is clicked', () => {

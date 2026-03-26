@@ -1,5 +1,6 @@
 import { Flex, IconButton, Text } from '@chakra-ui/react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 function LibraryPagination({
     page,
@@ -7,6 +8,8 @@ function LibraryPagination({
     onPreviousPage,
     onNextPage,
 }) {
+    const { t } = useTranslation();
+
     if (totalPages <= 1) {
         return null;
     }
@@ -20,7 +23,7 @@ function LibraryPagination({
                 color="white"
                 variant="ghost"
                 fontSize="lg"
-                aria-label="Previous Page"
+                aria-label={t('common.previousPage')}
                 _hover={{ bg: 'whiteAlpha.100' }}
             />
             <Text color="gray.500" fontSize="sm">
@@ -33,7 +36,7 @@ function LibraryPagination({
                 color="white"
                 variant="ghost"
                 fontSize="lg"
-                aria-label="Next Page"
+                aria-label={t('common.nextPage')}
                 _hover={{ bg: 'whiteAlpha.100' }}
             />
         </Flex>

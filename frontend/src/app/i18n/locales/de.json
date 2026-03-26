@@ -210,7 +210,9 @@
         "delete": "Löschen",
         "deleteAll": "Alle löschen",
         "leave": "Verlassen",
-        "back": "Zurück"
+        "back": "Zurück",
+        "previousPage": "Vorherige Seite",
+        "nextPage": "Nächste Seite"
     },
     "discovery": {
         "loading": "Empfehlungen werden geladen...",
@@ -363,6 +365,7 @@
     "bookStats": {
         "readProgress": "Lese-Fortschritt",
         "pages": "Seiten",
+        "pageProgress": "{{current}} / {{total}} Seiten",
         "completed": "Abgeschlossen",
         "totalTime": {
             "label": "Gesamtzeit",

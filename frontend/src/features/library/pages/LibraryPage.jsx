@@ -64,16 +64,16 @@ function LibraryPage() {
 
     return (
         <Box w="100%" px={{ base: 4, md: 8 }} py={6} minH="calc(100vh - 80px)">
-            <LibraryActionsBar
-                selectedCount={selectedBooks.size}
-                onDeleteSelected={onDeleteSelectedOpen}
-                onDeleteAll={onDeleteAllOpen}
-            />
-
             {books.length === 0 ? (
                 <LibraryEmptyState />
             ) : (
                 <>
+                    <LibraryActionsBar
+                        selectedCount={selectedBooks.size}
+                        onDeleteSelected={onDeleteSelectedOpen}
+                        onDeleteAll={onDeleteAllOpen}
+                    />
+
                     <Flex wrap="wrap" gap={6} justify="flex-start" alignContent="flex-start">
                         {books.map(book => (
                             <Box key={book.id} w={{ base: "calc(50% - 12px)", sm: "200px" }} flexShrink={0}>

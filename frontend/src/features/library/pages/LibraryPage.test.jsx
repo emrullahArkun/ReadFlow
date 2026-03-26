@@ -108,7 +108,8 @@ describe('MyBooks Component', () => {
         );
         render(<LibraryPage />, { wrapper: createTestWrapper() });
         expect(await screen.findByText('No books in your library yet.')).toBeInTheDocument();
-        expect(await screen.findByText('Go to Home to add books!')).toBeInTheDocument();
+        expect(await screen.findByText('Go to search to add books!')).toBeInTheDocument();
+        expect(screen.queryByText('Delete All')).not.toBeInTheDocument();
     });
 
     it('navigates to search when clicking the search button in empty state', async () => {

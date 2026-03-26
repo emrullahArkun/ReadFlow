@@ -20,15 +20,16 @@ export const useReadingSessionStopFlow = ({
 }) => {
     const [state, dispatch] = useReducer(readingSessionStopReducer, undefined, createInitialStopFlowState);
     const { isOpen: showStopConfirm, endPage, resumeOnCancel } = state;
+    const currentPage = book?.currentPage;
 
     useEffect(() => {
-        if (book) {
+        if (currentPage !== undefined) {
             dispatch({
                 type: READING_SESSION_STOP_EVENTS.BOOK_SYNCED,
-                currentPage: book.currentPage,
+                currentPage,
             });
         }
-    }, [book?.currentPage]);
+    }, [currentPage]);
 
     const handleStopClick = () => {
         if (isBusy) {

@@ -93,7 +93,7 @@ class DiscoverySectionsService {
         return CompletableFuture.supplyAsync(() -> seed == null ? Collections.<DiscoveryBook>emptyList() : supplier.get(),
                         ioExecutor)
                 .exceptionally(error -> {
-                    log.error("Failed to fetch {} recommendations for {}: {}", source, seed, error.getMessage());
+                    log.error("Failed to fetch {} recommendations", source, error);
                     return Collections.emptyList();
                 });
     }

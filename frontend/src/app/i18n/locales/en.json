@@ -73,7 +73,7 @@
         "confirmDeleteAllTitle": "Delete ALL Books?",
         "empty": {
             "line1": "No books in your library yet.",
-            "line2": "Go to Home to add books!"
+            "line2": "Go to search to add books!"
         }
     },
     "bookCard": {
@@ -210,7 +210,9 @@
         "delete": "Delete",
         "deleteAll": "Delete All",
         "leave": "Leave",
-        "back": "Back"
+        "back": "Back",
+        "previousPage": "Previous Page",
+        "nextPage": "Next Page"
     },
     "discovery": {
         "loading": "Loading recommendations...",
@@ -304,6 +306,7 @@
     "bookStats": {
         "readProgress": "Reading Progress",
         "pages": "Pages",
+        "pageProgress": "{{current}} / {{total}} pages",
         "completed": "Completed",
         "totalTime": {
             "label": "Total Time",

@@ -1,4 +1,4 @@
-import { Box, Center, Flex, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Text, VStack } from '@chakra-ui/react';
 import { FaChartBar, FaPlay } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +24,9 @@ function MyBookCardOverlay({ bookId }) {
             inset="0"
             bg="blackAlpha.600"
             opacity="0"
-            _groupHover={{ opacity: 1 }}
+            visibility="hidden"
+            pointerEvents="none"
+            _groupHover={{ opacity: 1, visibility: 'visible', pointerEvents: 'auto' }}
             transition="all 0.25s ease"
             direction="column"
             justify="space-between"
@@ -32,11 +34,17 @@ function MyBookCardOverlay({ bookId }) {
             zIndex="10"
             borderRadius="10px"
         >
-            <Center
+            <Box
+                as="button"
+                type="button"
                 flex="1"
                 w="100%"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
                 cursor="pointer"
                 onClick={navigateToSession}
+                aria-label={t('readingSession.start')}
             >
                 <VStack spacing={1}>
                     <Box
@@ -53,10 +61,11 @@ function MyBookCardOverlay({ bookId }) {
                         {t('readingSession.start')}
                     </Text>
                 </VStack>
-            </Center>
+            </Box>
 
             <Box
                 as="button"
+                type="button"
                 w="100%"
                 py={2}
                 bg="whiteAlpha.100"
@@ -71,6 +80,7 @@ function MyBookCardOverlay({ bookId }) {
                 transition="all 0.15s"
                 _hover={{ bg: 'whiteAlpha.200', color: 'white' }}
                 onClick={navigateToStats}
+                aria-label={t('navbar.stats')}
                 borderBottomRadius="10px"
             >
                 <FaChartBar size="12px" />
