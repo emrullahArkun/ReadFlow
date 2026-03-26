@@ -155,6 +155,39 @@ class AchievementServiceTest {
     }
 
     @Test
+    void getAchievements_ShouldNotUnlockSpeedReaderWhenBookWasCompletedTooSlowly() {
+        Book book = new Book();
+        book.setCompleted(true);
+        book.setStartDate(LocalDate.of(2026, 3, 1));
+        book.setPageCount(200);
+
+        ReadingSession session = buildSession(
+                Instant.parse("2026-03-25T10:00:00Z"),
+                Instant.parse("2026-03-25T11:00:00Z"),
+                book);
+
+        when(contextFactory.build(user, ZoneOffset.UTC))
+                .thenReturn(context(1, 1, 200, 5, 50, 0, ZoneOffset.UTC, List.of(session)));
+
+        Achievement speedReader = getAchievement(achievementService.getAchievements(user), AchievementType.SPEED_READER);
+
+        assertFalse(speedReader.unlocked());
+    }
+
+    @Test
+    void hasSessionInHourRange_ShouldHandleOvernightRangesAndNullStartTimes() {
+        ReadingSession nullStart = buildSession(null, Instant.parse("2026-03-25T01:00:00Z"), null);
+        ReadingSession overnight = buildSession(
+                Instant.parse("2026-03-25T23:30:00Z"),
+                Instant.parse("2026-03-26T00:30:00Z"),
+                null);
+        AchievementContext context = context(0, 0, 0, 0, 0, 0, ZoneOffset.UTC, List.of(nullStart, overnight));
+
+        assertTrue(AchievementCheckerSupport.hasSessionInHourRange(context.sessions(), 22, 26, context));
+        assertFalse(AchievementCheckerSupport.hasSessionInHourRange(context.sessions(), 1, 5, context));
+    }
+
+    @Test
     void getAchievements_ShouldHandleSessionWithNullStartTime() {
         ReadingSession session = buildSession(null, Instant.parse("2026-03-25T11:00:00Z"), null);
         when(contextFactory.build(user, ZoneOffset.UTC))
