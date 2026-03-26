@@ -7,7 +7,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/readflow
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/chapterflow
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_PROFILES_ACTIVE=dev
@@ -19,7 +19,7 @@ services:
     ports:
       - "5440:5432"
     environment:
-      - POSTGRES_DB=readflow
+      - POSTGRES_DB=chapterflow
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
