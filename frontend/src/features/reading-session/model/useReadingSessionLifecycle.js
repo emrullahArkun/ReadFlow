@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ROUTES } from '../../../app/router/routes';
-import { READING_SESSION_PHASES } from './readingSessionPhase';
+import { READING_SESSION_PHASES } from './readingSessionMachine';
 
 export const useReadingSessionLifecycle = ({
     activeSession,

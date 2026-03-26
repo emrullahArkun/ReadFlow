@@ -15,6 +15,7 @@ import {
 import { motion } from 'framer-motion';
 import { FaPlay, FaPause, FaStop, FaBookOpen, FaCheck } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
+import { READING_SESSION_PHASES } from '../model/readingSessionMachine';
 
 const MotionCard = motion(Card);
 const MotionBox = motion(Box);
@@ -117,15 +118,15 @@ const getSessionStatusLabel = ({ isPaused, isBusy, sessionPhase, t }) => {
         return t('readingSession.paused');
     }
 
-    if (isBusy && sessionPhase === 'stopping') {
+    if (isBusy && sessionPhase === READING_SESSION_PHASES.STOPPING) {
         return t('readingSession.controls.stop');
     }
 
-    if (isBusy && sessionPhase === 'pausing') {
+    if (isBusy && sessionPhase === READING_SESSION_PHASES.PAUSING) {
         return t('readingSession.controls.pause');
     }
 
-    if (isBusy && sessionPhase === 'resuming') {
+    if (isBusy && sessionPhase === READING_SESSION_PHASES.RESUMING) {
         return t('readingSession.controls.resume');
     }
 
