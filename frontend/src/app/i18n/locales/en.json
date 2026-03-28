@@ -200,7 +200,13 @@
             "title": "Login",
             "button": "Login",
             "success": "Successfully logged in.",
-            "loadingText": "Signing in..."
+            "loadingText": "Signing in...",
+            "eyebrow": "Back to your book",
+            "subtitle": "Sign in and pick up right where you last read, planned, or organized your library.",
+            "helper": "A calm return is enough. Your library is waiting exactly as you left it.",
+            "panelKicker": "Settle back in",
+            "panelTitle": "Your next reading moment is already waiting.",
+            "panelCopy": "Sign in and return straight to your current rhythm, your in-progress books, and the next quiet stretch you left for yourself."
         },
         "register": {
             "title": "Register",
@@ -232,6 +238,11 @@
         "brand": {
             "appName": "ChapterFlow",
             "tagline": "Your personal cozy reading space.",
+            "kicker": "Reading journal",
+            "journalTitle": "For calmer reading days",
+            "journalCopy": "ChapterFlow should feel closer to a familiar reading journal than a sterile tool. Warm, clear, and free from unnecessary productivity pressure.",
+            "quote": "A good reading ritual begins less with speed and more with the feeling of returning to the right place.",
+            "quoteSource": "ChapterFlow Note",
             "features": {
                 "track": "Track your library",
                 "trackDesc": "Add, remove, and organize the books in your personal collection.",

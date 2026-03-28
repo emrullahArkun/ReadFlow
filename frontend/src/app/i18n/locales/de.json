@@ -200,7 +200,13 @@
             "title": "Anmelden",
             "button": "Anmelden",
             "success": "Erfolgreich angemeldet.",
-            "loadingText": "Anmeldung läuft..."
+            "loadingText": "Anmeldung läuft...",
+            "eyebrow": "Zurück zu deinem Buch",
+            "subtitle": "Melde dich an und knüpfe dort wieder an, wo du zuletzt gelesen, geplant oder gesammelt hast.",
+            "helper": "Ein ruhiger Einstieg reicht. Danach wartet deine Bibliothek genau so auf dich, wie du sie verlassen hast.",
+            "panelKicker": "Wieder einsteigen",
+            "panelTitle": "Dein Lesemoment liegt schon bereit.",
+            "panelCopy": "Melde dich an und geh ohne Umwege zurück zu deiner aktuellen Routine, deinen angefangenen Büchern und deinem nächsten ruhigen Abschnitt."
         },
         "register": {
             "title": "Registrieren",
@@ -232,6 +238,11 @@
         "brand": {
             "appName": "ChapterFlow",
             "tagline": "Dein persönlicher gemütlicher Leseplatz.",
+            "kicker": "Reading journal",
+            "journalTitle": "Für ruhige Lesetage",
+            "journalCopy": "ChapterFlow soll sich eher wie ein vertrautes Lesetagebuch anfühlen als wie ein nüchternes Tool. Warm, klar und ohne unnötigen Produktivitätsdruck.",
+            "quote": "Ein gutes Leseritual beginnt nicht mit Tempo, sondern mit dem Gefühl, wieder am richtigen Platz zu sein.",
+            "quoteSource": "ChapterFlow Notiz",
             "features": {
                 "track": "Verwalte deine Bibliothek",
                 "trackDesc": "Füge Bücher hinzu, entferne sie und organisiere deine persönliche Sammlung.",

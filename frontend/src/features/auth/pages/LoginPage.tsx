@@ -62,46 +62,58 @@ function LoginPage() {
         <AuthLayout
             title={t('auth.login.title')}
             icon={<MdLogin />}
+            variant="login"
         >
             <form onSubmit={handleSubmit} noValidate className={styles.form}>
-                <div className={styles.inputsContainer}>
-                    <TextField
-                        label={t('auth.email')}
-                        type="email"
-                        value={email}
-                        onChange={handleEmailChange}
-                        placeholder={t('auth.enterEmail')}
-                        leftIcon={<MdEmail />}
-                        required
-                        autoComplete="email"
-                    />
-
-                    <TextField
-                        label={t('auth.password')}
-                        type="password"
-                        value={password}
-                        onChange={handlePasswordChange}
-                        placeholder={t('auth.enterPassword')}
-                        leftIcon={<MdLock />}
-                        required
-                        autoComplete="current-password"
-                    />
+                <div className={styles.intro}>
+                    <span className={styles.eyebrow}>{t('auth.login.eyebrow')}</span>
+                    <p className={styles.subtitle}>{t('auth.login.subtitle')}</p>
                 </div>
 
-                {error && (
-                    <div className={styles.error}>
-                        {error}
-                    </div>
-                )}
+                <div className={styles.formPanel}>
+                    <div className={styles.inputsContainer}>
+                        <TextField
+                            label={t('auth.email')}
+                            type="email"
+                            value={email}
+                            onChange={handleEmailChange}
+                            placeholder={t('auth.enterEmail')}
+                            leftIcon={<MdEmail />}
+                            required
+                            autoComplete="email"
+                        />
 
-                <Button
-                    type="submit"
-                    variant="primary"
-                    isLoading={isLoading}
-                    className={styles.submitButton}
-                >
-                    {t('auth.login.button')}
-                </Button>
+                        <TextField
+                            label={t('auth.password')}
+                            type="password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            placeholder={t('auth.enterPassword')}
+                            leftIcon={<MdLock />}
+                            required
+                            autoComplete="current-password"
+                        />
+                    </div>
+
+                    {error && (
+                        <div className={styles.error}>
+                            {error}
+                        </div>
+                    )}
+                </div>
+
+                <div className={styles.actions}>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        isLoading={isLoading}
+                        className={styles.submitButton}
+                    >
+                        {t('auth.login.button')}
+                    </Button>
+
+                    <p className={styles.helper}>{t('auth.login.helper')}</p>
+                </div>
 
                 <div className={styles.footer}>
                     <span className={styles.footerText}>
