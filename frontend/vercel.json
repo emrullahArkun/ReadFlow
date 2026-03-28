@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "${VITE_API_URL}/api/:path*"
+      "destination": "https://readwick-api.onrender.com/api/:path*"
     },
     {
       "source": "/((?!api/).*)",
