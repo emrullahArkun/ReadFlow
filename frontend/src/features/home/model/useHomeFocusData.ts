@@ -55,7 +55,7 @@ const getGreetingKey = (): string => {
     return 'home.greeting.night';
 };
 
-type WeekDay = { date: string; pagesRead: number };
+export type WeekDay = { date: string; pagesRead: number };
 
 const buildWeekDays = (dailyActivity: DailyActivity[]): WeekDay[] => {
     const today = new Date();
