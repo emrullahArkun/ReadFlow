@@ -165,7 +165,7 @@ describe('BookCover', () => {
         expect(img.src).toBe('https://books.google.com/extra-large.jpg');
     });
 
-    it('shows the internal placeholder for uncertain google thumbnails without open library fallback', () => {
+    it('renders google thumbnails when no open library fallback exists', () => {
         const book = {
             volumeInfo: {
                 title: 'Sharper Book',
@@ -177,24 +177,41 @@ describe('BookCover', () => {
 
         render(<BookCover book={book} />);
 
-        expect(screen.queryByRole('img')).toBeNull();
-        expect(screen.getByText('Sharper Book')).toBeInTheDocument();
+        const img = screen.getByRole('img');
+        expect(img.src).toContain('https://books.google.com/books/content');
+        expect(img.src).toContain('zoom=3');
     });
 
-    it('shows placeholder text instead of rendering uncertain google thumbnails without fallback isbn', () => {
+    it('resets to the primary source when fallback sources change', () => {
         const book = {
-            volumeInfo: {
-                title: 'Fallback Google Book',
-                imageLinks: {
-                    thumbnail: 'http://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=1&source=gbs_api',
-                },
-            }
+            title: 'Fallback Reset Book',
+            coverUrl: 'https://covers.openlibrary.org/b/id/99999-M.jpg',
+            isbn: '1234567890',
         };
 
-        render(<BookCover book={book} />);
+        const { rerender } = render(<BookCover book={book} />);
 
-        expect(screen.queryByRole('img')).toBeNull();
-        expect(screen.getByText('Fallback Google Book')).toBeInTheDocument();
+        let img = screen.getByRole('img');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-M.jpg');
+
+        act(() => {
+            simulateImageError(img);
+        });
+
+        img = screen.getByRole('img');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/1234567890-L.jpg?default=false');
+
+        rerender(
+            <BookCover
+                book={{
+                    title: 'Fallback Reset Book',
+                    coverUrl: 'https://covers.openlibrary.org/b/id/99999-M.jpg',
+                }}
+            />,
+        );
+
+        img = screen.getByRole('img');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/id/99999-M.jpg');
     });
 
     it('falls back to ISBN_10 when ISBN_13 is not available', () => {
@@ -224,7 +241,7 @@ describe('BookCover', () => {
         expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-L.jpg?default=false');
     });
 
-    it('shows the internal placeholder instead of uncertain google content thumbnails without open library fallback', () => {
+    it('keeps google content thumbnails when no open library fallback exists', () => {
         const book = {
             title: 'Unsichere Ausgabe',
             authorName: 'Beispiel Autor',
@@ -233,9 +250,9 @@ describe('BookCover', () => {
 
         render(<BookCover book={book} />);
 
-        expect(screen.queryByRole('img')).toBeNull();
-        expect(screen.getByText('Unsichere Ausgabe')).toBeInTheDocument();
-        expect(screen.getByText('Beispiel Autor')).toBeInTheDocument();
+        const img = screen.getByRole('img');
+        expect(img.src).toContain('https://books.google.com/books/content');
+        expect(img.src).toContain('zoom=3');
     });
 
     it('shows the unknown title fallback when no title exists', () => {

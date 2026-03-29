@@ -68,14 +68,17 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
     const [imgSrc, setImgSrc] = useState(safeUrl);
     const [imageLoaded, setImageLoaded] = useState(false);
     const prevUrlRef = useRef(safeUrl);
+    const coverSourcesKey = useMemo(() => coverSources.join('|'), [coverSources]);
+    const prevCoverSourcesKeyRef = useRef(coverSourcesKey);
 
     useEffect(() => {
-        if (safeUrl !== prevUrlRef.current) {
+        if (coverSourcesKey !== prevCoverSourcesKeyRef.current) {
+            prevCoverSourcesKeyRef.current = coverSourcesKey;
             prevUrlRef.current = safeUrl;
             setImgSrc(safeUrl);
             setImageLoaded(false);
         }
-    }, [safeUrl]);
+    }, [coverSourcesKey, safeUrl]);
 
     const handleImageError = () => {
         const currentIndex = coverSources.indexOf(imgSrc);
@@ -231,21 +234,36 @@ const getCoverSources = (primaryUrl: string, googleFallbackUrl: string, openLibr
         return openLibraryUrl ? [openLibraryUrl] : [];
     }
 
-    if (isGoogleBooksThumbnailUrl(primaryUrl) && !openLibraryUrl) {
-        return [];
-    }
-
     const orderedSources = [primaryUrl, googleFallbackUrl, openLibraryUrl];
 
     return [...new Set(orderedSources.filter(Boolean))];
 };
 
 const shouldPreferOpenLibraryCover = (primaryUrl: string, openLibraryUrl: string): boolean => {
-    return Boolean(openLibraryUrl) && isGoogleBooksThumbnailUrl(primaryUrl);
+    return Boolean(openLibraryUrl) && isSmallGoogleBooksThumbnailUrl(primaryUrl);
 };
 
 const isGoogleBooksThumbnailUrl = (url?: string): boolean => {
     if (!url) return false;
 
     return url.includes('books.google') && url.includes('/books/content');
+};
+
+const isSmallGoogleBooksThumbnailUrl = (url?: string): boolean => {
+    if (!isGoogleBooksThumbnailUrl(url)) {
+        return false;
+    }
+
+    try {
+        const parsedUrl = new URL(url);
+        const zoom = parsedUrl.searchParams.get('zoom');
+        if (!zoom) {
+            return false;
+        }
+
+        const zoomLevel = Number(zoom);
+        return Number.isFinite(zoomLevel) && zoomLevel <= 3;
+    } catch {
+        return url?.includes('zoom=') ?? false;
+    }
 };

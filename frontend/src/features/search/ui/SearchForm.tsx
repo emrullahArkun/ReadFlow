@@ -27,6 +27,7 @@ const SearchForm = ({
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const historyListId = useId();
+    const isHistoryVisible = isHistoryOpen && recentSearches.length > 0;
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
@@ -77,20 +78,20 @@ const SearchForm = ({
     return (
         <div className={styles.searchShell} ref={containerRef}>
             <form onSubmit={handleSubmit} className={styles.searchForm}>
-                <FaSearch className={styles.searchIcon} />
+                <FaSearch className={styles.searchIcon} aria-hidden="true" />
                 <input
                     type="text"
                     value={query}
                     onChange={handleChange}
                     onFocus={onOpenHistory}
-                    aria-expanded={isHistoryOpen && recentSearches.length > 0}
-                    aria-controls={historyListId}
+                    aria-expanded={isHistoryVisible}
+                    aria-controls={isHistoryVisible ? historyListId : undefined}
                     placeholder={t('search.placeholder')}
                     className={styles.searchInput}
                 />
             </form>
 
-            {isHistoryOpen && recentSearches.length > 0 && (
+            {isHistoryVisible && (
                 <div className={styles.historyPanel}>
                     <ul id={historyListId} className={styles.historyList} aria-label={t('search.recentSearches')}>
                         {recentSearches.map((recentSearch) => (
@@ -100,7 +101,7 @@ const SearchForm = ({
                                     className={styles.historyItem}
                                     onClick={() => onSelectRecentSearch(recentSearch)}
                                 >
-                                    <FaHistory className={styles.historyIcon} />
+                                    <FaHistory className={styles.historyIcon} aria-hidden="true" />
                                     <span>{recentSearch}</span>
                                 </button>
                             </li>

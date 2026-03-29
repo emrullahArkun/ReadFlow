@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { forwardRef } from 'react';
+import { forwardRef, type ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FaCheck } from 'react-icons/fa';
 import ConfirmDialog from './ConfirmDialog';
@@ -86,7 +86,7 @@ vi.mock('../theme/useThemeTokens', () => ({
 }));
 
 describe('ConfirmDialog', () => {
-    let baseProps;
+    let baseProps: ComponentProps<typeof ConfirmDialog>;
 
     beforeEach(() => {
         baseProps = {
