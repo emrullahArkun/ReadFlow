@@ -1,11 +1,47 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { forwardRef } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FaCheck } from 'react-icons/fa';
 import ConfirmDialog from './ConfirmDialog';
 
 vi.mock('@chakra-ui/react', () => {
+    const stripStyleProps = (props) => {
+        const {
+            align,
+            backdropFilter,
+            bg,
+            border,
+            borderColor,
+            borderRadius,
+            boxShadow,
+            color,
+            fontSize,
+            fontWeight,
+            gap,
+            h,
+            justify,
+            justifyContent,
+            lineHeight,
+            mb,
+            mx,
+            noOfLines,
+            overflow,
+            p,
+            pb,
+            pt,
+            px,
+            py,
+            textAlign,
+            w,
+            _hover,
+            ...safeProps
+        } = props;
+
+        return safeProps;
+    };
+
     const passthrough = (Tag: keyof JSX.IntrinsicElements = 'div') => ({ children, ...props }) => (
-        <Tag {...props}>{children}</Tag>
+        <Tag {...stripStyleProps(props)}>{children}</Tag>
     );
 
     return {
@@ -15,13 +51,20 @@ vi.mock('@chakra-ui/react', () => {
         AlertDialogHeader: passthrough(),
         AlertDialogContent: passthrough(),
         AlertDialogOverlay: passthrough(),
-        Button: ({ children, onClick, bg, _hover, ...props }) => (
-            <button type="button" onClick={onClick} data-bg={bg} data-hover-bg={_hover?.bg} {...props}>
+        Button: forwardRef(({ children, onClick, bg, _hover, ...props }, ref) => (
+            <button
+                ref={ref}
+                type="button"
+                onClick={onClick}
+                data-bg={bg}
+                data-hover-bg={_hover?.bg}
+                {...stripStyleProps(props)}
+            >
                 {children}
             </button>
-        ),
-        Icon: ({ as: IconComponent, color }) => (
-            <span data-testid="dialog-icon" data-color={color}>
+        )),
+        Icon: ({ as: IconComponent, color, ...props }) => (
+            <span data-testid="dialog-icon" data-color={color} {...stripStyleProps(props)}>
                 {IconComponent ? <IconComponent /> : null}
             </span>
         ),
@@ -43,15 +86,19 @@ vi.mock('../theme/useThemeTokens', () => ({
 }));
 
 describe('ConfirmDialog', () => {
-    const baseProps = {
-        isOpen: true,
-        onClose: vi.fn(),
-        onConfirm: vi.fn(),
-        title: 'Delete book',
-        body: 'This cannot be undone.',
-        confirmLabel: 'Delete',
-        cancelLabel: 'Cancel',
-    };
+    let baseProps;
+
+    beforeEach(() => {
+        baseProps = {
+            isOpen: true,
+            onClose: vi.fn(),
+            onConfirm: vi.fn(),
+            title: 'Delete book',
+            body: 'This cannot be undone.',
+            confirmLabel: 'Delete',
+            cancelLabel: 'Cancel',
+        };
+    });
 
     it('does not render anything while closed', () => {
         render(<ConfirmDialog {...baseProps} isOpen={false} />);
@@ -67,6 +114,11 @@ describe('ConfirmDialog', () => {
 
         expect(baseProps.onClose).toHaveBeenCalledTimes(1);
         expect(baseProps.onConfirm).toHaveBeenCalledTimes(1);
+    });
+
+    it('applies the default destructive gradient and icon color', () => {
+        render(<ConfirmDialog {...baseProps} />);
+
         expect(screen.getByRole('button', { name: 'Delete' })).toHaveAttribute(
             'data-bg',
             'linear-gradient(180deg, rgba(156, 79, 62, 0.96) 0%, rgba(114, 50, 41, 0.96) 100%)',

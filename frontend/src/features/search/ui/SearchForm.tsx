@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useId, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { FaHistory, FaSearch } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import styles from './SearchForm.module.css';
@@ -26,6 +26,7 @@ const SearchForm = ({
 }: SearchFormProps) => {
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const historyListId = useId();
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
@@ -49,9 +50,27 @@ const SearchForm = ({
             onCloseHistory();
         };
 
+        const handleFocusIn = (event: FocusEvent) => {
+            if (containerRef.current?.contains(event.target as Node)) {
+                return;
+            }
+
+            onCloseHistory();
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onCloseHistory();
+            }
+        };
+
         document.addEventListener('mousedown', handlePointerDown);
+        document.addEventListener('focusin', handleFocusIn);
+        document.addEventListener('keydown', handleKeyDown);
         return () => {
             document.removeEventListener('mousedown', handlePointerDown);
+            document.removeEventListener('focusin', handleFocusIn);
+            document.removeEventListener('keydown', handleKeyDown);
         };
     }, [isHistoryOpen, onCloseHistory]);
 
@@ -64,26 +83,29 @@ const SearchForm = ({
                     value={query}
                     onChange={handleChange}
                     onFocus={onOpenHistory}
+                    aria-expanded={isHistoryOpen && recentSearches.length > 0}
+                    aria-controls={historyListId}
                     placeholder={t('search.placeholder')}
                     className={styles.searchInput}
                 />
             </form>
 
             {isHistoryOpen && recentSearches.length > 0 && (
-                <div className={styles.historyPanel} role="listbox" aria-label={t('search.recentSearches')}>
-                    <div className={styles.historyList}>
+                <div className={styles.historyPanel}>
+                    <ul id={historyListId} className={styles.historyList} aria-label={t('search.recentSearches')}>
                         {recentSearches.map((recentSearch) => (
-                            <button
-                                key={recentSearch}
-                                type="button"
-                                className={styles.historyItem}
-                                onClick={() => onSelectRecentSearch(recentSearch)}
-                            >
-                                <FaHistory className={styles.historyIcon} />
-                                <span>{recentSearch}</span>
-                            </button>
+                            <li key={recentSearch}>
+                                <button
+                                    type="button"
+                                    className={styles.historyItem}
+                                    onClick={() => onSelectRecentSearch(recentSearch)}
+                                >
+                                    <FaHistory className={styles.historyIcon} />
+                                    <span>{recentSearch}</span>
+                                </button>
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 </div>
             )}
         </div>

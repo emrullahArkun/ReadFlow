@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, forwardRef, type SyntheticEvent } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, forwardRef, type SyntheticEvent } from 'react';
 import { Image, Center, Skeleton, Box, type ImageProps } from '@chakra-ui/react';
 import { getOpenLibraryCoverUrl } from '../lib/coverUtils';
 
@@ -59,7 +59,10 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
 
     const openLibraryUrl = isbn ? getOpenLibraryCoverUrl(isbn, 'L') : '';
     const googleFallbackUrl = getGoogleBooksFallbackUrl(primaryUrl);
-    const coverSources = getCoverSources(primaryUrl, googleFallbackUrl, openLibraryUrl);
+    const coverSources = useMemo(
+        () => getCoverSources(primaryUrl, googleFallbackUrl, openLibraryUrl),
+        [primaryUrl, googleFallbackUrl, openLibraryUrl],
+    );
     const safeUrl = coverSources[0] || '';
 
     const [imgSrc, setImgSrc] = useState(safeUrl);
@@ -67,13 +70,12 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
     const prevUrlRef = useRef(safeUrl);
 
     useEffect(() => {
-        const newSafeUrl = coverSources[0] || '';
-        if (newSafeUrl !== prevUrlRef.current) {
-            prevUrlRef.current = newSafeUrl;
-            setImgSrc(newSafeUrl);
+        if (safeUrl !== prevUrlRef.current) {
+            prevUrlRef.current = safeUrl;
+            setImgSrc(safeUrl);
             setImageLoaded(false);
         }
-    }, [coverSources]);
+    }, [safeUrl]);
 
     const handleImageError = () => {
         const currentIndex = coverSources.indexOf(imgSrc);

@@ -72,7 +72,7 @@ describe('SearchForm', () => {
 
         fireEvent.click(screen.getByRole('button', { name: /Dune/i }));
 
-        expect(screen.getByRole('listbox', { name: 'search.recentSearches' })).toBeInTheDocument();
+        expect(screen.getByRole('list', { name: 'search.recentSearches' })).toBeInTheDocument();
         expect(onSelectRecentSearch).toHaveBeenCalledWith('Dune');
     });
 
@@ -109,5 +109,40 @@ describe('SearchForm', () => {
         fireEvent.mouseDown(screen.getByRole('button', { name: /Dune/i }));
 
         expect(onCloseHistory).not.toHaveBeenCalled();
+    });
+
+    it('should close history when focus moves outside the search shell', () => {
+        const onCloseHistory = vi.fn();
+        render(
+            <div>
+                <SearchForm
+                    {...baseProps}
+                    recentSearches={['Dune']}
+                    isHistoryOpen
+                    onCloseHistory={onCloseHistory}
+                />
+                <button type="button">Outside</button>
+            </div>,
+        );
+
+        fireEvent.focusIn(screen.getByRole('button', { name: 'Outside' }));
+
+        expect(onCloseHistory).toHaveBeenCalledTimes(1);
+    });
+
+    it('should close history when Escape is pressed', () => {
+        const onCloseHistory = vi.fn();
+        render(
+            <SearchForm
+                {...baseProps}
+                recentSearches={['Dune']}
+                isHistoryOpen
+                onCloseHistory={onCloseHistory}
+            />,
+        );
+
+        fireEvent.keyDown(document, { key: 'Escape' });
+
+        expect(onCloseHistory).toHaveBeenCalledTimes(1);
     });
 });
