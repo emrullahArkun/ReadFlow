@@ -30,7 +30,7 @@ class DiscoveryRecommendationService {
     DiscoverySearchResult searchBooks(String query, Set<String> ownedIsbns, int startIndex, int maxResults) {
         DiscoverySearchResult result = discoveryProvider.searchBooks(query, startIndex, maxResults);
         List<DiscoveryBook> filtered = filterOwnedBooks(result.items(), ownedIsbns);
-        return new DiscoverySearchResult(filtered, filtered.size());
+        return new DiscoverySearchResult(filtered, result.totalItems());
     }
 
     private List<DiscoveryBook> filterOwnedBooks(List<DiscoveryBook> books, Set<String> ownedIsbns) {

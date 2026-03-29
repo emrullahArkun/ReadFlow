@@ -122,6 +122,8 @@
         "welcomeMessage": "Was möchtest du heute lesen?",
         "loadMore": "Mehr Ergebnisse laden",
         "endResults": "Keine weiteren Ergebnisse",
+        "recentSearches": "Letzte Suchen",
+        "recentSearchHint": "Zum direkten Wiederverwenden antippen",
         "result": {
             "by": "von",
             "unknown": "Unbekannt",

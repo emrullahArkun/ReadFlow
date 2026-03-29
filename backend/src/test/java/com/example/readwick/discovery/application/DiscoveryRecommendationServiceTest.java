@@ -57,7 +57,7 @@ class DiscoveryRecommendationServiceTest {
     }
 
     @Test
-    void searchBooks_ShouldReturnFilteredItemsAndMatchingTotal() {
+    void searchBooks_ShouldKeepProviderTotal_WhenOwnedBooksAreFilteredFromCurrentPage() {
         DiscoveryBook owned = new DiscoveryBook("Owned", null, null, null, null, "owned-1", null);
         DiscoveryBook available = new DiscoveryBook("Available", null, null, null, null, "free-1", null);
         when(discoveryProvider.searchBooks("java", 0, 10))
@@ -67,6 +67,6 @@ class DiscoveryRecommendationServiceTest {
 
         assertEquals(1, result.items().size());
         assertEquals("Available", result.items().get(0).title());
-        assertEquals(1, result.totalItems());
+        assertEquals(99, result.totalItems());
     }
 }

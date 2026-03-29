@@ -1,21 +1,33 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../auth/model';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { discoveryApi } from '../../discovery/api';
 import { useAddSearchResultToLibrary } from './useAddSearchResultToLibrary.jsx';
-import type { DiscoverySearchResult } from '../../../shared/types/discovery';
+import type { DiscoverySearchResult, DiscoverySearchSection } from '../../../shared/types/discovery';
 
 const PAGE_SIZE = 36;
 const MIN_QUERY_LENGTH = 3;
 const EMPTY_SEARCH_RESULT: DiscoverySearchResult = { items: [], totalItems: 0 };
+const EMPTY_SEARCH_SECTION: DiscoverySearchSection = { queries: [], books: [] };
 
 export const useBookSearch = () => {
     const [query, setQuery] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const { token, user } = useAuth();
+    const queryClient = useQueryClient();
 
     const lastLoggedQuery = useRef('');
     const lastLogRequestId = useRef(0);
+
+    const { data: recentSearchData } = useQuery<DiscoverySearchSection, Error>({
+        queryKey: ['recent-searches', user?.email],
+        queryFn: async () => (await discoveryApi.getByRecentSearches()) || EMPTY_SEARCH_SECTION,
+        enabled: !!token,
+        staleTime: 60_000,
+    });
+
+    const recentSearches = recentSearchData?.queries || [];
 
     useEffect(() => {
         const trimmed = searchTerm.trim();
@@ -30,12 +42,13 @@ export const useBookSearch = () => {
                     if (requestId === lastLogRequestId.current) {
                         lastLoggedQuery.current = trimmed;
                     }
+                    void queryClient.invalidateQueries({ queryKey: ['recent-searches', user?.email] });
                 })
                 .catch(() => {
                     // Silently ignore logging errors.
                 });
         }
-    }, [searchTerm, token]);
+    }, [queryClient, searchTerm, token, user?.email]);
 
     const {
         data,
@@ -69,20 +82,41 @@ export const useBookSearch = () => {
         }
     }, [query]);
 
-    const searchBooks = (e?: FormEvent<HTMLFormElement>) => {
-        if (e) e.preventDefault();
-        setSearchTerm(query.trim());
-    };
+    const closeHistory = useCallback(() => {
+        setIsHistoryOpen(false);
+    }, []);
+
+    const openHistory = useCallback(() => {
+        if (recentSearches.length > 0) {
+            setIsHistoryOpen(true);
+        }
+    }, [recentSearches.length]);
+
+    const searchBooks = useCallback((nextQuery?: string) => {
+        const trimmedQuery = (nextQuery ?? query).trim();
+        setQuery(trimmedQuery);
+        setSearchTerm(trimmedQuery);
+        setIsHistoryOpen(false);
+    }, [query]);
+
+    const selectRecentSearch = useCallback((nextQuery: string) => {
+        searchBooks(nextQuery);
+    }, [searchBooks]);
 
     return {
         query,
         setQuery,
+        recentSearches,
+        isHistoryOpen,
         results,
         error: error ? error.message : null,
         hasMore: hasNextPage,
         isLoading,
         isFetchingNextPage,
         searchBooks,
+        openHistory,
+        closeHistory,
+        selectRecentSearch,
         loadMore: fetchNextPage,
         addBookToLibrary: addBookMutation.mutateAsync,
     };

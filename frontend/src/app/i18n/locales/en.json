@@ -122,6 +122,8 @@
         "welcomeMessage": "What do you want to read today?",
         "loadMore": "Load More Results",
         "endResults": "End of results",
+        "recentSearches": "Recent searches",
+        "recentSearchHint": "Tap to reuse instantly",
         "result": {
             "by": "by",
             "unknown": "Unknown",

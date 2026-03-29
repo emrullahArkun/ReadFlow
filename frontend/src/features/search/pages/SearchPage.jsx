@@ -11,12 +11,17 @@ function SearchPage({ onBookAdded }) {
     const { t } = useTranslation();
     const {
         query, setQuery,
+        recentSearches,
+        isHistoryOpen,
         results,
         error,
         hasMore,
         isLoading,
         isFetchingNextPage,
         searchBooks,
+        openHistory,
+        closeHistory,
+        selectRecentSearch,
         loadMore,
         addBookToLibrary,
     } = useBookSearch();
@@ -37,7 +42,16 @@ function SearchPage({ onBookAdded }) {
                 <div className={`${styles.titleWrapper} ${hasResults ? styles.titleHidden : ''}`}>
                     <TypewriterTitle />
                 </div>
-                <SearchForm query={query} setQuery={setQuery} onSearch={searchBooks} />
+                <SearchForm
+                    query={query}
+                    setQuery={setQuery}
+                    onSearch={searchBooks}
+                    recentSearches={recentSearches}
+                    isHistoryOpen={isHistoryOpen}
+                    onOpenHistory={openHistory}
+                    onCloseHistory={closeHistory}
+                    onSelectRecentSearch={selectRecentSearch}
+                />
             </div>
 
             {error && <p className={styles.error}>{error}</p>}

@@ -13,7 +13,15 @@ vi.mock('../../../shared/ui/TypewriterTitle', () => ({
 }));
 
 vi.mock('../ui/SearchForm', () => ({
-    default: ({ onSearch }) => <button onClick={onSearch}>SearchForm</button>,
+    default: ({ onSearch, recentSearches, isHistoryOpen, onOpenHistory, onSelectRecentSearch }) => (
+        <div>
+            <button onClick={() => onSearch()}>SearchForm</button>
+            <button onClick={onOpenHistory}>OpenHistory</button>
+            <button onClick={() => onSelectRecentSearch('Dune')}>SelectHistory</button>
+            <div>{isHistoryOpen ? 'HistoryOpen' : 'HistoryClosed'}</div>
+            {recentSearches.map((recentSearch) => <span key={recentSearch}>{recentSearch}</span>)}
+        </div>
+    ),
 }));
 
 vi.mock('../ui/SearchResultSkeleton', () => ({
@@ -54,12 +62,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: null,
             hasMore: false,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn().mockRejectedValue(new Error('Duplicate')),
         });
@@ -78,12 +91,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: null,
             hasMore: false,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn().mockResolvedValue({ id: 1 }),
         });
@@ -103,12 +121,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: null,
             hasMore: true,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore,
             addBookToLibrary: vi.fn(),
         });
@@ -123,12 +146,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: '',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [],
             error: null,
             hasMore: true,
             isLoading: true,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn(),
         });
@@ -144,12 +172,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: null,
             hasMore: true,
             isLoading: false,
             isFetchingNextPage: true,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn(),
         });
@@ -164,12 +197,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: 'Something went wrong',
             hasMore: false,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn(),
         });
@@ -186,12 +224,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: 'dup',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [book],
             error: null,
             hasMore: false,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn().mockResolvedValue(null),
         });
@@ -210,12 +253,17 @@ describe('SearchPage', () => {
         mockUseBookSearch.mockReturnValue({
             query: '',
             setQuery: vi.fn(),
+            recentSearches: [],
+            isHistoryOpen: false,
             results: [],
             error: null,
             hasMore: false,
             isLoading: false,
             isFetchingNextPage: false,
             searchBooks: vi.fn(),
+            openHistory: vi.fn(),
+            closeHistory: vi.fn(),
+            selectRecentSearch: vi.fn(),
             loadMore: vi.fn(),
             addBookToLibrary: vi.fn(),
         });
@@ -226,5 +274,40 @@ describe('SearchPage', () => {
         expect(screen.queryByText('search.endResults')).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'search.loadMore' })).not.toBeInTheDocument();
         expect(screen.queryByText('Skeleton')).not.toBeInTheDocument();
+    });
+
+    it('passes recent searches and history actions through to the form', () => {
+        const openHistory = vi.fn();
+        const selectRecentSearch = vi.fn();
+
+        mockUseBookSearch.mockReturnValue({
+            query: '',
+            setQuery: vi.fn(),
+            recentSearches: ['Dune', 'Sapiens'],
+            isHistoryOpen: true,
+            results: [],
+            error: null,
+            hasMore: false,
+            isLoading: false,
+            isFetchingNextPage: false,
+            searchBooks: vi.fn(),
+            openHistory,
+            closeHistory: vi.fn(),
+            selectRecentSearch,
+            loadMore: vi.fn(),
+            addBookToLibrary: vi.fn(),
+        });
+
+        render(<SearchPage />);
+
+        expect(screen.getByText('HistoryOpen')).toBeInTheDocument();
+        expect(screen.getByText('Dune')).toBeInTheDocument();
+        expect(screen.getByText('Sapiens')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('button', { name: 'OpenHistory' }));
+        fireEvent.click(screen.getByRole('button', { name: 'SelectHistory' }));
+
+        expect(openHistory).toHaveBeenCalledTimes(1);
+        expect(selectRecentSearch).toHaveBeenCalledWith('Dune');
     });
 });

@@ -14,7 +14,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager manager = new CaffeineCacheManager(
-                "openLibraryBooks", "openLibrarySearch", "ownedIsbns");
+                "discoveryBooks", "discoverySearch", "ownedIsbns");
         manager.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(500)
                 .expireAfterWrite(30, TimeUnit.MINUTES));

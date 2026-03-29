@@ -10,6 +10,7 @@ const SearchResultCard = ({ book, onAdd }) => {
 
     const { flyBook } = useAnimation();
     const imageRef = useRef(null);
+    const author = Array.isArray(book.authors) ? book.authors[0] : book.authors;
 
     const handleAddClick = async (e) => {
         e.stopPropagation();
@@ -65,6 +66,14 @@ const SearchResultCard = ({ book, onAdd }) => {
                         <FaPlus className={styles.plusIcon} />
                     )}
                 </div>
+            </div>
+            <div className={styles.meta}>
+                <p className={styles.title} title={book.title}>
+                    {book.title}
+                </p>
+                <p className={styles.author} title={author || 'Unknown Author'}>
+                    {author || 'Unknown Author'}
+                </p>
             </div>
         </div>
     );

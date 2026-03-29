@@ -15,7 +15,12 @@ type BookCoverInfo = {
     authorName?: string[] | string | null;
     industryIdentifiers?: IndustryIdentifier[];
     imageLinks?: {
+        extraLarge?: string;
+        large?: string;
+        medium?: string;
+        small?: string;
         thumbnail?: string;
+        smallThumbnail?: string;
     };
 };
 
@@ -41,9 +46,7 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
 }, ref) => {
     const info = book.volumeInfo || book;
     const title = info.title;
-    const primaryUrl = info.coverUrl || '';
-
-    let fallbackUrl = '';
+    const primaryUrl = info.coverUrl || getBestImageLink(info.imageLinks) || '';
     const identifiers = info.industryIdentifiers || [];
     let isbn = info.isbn;
 
@@ -54,28 +57,30 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
         else if (isbn10) isbn = isbn10.identifier;
     }
 
-    if (isbn) {
-        fallbackUrl = getOpenLibraryCoverUrl(isbn);
-    }
-
-    const safeUrl = primaryUrl || fallbackUrl;
+    const openLibraryUrl = isbn ? getOpenLibraryCoverUrl(isbn, 'L') : '';
+    const googleFallbackUrl = getGoogleBooksFallbackUrl(primaryUrl);
+    const coverSources = getCoverSources(primaryUrl, googleFallbackUrl, openLibraryUrl);
+    const safeUrl = coverSources[0] || '';
 
     const [imgSrc, setImgSrc] = useState(safeUrl);
     const [imageLoaded, setImageLoaded] = useState(false);
     const prevUrlRef = useRef(safeUrl);
 
     useEffect(() => {
-        const newSafeUrl = primaryUrl || fallbackUrl;
+        const newSafeUrl = coverSources[0] || '';
         if (newSafeUrl !== prevUrlRef.current) {
             prevUrlRef.current = newSafeUrl;
             setImgSrc(newSafeUrl);
             setImageLoaded(false);
         }
-    }, [primaryUrl, fallbackUrl]);
+    }, [coverSources]);
 
     const handleImageError = () => {
-        if (imgSrc !== fallbackUrl && fallbackUrl) {
-            setImgSrc(fallbackUrl);
+        const currentIndex = coverSources.indexOf(imgSrc);
+        const nextSrc = currentIndex >= 0 ? coverSources[currentIndex + 1] : '';
+
+        if (nextSrc) {
+            setImgSrc(nextSrc);
         } else {
             setImgSrc('');
         }
@@ -161,3 +166,84 @@ const BookCover = forwardRef<HTMLImageElement, BookCoverProps>(({
 BookCover.displayName = 'BookCover';
 
 export default BookCover;
+
+const getBestImageLink = (imageLinks?: BookCoverInfo['imageLinks']): string => {
+    if (!imageLinks) return '';
+
+    const rawUrl = imageLinks.extraLarge
+        || imageLinks.large
+        || imageLinks.medium
+        || imageLinks.small
+        || imageLinks.thumbnail
+        || imageLinks.smallThumbnail
+        || '';
+
+    return enhanceGoogleBooksImageUrl(rawUrl);
+};
+
+const enhanceGoogleBooksImageUrl = (rawUrl?: string): string => {
+    if (!rawUrl) return '';
+
+    const normalizedUrl = rawUrl.replace('http://', 'https://');
+    if (!normalizedUrl.includes('books.google') || !normalizedUrl.includes('?')) {
+        return normalizedUrl;
+    }
+
+    try {
+        const url = new URL(normalizedUrl);
+        const currentZoom = Number(url.searchParams.get('zoom') || '0');
+        if (!Number.isFinite(currentZoom) || currentZoom < 3) {
+            url.searchParams.set('zoom', '3');
+        }
+        return url.toString();
+    } catch {
+        return normalizedUrl;
+    }
+};
+
+const getGoogleBooksFallbackUrl = (rawUrl?: string): string => {
+    if (!rawUrl) return '';
+
+    const normalizedUrl = rawUrl.replace('http://', 'https://');
+    if (!normalizedUrl.includes('books.google') || !normalizedUrl.includes('?')) {
+        return '';
+    }
+
+    try {
+        const url = new URL(normalizedUrl);
+        const currentZoom = Number(url.searchParams.get('zoom') || '0');
+        if (!Number.isFinite(currentZoom) || currentZoom <= 1) {
+            return '';
+        }
+
+        url.searchParams.set('zoom', '1');
+        const fallbackUrl = url.toString();
+        return fallbackUrl === normalizedUrl ? '' : fallbackUrl;
+    } catch {
+        return '';
+    }
+};
+
+const getCoverSources = (primaryUrl: string, googleFallbackUrl: string, openLibraryUrl: string): string[] => {
+    if (shouldPreferOpenLibraryCover(primaryUrl, openLibraryUrl)) {
+        return openLibraryUrl ? [openLibraryUrl] : [];
+    }
+
+    if (isGoogleBooksThumbnailUrl(primaryUrl) && !openLibraryUrl) {
+        return [];
+    }
+
+    const orderedSources = [primaryUrl, googleFallbackUrl, openLibraryUrl];
+
+    return [...new Set(orderedSources.filter(Boolean))];
+};
+
+const shouldPreferOpenLibraryCover = (primaryUrl: string, openLibraryUrl: string): boolean => {
+    return Boolean(openLibraryUrl) && isGoogleBooksThumbnailUrl(primaryUrl);
+};
+
+const isGoogleBooksThumbnailUrl = (url?: string): boolean => {
+    if (!url) return false;
+
+    return url.includes('books.google') && url.includes('/books/content');
+};

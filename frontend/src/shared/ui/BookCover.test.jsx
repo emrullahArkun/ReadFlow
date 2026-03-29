@@ -44,7 +44,7 @@ describe('BookCover', () => {
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-M.jpg?default=false');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-L.jpg?default=false');
     });
 
     it('falls back to title/author text if no image URL is possible', () => {
@@ -97,7 +97,7 @@ describe('BookCover', () => {
 
         // Tries ISBN-based URL
         img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/1234567890-M.jpg?default=false');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/1234567890-L.jpg?default=false');
 
         act(() => {
             simulateImageError(img); // ISBN fallback fails
@@ -116,7 +116,7 @@ describe('BookCover', () => {
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0987654321-M.jpg?default=false');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0987654321-L.jpg?default=false');
 
         act(() => {
             simulateImageLoad(img, 1, 1);
@@ -144,7 +144,57 @@ describe('BookCover', () => {
         };
         render(<BookCover book={book} />);
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9780123456789-M.jpg?default=false');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9780123456789-L.jpg?default=false');
+    });
+
+    it('prefers the largest available google image link from volumeInfo', () => {
+        const book = {
+            volumeInfo: {
+                title: 'HiRes Book',
+                imageLinks: {
+                    thumbnail: 'https://books.google.com/thumb.jpg',
+                    large: 'https://books.google.com/large.jpg',
+                    extraLarge: 'https://books.google.com/extra-large.jpg',
+                },
+            }
+        };
+
+        render(<BookCover book={book} />);
+
+        const img = screen.getByRole('img');
+        expect(img.src).toBe('https://books.google.com/extra-large.jpg');
+    });
+
+    it('shows the internal placeholder for uncertain google thumbnails without open library fallback', () => {
+        const book = {
+            volumeInfo: {
+                title: 'Sharper Book',
+                imageLinks: {
+                    thumbnail: 'http://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=1&source=gbs_api',
+                },
+            }
+        };
+
+        render(<BookCover book={book} />);
+
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByText('Sharper Book')).toBeInTheDocument();
+    });
+
+    it('shows placeholder text instead of rendering uncertain google thumbnails without fallback isbn', () => {
+        const book = {
+            volumeInfo: {
+                title: 'Fallback Google Book',
+                imageLinks: {
+                    thumbnail: 'http://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=1&source=gbs_api',
+                },
+            }
+        };
+
+        render(<BookCover book={book} />);
+
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByText('Fallback Google Book')).toBeInTheDocument();
     });
 
     it('falls back to ISBN_10 when ISBN_13 is not available', () => {
@@ -158,7 +208,34 @@ describe('BookCover', () => {
         render(<BookCover book={book} />);
 
         const img = screen.getByRole('img');
-        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0123456789-M.jpg?default=false');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/0123456789-L.jpg?default=false');
+    });
+
+    it('prefers open library over google content thumbnails when isbn is available', () => {
+        const book = {
+            title: 'Edition With Placeholder Risk',
+            isbn: '9783161484100',
+            coverUrl: 'https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=3&source=gbs_api',
+        };
+
+        render(<BookCover book={book} />);
+
+        const img = screen.getByRole('img');
+        expect(img.src).toBe('https://covers.openlibrary.org/b/isbn/9783161484100-L.jpg?default=false');
+    });
+
+    it('shows the internal placeholder instead of uncertain google content thumbnails without open library fallback', () => {
+        const book = {
+            title: 'Unsichere Ausgabe',
+            authorName: 'Beispiel Autor',
+            coverUrl: 'https://books.google.com/books/content?id=abc&printsec=frontcover&img=1&zoom=3&source=gbs_api',
+        };
+
+        render(<BookCover book={book} />);
+
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByText('Unsichere Ausgabe')).toBeInTheDocument();
+        expect(screen.getByText('Beispiel Autor')).toBeInTheDocument();
     });
 
     it('shows the unknown title fallback when no title exists', () => {

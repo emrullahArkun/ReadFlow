@@ -6,6 +6,7 @@ import com.example.readwick.discovery.domain.DiscoverySearchResult;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -18,7 +19,8 @@ import java.util.List;
 
 @Component
 @Slf4j
-// Adapter pattern: translates the Open Library API into the provider interface used by the discovery layer.
+@ConditionalOnProperty(name = "app.discovery.provider", havingValue = "open-library")
+// Preserved as an alternative adapter. The discovery layer still depends only on the provider port.
 public class OpenLibraryClient implements BookDiscoveryProvider {
 
     private static final String SEARCH_URL = "https://openlibrary.org/search.json";
@@ -35,7 +37,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
                 .build();
     }
 
-    @Cacheable(value = "openLibraryBooks", key = "'author:' + #author + ':' + #maxResults")
+    @Cacheable(value = "discoveryBooks", key = "'author:' + #author + ':' + #maxResults")
     @Override
     public List<DiscoveryBook> getBooksByAuthor(String author, int maxResults) {
         String url = SEARCH_URL + "?author=" + encodeParam(author)
@@ -43,7 +45,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
         return fetchBooks(url);
     }
 
-    @Cacheable(value = "openLibraryBooks", key = "'category:' + #category + ':' + #maxResults")
+    @Cacheable(value = "discoveryBooks", key = "'category:' + #category + ':' + #maxResults")
     @Override
     public List<DiscoveryBook> getBooksByCategory(String category, int maxResults) {
         String url = SEARCH_URL + "?subject=" + encodeParam(category)
@@ -51,7 +53,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
         return fetchBooks(url);
     }
 
-    @Cacheable(value = "openLibraryBooks", key = "'query:' + #query + ':' + #maxResults")
+    @Cacheable(value = "discoveryBooks", key = "'query:' + #query + ':' + #maxResults")
     @Override
     public List<DiscoveryBook> getBooksByQuery(String query, int maxResults) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)
@@ -59,7 +61,7 @@ public class OpenLibraryClient implements BookDiscoveryProvider {
         return fetchBooks(url);
     }
 
-    @Cacheable(value = "openLibrarySearch", key = "#query + ':' + #offset + ':' + #limit")
+    @Cacheable(value = "discoverySearch", key = "#query + ':' + #offset + ':' + #limit")
     @Override
     public DiscoverySearchResult searchBooks(String query, int offset, int limit) {
         String url = SEARCH_URL + "?q=" + encodeParam(query)

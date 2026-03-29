@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +79,22 @@ class BookServiceTest {
     }
 
     @Test
+    void existsByIsbnAndUser_ShouldDelegateToRepository() {
+        when(bookRepository.existsByIsbnAndUser("isbn123", user)).thenReturn(true);
+
+        assertTrue(bookService.existsByIsbnAndUser("isbn123", user));
+    }
+
+    @Test
+    void findBooksWithGoals_ShouldReturnMatchingBooks() {
+        when(bookRepository.findByUserAndReadingGoalTypeIsNotNull(user)).thenReturn(List.of(new Book()));
+
+        List<Book> result = bookService.findBooksWithGoals(user);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
     void createBook_ShouldSaveBook() {
         CreateBookCommand command = new CreateBookCommand("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
         Book book = new Book();
@@ -115,6 +132,26 @@ class BookServiceTest {
     }
 
     @Test
+    void createBook_ShouldPreserveExistingDefaults_WhenMapperAlreadySetThem() {
+        CreateBookCommand command = new CreateBookCommand("isbn", "title", "author", 2023, "url", 100, List.of("cat"));
+        Book book = new Book();
+        LocalDate existingStartDate = LocalDate.of(2024, 1, 10);
+        book.setCurrentPage(42);
+        book.setStartDate(existingStartDate);
+        book.setCompleted(true);
+
+        when(bookRepository.existsByIsbnAndUser("isbn", user)).thenReturn(false);
+        when(createBookCommandMapper.toEntity(command)).thenReturn(book);
+        when(bookRepository.saveAndFlush(any(Book.class))).thenAnswer(i -> i.getArgument(0));
+
+        Book result = bookService.createBook(command, user);
+
+        assertEquals(42, result.getCurrentPage());
+        assertEquals(existingStartDate, result.getStartDate());
+        assertTrue(result.getCompleted());
+    }
+
+    @Test
     void deleteByIdAndUser_ShouldDeleteBookAndSessions() {
         Book book = new Book();
         book.setId(1L);
@@ -130,6 +167,13 @@ class BookServiceTest {
     void deleteByIdAndUser_ShouldThrow_WhenNotFound() {
         when(bookRepository.findByIdAndUser(1L, user)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> bookService.deleteByIdAndUser(1L, user));
+    }
+
+    @Test
+    void getBookByIdOrThrow_ShouldThrow_WhenNotFound() {
+        when(bookRepository.findByIdAndUser(99L, user)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> bookService.getBookByIdOrThrow(99L, user));
     }
 
     @Test
@@ -164,6 +208,16 @@ class BookServiceTest {
 
         Book result = bookService.updateBookStatus(1L, true, user);
         assertTrue(result.getCompleted());
+    }
+
+    @Test
+    void updateBookStatus_ShouldUnsetCompleted() {
+        Book book = new Book();
+        book.setCompleted(true);
+        when(bookRepository.findByIdAndUser(1L, user)).thenReturn(Optional.of(book));
+
+        Book result = bookService.updateBookStatus(1L, false, user);
+        assertFalse(result.getCompleted());
     }
 
     @Test
