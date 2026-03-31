@@ -175,6 +175,9 @@ jobs:
           ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" '
             set -e
             cd /opt/mybooktracker
+            git fetch origin
+            git checkout main
+            git pull --ff-only origin main
             export IMAGE_TAG=sha-${{ github.event.workflow_run.head_sha || github.sha }}
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
