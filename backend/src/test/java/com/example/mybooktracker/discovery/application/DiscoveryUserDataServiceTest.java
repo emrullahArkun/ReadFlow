@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -62,6 +63,15 @@ class DiscoveryUserDataServiceTest {
 
         assertEquals(2, result.size());
         assertTrue(result.contains("isbn1"));
+    }
+
+    @Test
+    void getOwnedIsbns_ShouldReturnImmutableSet() {
+        when(bookQueryPort.findAllIsbnsByUser(user)).thenReturn(List.of("isbn1", "isbn2"));
+
+        Set<String> result = userDataService.getOwnedIsbns(user);
+
+        assertThrows(UnsupportedOperationException.class, () -> result.add("isbn3"));
     }
 
     @Test

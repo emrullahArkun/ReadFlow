@@ -29,6 +29,7 @@ type RegisterFormErrors = {
 
 function RegisterPage() {
     const { t } = useTranslation();
+    const passwordHintId = 'register-password-hint';
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -139,8 +140,9 @@ function RegisterPage() {
                         error={errors.password}
                         required
                         autoComplete="new-password"
+                        aria-describedby={passwordHintId}
                     />
-                    <p className={styles.passwordHint}>{t('auth.passwordRequirements')}</p>
+                    <p id={passwordHintId} className={styles.passwordHint}>{t('auth.passwordRequirements')}</p>
 
                     <TextField
                         label={t('auth.confirmPassword')}

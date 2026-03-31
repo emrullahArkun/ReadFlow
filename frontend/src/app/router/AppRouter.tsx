@@ -30,7 +30,7 @@ const AppRouter = () => {
                     <Route element={<ProtectedRoute />}>
                         <Route element={<MainLayout />}>
                             <Route path={ROUTES.HOME} element={<HomePage />} />
-                            <Route path={ROUTES.SEARCH} element={<SearchPage onBookAdded={() => {}} />} />
+                            <Route path={ROUTES.SEARCH} element={<SearchPage />} />
                             <Route path={ROUTES.GOALS} element={<GoalsPage />} />
                             <Route path={ROUTES.MY_BOOKS} element={<LibraryPage />} />
                             <Route path={ROUTES.STATS} element={<StatsOverviewPage />} />

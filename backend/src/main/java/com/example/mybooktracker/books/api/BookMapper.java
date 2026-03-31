@@ -29,6 +29,7 @@ public class BookMapper {
                 book.getCompleted(),
                 book.getReadingGoalType(),
                 book.getReadingGoalPages(),
+                // Goal progress is derived later in the application layer once period context is available.
                 null,
                 categories
         );

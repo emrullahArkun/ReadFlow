@@ -42,6 +42,7 @@ test('login flow lands on the home dashboard', async ({ page }) => {
 });
 
 test('authenticated user can open stats overview', async ({ page }) => {
+    await useEnglishLocale(page);
     await seedAuthenticatedUser(page);
     await installApiMocks(page, { authenticated: true });
 

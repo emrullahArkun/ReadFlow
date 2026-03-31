@@ -146,7 +146,6 @@
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>**/*MapperImpl.class</exclude>
 						<exclude>com/example/mybooktracker/auth/SecurityConfig$CsrfCookieFilter.class</exclude>
 					</excludes>
 				</configuration>

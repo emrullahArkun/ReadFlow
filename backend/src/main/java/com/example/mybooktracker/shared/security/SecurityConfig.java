@@ -14,7 +14,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtIssuerValidator;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,7 +32,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.time.Duration;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -47,9 +45,6 @@ public class SecurityConfig {
 
     @Value("${app.jwt.issuer}")
     private String jwtIssuer;
-
-    @Value("${app.jwt.clock-skew-seconds:30}")
-    private long jwtClockSkewSeconds;
 
     @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
     private String[] allowedOrigins;
@@ -79,6 +74,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/logout").permitAll()
+                        .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -145,8 +141,7 @@ public class SecurityConfig {
     private OAuth2TokenValidator<org.springframework.security.oauth2.jwt.Jwt> jwtValidator() {
         return new DelegatingOAuth2TokenValidator<>(
                 JwtValidators.createDefault(),
-                new JwtIssuerValidator(jwtIssuer),
-                new JwtTimestampValidator(Duration.ofSeconds(jwtClockSkewSeconds)));
+                new JwtIssuerValidator(jwtIssuer));
     }
 
     private CorsConfiguration corsConfiguration() {

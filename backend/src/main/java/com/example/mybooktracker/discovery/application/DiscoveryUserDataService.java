@@ -8,7 +8,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ class DiscoveryUserDataService {
 
     @Cacheable(value = "ownedIsbns", key = "#user.id")
     Set<String> getOwnedIsbns(User user) {
-        return new HashSet<>(bookQueryPort.findAllIsbnsByUser(user));
+        return Set.copyOf(bookQueryPort.findAllIsbnsByUser(user));
     }
 
     List<String> getTopAuthors(User user, int limit) {

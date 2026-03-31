@@ -135,11 +135,6 @@ public class Book {
     // Set sensible defaults before first save
     @PrePersist
     public void prePersist() {
-        if (currentPage == null) {
-            currentPage = 0;
-        }
-        if (completed == null) {
-            completed = false;
-        }
+        initializeTracking(null);
     }
 }

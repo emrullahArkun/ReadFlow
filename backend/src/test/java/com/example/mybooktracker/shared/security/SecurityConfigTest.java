@@ -10,7 +10,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -24,7 +23,6 @@ class SecurityConfigTest {
                 new JwtUserAuthenticationConverter());
         ReflectionTestUtils.setField(securityConfig, "jwtSecret", "short");
         ReflectionTestUtils.setField(securityConfig, "jwtIssuer", "issuer");
-        ReflectionTestUtils.setField(securityConfig, "jwtClockSkewSeconds", 30L);
 
         assertThrows(IllegalStateException.class, securityConfig::jwtDecoder);
     }
@@ -42,7 +40,7 @@ class SecurityConfigTest {
     }
 
     @Test
-    void csrfCookieFilter_ShouldMaterializeToken_WhenCsrfTokenPresent() {
+    void csrfCookieFilter_ShouldMaterializeToken_WhenCsrfTokenPresent() throws ServletException, IOException {
         SecurityConfig.CsrfCookieFilter filter = new SecurityConfig.CsrfCookieFilter();
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -50,6 +48,7 @@ class SecurityConfigTest {
         CsrfToken csrfToken = mock(CsrfToken.class);
         request.setAttribute("_csrf", csrfToken);
 
-        assertDoesNotThrow(() -> filter.doFilterInternal(request, response, chain));
+        filter.doFilterInternal(request, response, chain);
+        verify(chain).doFilter(request, response);
     }
 }

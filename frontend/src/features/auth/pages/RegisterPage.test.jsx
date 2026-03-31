@@ -34,10 +34,10 @@ vi.mock('../ui/AuthLayout', () => ({
 }));
 
 vi.mock('../../../shared/ui/TextField', () => ({
-    TextField: ({ label, value, onChange, type, error }) => (
+    TextField: ({ label, value, onChange, type, error, ...props }) => (
         <div>
             <label>{label}</label>
-            <input type={type} value={value} onChange={onChange} aria-label={label} />
+            <input type={type} value={value} onChange={onChange} aria-label={label} {...props} />
             {error && <span role="alert">{error}</span>}
         </div>
     ),
@@ -144,5 +144,12 @@ describe('RegisterPage', () => {
     it('should render login link', () => {
         render(<MemoryRouter><RegisterPage /></MemoryRouter>);
         expect(screen.getByText('auth.login.button')).toBeInTheDocument();
+    });
+
+    it('should connect the password field to the hint text for accessibility', () => {
+        render(<MemoryRouter><RegisterPage /></MemoryRouter>);
+
+        expect(screen.getByLabelText('auth.password')).toHaveAttribute('aria-describedby', 'register-password-hint');
+        expect(screen.getByText('auth.passwordRequirements')).toHaveAttribute('id', 'register-password-hint');
     });
 });

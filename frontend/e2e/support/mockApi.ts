@@ -94,7 +94,6 @@ export const useEnglishLocale = async (page: Page): Promise<void> => {
 
 export const seedAuthenticatedUser = async (page: Page): Promise<void> => {
     await page.addInitScript((user) => {
-        window.localStorage.setItem('i18nextLng', 'en');
         window.localStorage.setItem('user', JSON.stringify(user));
     }, mockUser);
 };

@@ -5,6 +5,7 @@ import com.example.mybooktracker.auth.api.dto.LoginRequest;
 import com.example.mybooktracker.auth.api.dto.RegisterRequest;
 import com.example.mybooktracker.auth.domain.Role;
 import com.example.mybooktracker.auth.domain.User;
+import com.example.mybooktracker.shared.exception.GlobalExceptionHandler;
 import com.example.mybooktracker.shared.security.CurrentUser;
 import com.example.mybooktracker.shared.security.JwtTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.time.Clock;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -69,7 +72,7 @@ class AuthControllerTest {
 
         mockMvc = MockMvcBuilders.standaloneSetup(authController)
                 .setCustomArgumentResolvers(authResolver)
-                .setControllerAdvice(new com.example.mybooktracker.shared.exception.GlobalExceptionHandler(java.time.Clock.systemUTC()))
+                .setControllerAdvice(new GlobalExceptionHandler(Clock.systemUTC()))
                 .build();
         objectMapper = new ObjectMapper();
     }
