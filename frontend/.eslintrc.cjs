@@ -109,6 +109,7 @@ module.exports = {
     'no-useless-catch': 'off',
     'react/display-name': 'off',
     'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/set-state-in-effect': 'off',
     'no-undef': 'error',
   },
 }
