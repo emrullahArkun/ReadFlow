@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { useTranslation } from 'react-i18next';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import type { DailyActivity } from '../../../shared/types/stats';
+import { parseLocalDate } from '../../../shared/lib/date';
 
 // Returns ISO week number for a given date
 type WeeklyPaceDatum = {
@@ -83,7 +84,7 @@ const WeeklyPaceChart = ({ dailyActivity = [] }: WeeklyPaceChartProps) => {
         }
 
         for (const entry of dailyActivity) {
-            const d = new Date(entry.date);
+            const d = parseLocalDate(entry.date);
             for (const bucket of buckets) {
                 if (d >= bucket.start && d <= bucket.end) {
                     bucket.pages += entry.pagesRead;

@@ -2,6 +2,7 @@ import { useMemo, useRef, useEffect } from 'react';
 import { Box, Text, Flex, Tooltip } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import type { DailyActivity } from '../../../shared/types/stats';
+import { formatLocalDate } from '../../../shared/lib/date';
 
 const CELL_SIZE = 13;
 const CELL_GAP = 3;
@@ -43,6 +44,7 @@ const ReadingHeatmap = ({ dailyActivity = [] }: ReadingHeatmapProps) => {
         }
 
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const dayOfWeek = today.getDay();
         // Start from (WEEKS) weeks ago, aligned to Sunday
         const start = new Date(today);
@@ -56,7 +58,7 @@ const ReadingHeatmap = ({ dailyActivity = [] }: ReadingHeatmapProps) => {
         for (let w = 0; w <= WEEKS; w++) {
             const week: HeatmapCell[] = [];
             for (let dow = 0; dow < 7; dow++) {
-                const dateStr = d.toISOString().split('T')[0] ?? '';
+                const dateStr = formatLocalDate(d);
                 const isAfterToday = d > today;
                 week.push({
                     date: dateStr,

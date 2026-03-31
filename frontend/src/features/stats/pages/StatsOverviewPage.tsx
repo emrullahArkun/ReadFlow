@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../auth/model';
 import { useThemeTokens } from '../../../shared/theme/useThemeTokens';
 import StatsCard from '../../../shared/ui/StatsCard';
+import { getStartOfLocalWeek, parseLocalDate } from '../../../shared/lib/date';
 import ReadingHeatmap from '../ui/ReadingHeatmap';
 import WeeklyPaceChart from '../ui/WeeklyPaceChart';
 import statsApi from '../api/statsApi';
@@ -18,17 +19,8 @@ const formatTime = (minutes: number) => {
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
 };
 
-const getStartOfWeek = (date: Date) => {
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const dayOfWeek = start.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    start.setDate(start.getDate() + mondayOffset);
-    start.setHours(0, 0, 0, 0);
-    return start;
-};
-
 const formatShortDate = (dateString: string, language: string) => (
-    new Date(dateString).toLocaleDateString(language, { day: 'numeric', month: 'short' })
+    parseLocalDate(dateString).toLocaleDateString(language, { day: 'numeric', month: 'short' })
 );
 
 const StatsOverviewPage = () => {
@@ -99,10 +91,10 @@ const StatsOverviewPage = () => {
     if (!stats) return null;
 
     const today = new Date();
-    const startOfWeek = getStartOfWeek(today);
+    const startOfWeek = getStartOfLocalWeek(today);
     const dailyActivity = stats.dailyActivity || [];
 
-    const thisWeekEntries = dailyActivity.filter((entry) => new Date(entry.date) >= startOfWeek);
+    const thisWeekEntries = dailyActivity.filter((entry) => parseLocalDate(entry.date) >= startOfWeek);
     const readingDaysThisWeek = thisWeekEntries.filter((entry) => entry.pagesRead > 0).length;
     const pagesThisWeek = thisWeekEntries.reduce((sum, entry) => sum + entry.pagesRead, 0);
     const averageReadingDay = readingDaysThisWeek > 0

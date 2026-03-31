@@ -170,8 +170,8 @@
             "current": "Aktuell lesen",
             "currentHint": "Bücher, die schon angefangen sind, sollten am leichtesten weitergehen.",
             "currentHintActive": "Deine aktive Session bleibt vorne, damit du direkt wieder einsteigen kannst.",
-            "next": "Als Nächstes",
-            "nextHint": "Bücher, mit denen du als Nächstes gemütlich starten kannst.",
+            "next": "Wartet auf dich",
+            "nextHint": "Bücher, in die du als Nächstes ruhig hineingleiten kannst.",
             "finished": "Beendet",
             "finishedHint": "Abgeschlossene Bücher bleiben sichtbar, aber rücken aus dem Weg."
         }
@@ -359,7 +359,9 @@
         "leave": "Verlassen",
         "back": "Zurück",
         "previousPage": "Vorherige Seite",
-        "nextPage": "Nächste Seite"
+        "nextPage": "Nächste Seite",
+        "previousPageForSection": "Vorherige Seite für {{section}}",
+        "nextPageForSection": "Nächste Seite für {{section}}"
     },
     "discovery": {
         "loading": "Empfehlungen werden geladen...",

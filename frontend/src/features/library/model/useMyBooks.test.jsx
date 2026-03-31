@@ -53,49 +53,64 @@ describe('useMyBooks wrapper tests', () => {
         });
 
         expect(result.current.books[0].title).toBe('Book 1');
-        expect(result.current.totalPages).toBe(1);
-        expect(result.current.page).toBe(0);
         expect(result.current.selectedBooks.size).toBe(0);
     });
 
-    it('should clamp the page when totalPages shrinks after a refetch', async () => {
+    it('should fetch all pages of the library', async () => {
         booksApi.getAll.mockImplementation(async (page) => {
             if (page === 0) {
                 return { content: [{ id: 1, title: 'Page 1 Book' }], totalPages: 3 };
             }
 
-            if (page === 2) {
-                return { content: [], totalPages: 2 };
-            }
-
             if (page === 1) {
-                return { content: [{ id: 2, title: 'Page 2 Book' }], totalPages: 2 };
+                return { content: [{ id: 2, title: 'Page 2 Book' }], totalPages: 3 };
             }
 
-            return { content: [], totalPages: 0 };
+            return { content: [{ id: 3, title: 'Page 3 Book' }], totalPages: 3 };
         });
 
         const { result } = renderHook(() => useMyBooks(), { wrapper });
 
         await waitFor(() => {
-            expect(result.current.totalPages).toBe(3);
+            expect(result.current.books).toHaveLength(3);
         });
 
-        act(() => {
-            result.current.setPage(2);
+        expect(booksApi.getAll).toHaveBeenNthCalledWith(1, 0, 100);
+        expect(booksApi.getAll).toHaveBeenCalledWith(1, 100);
+        expect(booksApi.getAll).toHaveBeenCalledWith(2, 100);
+    });
+
+    it('should request the remaining pages after the first page in parallel', async () => {
+        let releaseSecondPage;
+        booksApi.getAll.mockImplementation((page) => {
+            if (page === 0) {
+                return Promise.resolve({ content: [{ id: 1, title: 'Page 1 Book' }], totalPages: 3 });
+            }
+
+            if (page === 1) {
+                return new Promise((resolve) => {
+                    releaseSecondPage = () => resolve({ content: [{ id: 2, title: 'Page 2 Book' }], totalPages: 3 });
+                });
+            }
+
+            return Promise.resolve({ content: [{ id: 3, title: 'Page 3 Book' }], totalPages: 3 });
+        });
+
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(booksApi.getAll).toHaveBeenCalledWith(1, 100);
+            expect(booksApi.getAll).toHaveBeenCalledWith(2, 100);
+        });
+
+        expect(result.current.loading).toBe(true);
+
+        await act(async () => {
+            releaseSecondPage();
         });
 
         await waitFor(() => {
-            expect(booksApi.getAll).toHaveBeenCalledWith(2, 12);
-        });
-
-        await waitFor(() => {
-            expect(result.current.page).toBe(1);
-        });
-
-        await waitFor(() => {
-            expect(booksApi.getAll).toHaveBeenLastCalledWith(1, 12);
-            expect(result.current.totalPages).toBe(2);
+            expect(result.current.books).toHaveLength(3);
         });
     });
 
@@ -219,7 +234,7 @@ describe('useMyBooks wrapper tests', () => {
         expect(booksApi.getAll).not.toHaveBeenCalled();
     });
 
-    it('should fall back to an empty page when the API returns null', async () => {
+    it('should surface an error when the API returns null for the first page', async () => {
         booksApi.getAll.mockResolvedValue(null);
         const { result } = renderHook(() => useMyBooks(), { wrapper });
 
@@ -228,7 +243,38 @@ describe('useMyBooks wrapper tests', () => {
         });
 
         expect(result.current.books).toHaveLength(0);
-        expect(result.current.totalPages).toBe(0);
+        expect(result.current.error).toBe('Failed to load library');
+    });
+
+    it('should handle empty content payloads without crashing pagination', async () => {
+        booksApi.getAll.mockResolvedValue({ content: null, totalPages: 0 });
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+        });
+
+        expect(result.current.books).toHaveLength(0);
+        expect(booksApi.getAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('should surface an error when any later page is invalid', async () => {
+        booksApi.getAll.mockImplementation(async (page) => {
+            if (page === 0) {
+                return { content: [{ id: 1, title: 'Page 1 Book' }], totalPages: 2 };
+            }
+
+            return null;
+        });
+
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.loading).toBe(false);
+        });
+
+        expect(result.current.books).toHaveLength(0);
+        expect(result.current.error).toBe('Failed to load library');
     });
 
     it('should call updateStatus mutation', async () => {
@@ -295,6 +341,27 @@ describe('useMyBooks wrapper tests', () => {
         expect(booksApi.delete).toHaveBeenCalledWith(1);
     });
 
+    it('should expose the selected-delete error with highest priority', async () => {
+        booksApi.delete.mockRejectedValue(new Error('Failed deletion'));
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.books).toHaveLength(1);
+        });
+
+        act(() => {
+            result.current.toggleSelection(1);
+        });
+
+        act(() => {
+            result.current.deleteSelected();
+        });
+
+        await waitFor(() => {
+            expect(result.current.deleteError?.message).toBe('Some deletions failed');
+        });
+    });
+
     it('should handle mutate onError gracefully', async () => {
         booksApi.delete.mockRejectedValue(new Error('Delete err'));
         const { result } = renderHook(() => useMyBooks(), { wrapper });
@@ -352,6 +419,40 @@ describe('useMyBooks wrapper tests', () => {
         await waitFor(() => {
             expect(booksApi.deleteAll).toHaveBeenCalled();
             expect(result.current.selectedBooks.size).toBe(0);
+        });
+    });
+
+    it('should expose the delete-all error when bulk delete has not failed', async () => {
+        booksApi.deleteAll.mockRejectedValue(new Error('Delete all err'));
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.books).toHaveLength(1);
+        });
+
+        act(() => {
+            result.current.deleteAll();
+        });
+
+        await waitFor(() => {
+            expect(result.current.deleteError?.message).toBe('Delete all err');
+        });
+    });
+
+    it('should expose the single-delete error when no bulk delete errors exist', async () => {
+        booksApi.delete.mockRejectedValue(new Error('Delete err'));
+        const { result } = renderHook(() => useMyBooks(), { wrapper });
+
+        await waitFor(() => {
+            expect(result.current.books).toHaveLength(1);
+        });
+
+        act(() => {
+            result.current.deleteBook(1);
+        });
+
+        await waitFor(() => {
+            expect(result.current.deleteError?.message).toBe('Delete err');
         });
     });
 });

@@ -22,7 +22,7 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-vi.mock('../../reading-session/model/ReadingSessionContext', () => ({
+vi.mock('../../reading-session', () => ({
     ReadingSessionProvider: ({ children }) => children,
     useReadingSessionContext: () => mockReadingSessionContext(),
 }));
@@ -125,9 +125,6 @@ describe('MyBooks Component', () => {
         expect(await screen.findByText('No books in your library yet.')).toBeInTheDocument();
         expect(await screen.findByText('Go to search to add books!')).toBeInTheDocument();
         expect(screen.queryByText('Delete All')).not.toBeInTheDocument();
-        expect(screen.getByText('1 / 1')).toBeInTheDocument();
-        expect(screen.getByLabelText(/Previous Page/i)).toBeDisabled();
-        expect(screen.getByLabelText(/Next Page/i)).toBeDisabled();
     });
 
     it('groups books into current, next, and finished sections', async () => {
@@ -147,7 +144,7 @@ describe('MyBooks Component', () => {
         render(<LibraryPage />, { wrapper: createTestWrapper() });
 
         expect(await screen.findByText('Books already in motion should be the easiest ones to continue.')).toBeInTheDocument();
-        expect(screen.getByText('Books you can ease into next.')).toBeInTheDocument();
+        expect(screen.getByText('Books you can ease into whenever you are ready.')).toBeInTheDocument();
         expect(screen.getByText('Completed books stay visible, but out of the way.')).toBeInTheDocument();
         expect(screen.getByText('Books already in motion should be the easiest ones to continue.')).toBeInTheDocument();
     });
@@ -190,7 +187,7 @@ describe('MyBooks Component', () => {
 
         expect(await screen.findByText('Completed books stay visible, but out of the way.')).toBeInTheDocument();
         expect(screen.queryByText('Books already in motion should be the easiest ones to continue.')).not.toBeInTheDocument();
-        expect(screen.queryByText('Books you can ease into next.')).not.toBeInTheDocument();
+        expect(screen.queryByText('Books you can ease into whenever you are ready.')).not.toBeInTheDocument();
     });
 
     it('shows a toast when deleting selected books fails', async () => {
@@ -326,74 +323,60 @@ describe('MyBooks Component', () => {
         });
     });
 
-    describe('Pagination & Layout Resize', () => {
-        it('handles window resize dynamically for pagination size', async () => {
-            // Mock window innerWidth and resize event
-            window.innerWidth = 400; // Force mobile
-            render(<LibraryPage />, { wrapper: createTestWrapper() });
-
-            window.dispatchEvent(new Event('resize'));
-
-            // Wait for elements to respond (since dynamic calculations happen in effect)
-            expect(await screen.findByAltText('Test Book 1')).toBeInTheDocument();
-
-            window.innerWidth = 1200; // Desktop
-            window.dispatchEvent(new Event('resize'));
-        });
-
-        it('handles very narrow window where columns would be less than 1', async () => {
-            const originalInnerWidth = window.innerWidth;
-            try {
-                window.innerWidth = 50;
-                render(<LibraryPage />, { wrapper: createTestWrapper() });
-                window.dispatchEvent(new Event('resize'));
-                expect(await screen.findByAltText('Test Book 1')).toBeInTheDocument();
-            } finally {
-                window.innerWidth = originalInnerWidth;
-                window.dispatchEvent(new Event('resize'));
-            }
-        });
-
-        it('shows and handles pagination buttons', async () => {
+    describe('Section Pagination', () => {
+        it('shows independent pagination for each populated section', async () => {
             const user = userEvent.setup();
             server.use(
-                http.get('/api/books', ({ request }) => {
-                    const url = new URL(request.url);
-                    const page = Number(url.searchParams.get('page') || '0');
+                http.get('/api/books', () => {
                     return HttpResponse.json({
-                        content: [{ id: 1, title: 'B1' }, { id: 2, title: 'B2' }],
-                        totalElements: 20,
-                        totalPages: 2,
-                        number: page
+                        content: [
+                            { id: 1, title: 'Current 1', currentPage: 10, completed: false, user: { id: 1 } },
+                            { id: 2, title: 'Current 2', currentPage: 20, completed: false, user: { id: 1 } },
+                            { id: 3, title: 'Current 3', currentPage: 30, completed: false, user: { id: 1 } },
+                            { id: 4, title: 'Current 4', currentPage: 40, completed: false, user: { id: 1 } },
+                            { id: 5, title: 'Current 5', currentPage: 50, completed: false, user: { id: 1 } },
+                            { id: 6, title: 'Next 1', currentPage: 0, completed: false, user: { id: 1 } },
+                            { id: 7, title: 'Next 2', currentPage: 0, completed: false, user: { id: 1 } },
+                            { id: 8, title: 'Next 3', currentPage: 0, completed: false, user: { id: 1 } },
+                            { id: 9, title: 'Next 4', currentPage: 0, completed: false, user: { id: 1 } },
+                            { id: 10, title: 'Next 5', currentPage: 0, completed: false, user: { id: 1 } },
+                        ],
+                        totalElements: 10,
+                        totalPages: 1,
+                        number: 0
                     });
                 })
             );
 
             render(<LibraryPage />, { wrapper: createTestWrapper() });
 
-            // Next Page
-            const nextBtn = await screen.findByLabelText(/Next Page/i);
-            expect(nextBtn).toBeInTheDocument();
-            expect(screen.getByLabelText(/Previous Page/i)).toBeDisabled();
+            expect((await screen.findAllByText('Current 5')).length).toBeGreaterThan(0);
+            expect(screen.getAllByText('Next 1')).not.toHaveLength(0);
+            expect(screen.getAllByText('1 / 2')).toHaveLength(2);
 
-            await user.click(nextBtn);
+            expect(screen.queryAllByText('Current 1')).toHaveLength(0);
+            expect(screen.queryAllByText('Next 5')).toHaveLength(0);
 
-            // Assuming after click, we request page 1 and then prevBtn should be enabled.
-            // But we didn't mock the second call, we just want to ensure click handler fires.
-            await waitFor(() => {
-                expect(screen.getByLabelText(/Previous Page/i)).not.toBeDisabled();
-            });
-
-            // Click Previous Page to go back
-            const prevBtn = screen.getByLabelText(/Previous Page/i);
-            await user.click(prevBtn);
+            await user.click(screen.getByLabelText('Next page for Current Reads'));
 
             await waitFor(() => {
-                expect(screen.getByLabelText(/Previous Page/i)).toBeDisabled();
+                expect(screen.getAllByText('Current 1').length).toBeGreaterThan(0);
             });
+
+            expect(screen.queryAllByText('Next 5')).toHaveLength(0);
+            expect(screen.getByLabelText('Previous page for Current Reads')).not.toBeDisabled();
+            expect(screen.getByLabelText('Previous page for Waiting for You')).toBeDisabled();
+
+            await user.click(screen.getByLabelText('Next page for Waiting for You'));
+
+            await waitFor(() => {
+                expect(screen.getAllByText('Next 5').length).toBeGreaterThan(0);
+            });
+
+            expect(screen.getAllByText('Current 1').length).toBeGreaterThan(0);
         });
 
-        it('keeps the pagination visible even when there is only one page', async () => {
+        it('keeps section pagination visible even when there is only one page', async () => {
             server.use(
                 http.get('/api/books', () => {
                     return HttpResponse.json({
@@ -408,8 +391,8 @@ describe('MyBooks Component', () => {
             render(<LibraryPage />, { wrapper: createTestWrapper() });
 
             await screen.findByText('1 / 1');
-            expect(screen.getByLabelText(/Previous Page/i)).toBeDisabled();
-            expect(screen.getByLabelText(/Next Page/i)).toBeDisabled();
+            expect(screen.getByLabelText('Previous page for Waiting for You')).toBeDisabled();
+            expect(screen.getByLabelText('Next page for Waiting for You')).toBeDisabled();
         });
     });
 });

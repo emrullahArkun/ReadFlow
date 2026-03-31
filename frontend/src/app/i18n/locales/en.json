@@ -170,8 +170,8 @@
             "current": "Current Reads",
             "currentHint": "Books already in motion should be the easiest ones to continue.",
             "currentHintActive": "Your active session stays at the front so you can jump back in quickly.",
-            "next": "Up Next",
-            "nextHint": "Books you can ease into next.",
+            "next": "Waiting for You",
+            "nextHint": "Books you can ease into whenever you are ready.",
             "finished": "Finished",
             "finishedHint": "Completed books stay visible, but out of the way."
         }
@@ -359,7 +359,9 @@
         "leave": "Leave",
         "back": "Back",
         "previousPage": "Previous Page",
-        "nextPage": "Next Page"
+        "nextPage": "Next Page",
+        "previousPageForSection": "Previous page for {{section}}",
+        "nextPageForSection": "Next page for {{section}}"
     },
     "discovery": {
         "loading": "Loading recommendations...",

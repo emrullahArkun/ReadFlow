@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useQuery, useMutation, useQueryClient, keepPreviousData, type QueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/model';
 import { booksApi } from '../api';
-import type { Book, PaginatedResponse } from '../../../shared/types/books';
+import type { Book } from '../../../shared/types/books';
 
-const PAGE_SIZE = 12;
+const FETCH_PAGE_SIZE = 100;
 
-type BooksPage = PaginatedResponse<Book>;
-type BooksQueryKey = readonly ['myBooks', string | null, number, number];
+type BooksQueryKey = readonly ['myBooks', string | null];
 type MutationContext = {
-    previousData?: BooksPage | undefined;
+    previousData?: Book[] | undefined;
 };
 
 type BookId = number;
@@ -22,32 +21,24 @@ type UpdateStatusVars = {
     completed: boolean;
 };
 
-const createEmptyBooksPage = (page = 0, size = PAGE_SIZE): BooksPage => ({
-    content: [],
-    totalPages: 0,
-    totalElements: 0,
-    size,
-    number: page,
-});
-
 const createOptimisticMutation = <TVars,>(
     queryClient: QueryClient,
     queryKey: BooksQueryKey,
     mutationFn: (vars: TVars) => Promise<unknown>,
-    updater: (prev: BooksPage, vars: TVars) => BooksPage
+    updater: (prev: Book[], vars: TVars) => Book[]
 ) => ({
     mutationFn,
     onMutate: async (vars: TVars): Promise<MutationContext> => {
         await queryClient.cancelQueries({ queryKey: ['myBooks'] });
-        const previousData = queryClient.getQueryData<BooksPage>(queryKey);
+        const previousData = queryClient.getQueryData<Book[]>(queryKey);
         if (previousData) {
-            queryClient.setQueryData<BooksPage>(queryKey, updater(previousData, vars));
+            queryClient.setQueryData<Book[]>(queryKey, updater(previousData, vars));
         }
         return { previousData };
     },
     onError: (_err: Error, _vars: TVars, context: MutationContext | undefined) => {
         if (context?.previousData) {
-            queryClient.setQueryData<BooksPage>(queryKey, context.previousData);
+            queryClient.setQueryData<Book[]>(queryKey, context.previousData);
         }
     },
     onSettled: () => {
@@ -55,43 +46,58 @@ const createOptimisticMutation = <TVars,>(
     },
 });
 
+const fetchAllBooks = async (): Promise<Book[]> => {
+    const firstPage = await booksApi.getAll(0, FETCH_PAGE_SIZE);
+
+    if (!firstPage) {
+        throw new Error('Failed to load library');
+    }
+
+    const totalPages = Math.max(firstPage.totalPages || 0, 1);
+    const firstPageBooks = firstPage.content || [];
+
+    if (totalPages === 1) {
+        return firstPageBooks;
+    }
+
+    const remainingPages = await Promise.all(
+        Array.from({ length: totalPages - 1 }, (_, index) => booksApi.getAll(index + 1, FETCH_PAGE_SIZE))
+    );
+
+    if (remainingPages.some((page) => !page)) {
+        throw new Error('Failed to load library');
+    }
+
+    return [
+        ...firstPageBooks,
+        ...remainingPages.flatMap((page) => page?.content || []),
+    ];
+};
+
 export const useMyBooks = () => {
-    const pageSize = PAGE_SIZE;
-    const [page, setPage] = useState(0);
     const [selectedBooks, setSelectedBooks] = useState<Set<number>>(new Set());
     const { token } = useAuth();
     const queryClient = useQueryClient();
 
-    const queryKey: BooksQueryKey = ['myBooks', token, page, pageSize];
+    const queryKey: BooksQueryKey = ['myBooks', token];
 
-    const { data, isLoading: loading, error } = useQuery<BooksPage, Error>({
+    const { data, isLoading: loading, error } = useQuery<Book[], Error>({
         queryKey,
         queryFn: async () => {
-            if (!token) return createEmptyBooksPage(page, pageSize);
-            return (await booksApi.getAll(page, pageSize)) || createEmptyBooksPage(page, pageSize);
+            if (!token) return [];
+            return fetchAllBooks();
         },
-        placeholderData: keepPreviousData,
         enabled: !!token,
     });
 
-    const books = data?.content || [];
-    const totalPages = data?.totalPages || 0;
-    const maxPage = Math.max(totalPages - 1, 0);
-
-    useEffect(() => {
-        const clampedPage = Math.min(page, maxPage);
-
-        if (page !== clampedPage) {
-            setPage(clampedPage);
-        }
-    }, [page, maxPage]);
+    const books = data || [];
 
     const deleteMutation = useMutation<unknown, Error, BookId, MutationContext>(
         createOptimisticMutation(
             queryClient,
             queryKey,
             async (id) => booksApi.delete(id),
-            (prev, id) => ({ ...prev, content: prev.content.filter((book) => book.id !== id) })
+            (prev, id) => prev.filter((book) => book.id !== id)
         )
     );
 
@@ -100,7 +106,7 @@ export const useMyBooks = () => {
             queryClient,
             queryKey,
             async () => booksApi.deleteAll(),
-            () => createEmptyBooksPage(page, pageSize)
+            () => []
         ),
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['myBooks'] });
@@ -113,10 +119,7 @@ export const useMyBooks = () => {
             queryClient,
             queryKey,
             async ({ id, currentPage }) => booksApi.updateProgress(id, currentPage),
-            (prev, { id, currentPage }) => ({
-                ...prev,
-                content: prev.content.map((book) => book.id === id ? { ...book, currentPage } : book),
-            })
+            (prev, { id, currentPage }) => prev.map((book) => book.id === id ? { ...book, currentPage } : book)
         )
     );
 
@@ -125,10 +128,7 @@ export const useMyBooks = () => {
             queryClient,
             queryKey,
             async ({ id, completed }) => booksApi.updateStatus(id, completed),
-            (prev, { id, completed }) => ({
-                ...prev,
-                content: prev.content.map((book) => book.id === id ? { ...book, completed } : book),
-            })
+            (prev, { id, completed }) => prev.map((book) => book.id === id ? { ...book, completed } : book)
         )
     );
 
@@ -163,10 +163,7 @@ export const useMyBooks = () => {
                     throw new Error('Some deletions failed');
                 }
             },
-            (prev, ids) => ({
-                ...prev,
-                content: prev.content.filter((book) => !ids.includes(book.id)),
-            })
+            (prev, ids) => prev.filter((book) => !ids.includes(book.id))
         ),
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['myBooks'] });
@@ -203,9 +200,6 @@ export const useMyBooks = () => {
         deleteAll,
         updateBookProgress,
         updateBookStatus,
-        page,
-        setPage,
-        totalPages,
         deleteError,
         updateProgressError: updateProgressMutation.error,
     };

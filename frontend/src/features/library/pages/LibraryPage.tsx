@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Flex,
@@ -17,7 +17,7 @@ import MyBookCard from '../ui/MyBookCard';
 import LibraryActionsBar from '../ui/LibraryActionsBar';
 import LibraryEmptyState from '../ui/LibraryEmptyState';
 import LibraryPagination from '../ui/LibraryPagination';
-import { useReadingSessionContext } from '../../reading-session/model/ReadingSessionContext';
+import { useReadingSessionContext } from '../../reading-session';
 import type { Book } from '../../../shared/types/books';
 import { createAppToast } from '../../../shared/ui/AppToast';
 import { useThemeTokens } from '../../../shared/theme/useThemeTokens';
@@ -28,6 +28,8 @@ type LibrarySection = {
     hint: string;
     books: Book[];
 };
+
+const SECTION_PAGE_SIZE = 4;
 
 function LibraryPage() {
     const { t } = useTranslation();
@@ -49,12 +51,14 @@ function LibraryPage() {
         deleteSelected,
         deleteAll,
         updateBookProgress,
-        page,
-        setPage,
-        totalPages,
         deleteError,
     } = useMyBooks();
     const { activeSession } = useReadingSessionContext();
+    const [sectionPages, setSectionPages] = useState<Record<string, number>>({
+        current: 0,
+        next: 0,
+        finished: 0,
+    });
 
     const toast = useToast();
     const { isOpen: isDeleteAllOpen, onOpen: onDeleteAllOpen, onClose: onDeleteAllClose } = useDisclosure();
@@ -107,6 +111,40 @@ function LibraryPage() {
         ];
     }, [activeSession, books, t]);
 
+    const paginatedSections = useMemo(() => (
+        sections.map((section) => {
+            const totalSectionPages = Math.max(1, Math.ceil(section.books.length / SECTION_PAGE_SIZE));
+            const currentSectionPage = Math.min(sectionPages[section.key] ?? 0, totalSectionPages - 1);
+            const startIndex = currentSectionPage * SECTION_PAGE_SIZE;
+
+            return {
+                ...section,
+                page: currentSectionPage,
+                totalPages: totalSectionPages,
+                visibleBooks: section.books.slice(startIndex, startIndex + SECTION_PAGE_SIZE),
+            };
+        })
+    ), [sectionPages, sections]);
+
+    useEffect(() => {
+        setSectionPages((prev) => {
+            const nextPages = { ...prev };
+            let changed = false;
+
+            for (const section of sections) {
+                const totalSectionPages = Math.max(1, Math.ceil(section.books.length / SECTION_PAGE_SIZE));
+                const clampedPage = Math.min(prev[section.key] ?? 0, totalSectionPages - 1);
+
+                if (nextPages[section.key] !== clampedPage) {
+                    nextPages[section.key] = clampedPage;
+                    changed = true;
+                }
+            }
+
+            return changed ? nextPages : prev;
+        });
+    }, [sections]);
+
     useEffect(() => {
         if (deleteError) {
             toast(createAppToast({
@@ -139,7 +177,7 @@ function LibraryPage() {
         boxShadow: panelShadow,
     };
 
-    if (loading && page === 0 && books.length === 0) {
+    if (loading && books.length === 0) {
         return <Center h="200px" color={textColor}>{t('myBooks.loading')}</Center>;
     }
 
@@ -196,41 +234,35 @@ function LibraryPage() {
                 </Box>
             </SimpleGrid>
 
-            <Flex
-                align="center"
-                justify="space-between"
-                mb={6}
-                gap={4}
-                minH="40px"
-            >
-                <LibraryPagination
-                    page={page}
-                    totalPages={totalPages}
-                    onPreviousPage={() => setPage((currentPage) => Math.max(0, currentPage - 1))}
-                    onNextPage={() => setPage((currentPage) => Math.min(Math.max(totalPages - 1, 0), currentPage + 1))}
-                />
-                {books.length > 0 && (
+            {books.length > 0 && (
+                <Flex
+                    align="center"
+                    justify="flex-end"
+                    mb={6}
+                    gap={4}
+                    minH="40px"
+                >
                     <LibraryActionsBar
                         selectedCount={selectedBooks.size}
                         onDeleteSelected={onDeleteSelectedOpen}
                         onDeleteAll={onDeleteAllOpen}
                     />
-                )}
-            </Flex>
+                </Flex>
+            )}
 
             {books.length === 0 ? (
                 <LibraryEmptyState />
             ) : (
                 <>
                     <Stack spacing={10}>
-                        {sections.map((section) => {
+                        {paginatedSections.map((section) => {
                             if (section.books.length === 0) {
                                 return null;
                             }
 
                             return (
                                 <Box key={section.key} {...panelStyles} p={{ base: 4, md: 5 }}>
-                                    <Flex align="baseline" justify="space-between" mb={5} gap={3} pb={4} borderBottom="1px solid" borderColor="rgba(217, 188, 146, 0.1)">
+                                    <Flex align={{ base: 'flex-start', md: 'center' }} justify="space-between" mb={5} gap={3} pb={4} borderBottom="1px solid" borderColor="rgba(217, 188, 146, 0.1)" direction={{ base: 'column', md: 'row' }}>
                                         <Box>
                                             <Flex align="baseline" gap={2} mb={1}>
                                                 <Text fontSize="lg" fontWeight="600" color={textColor} fontFamily="heading">
@@ -244,10 +276,27 @@ function LibraryPage() {
                                                 {section.hint}
                                             </Text>
                                         </Box>
+                                        <LibraryPagination
+                                            page={section.page}
+                                            totalPages={section.totalPages}
+                                            contextLabel={section.title}
+                                            onPreviousPage={() => {
+                                                setSectionPages((prev) => ({
+                                                    ...prev,
+                                                    [section.key]: Math.max(0, (prev[section.key] ?? 0) - 1),
+                                                }));
+                                            }}
+                                            onNextPage={() => {
+                                                setSectionPages((prev) => ({
+                                                    ...prev,
+                                                    [section.key]: Math.min(section.totalPages - 1, (prev[section.key] ?? 0) + 1),
+                                                }));
+                                            }}
+                                        />
                                     </Flex>
 
                                     <Flex wrap="wrap" gap={5} justify="flex-start" alignContent="flex-start">
-                                        {section.books.map((book) => (
+                                        {section.visibleBooks.map((book) => (
                                             <Box key={book.id} w={{ base: 'calc(50% - 10px)', sm: '208px' }} flexShrink={0}>
                                                 <MyBookCard
                                                     book={book}
