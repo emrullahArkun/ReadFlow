@@ -9,8 +9,6 @@ import com.example.mybooktracker.sessions.application.ReadingSessionService;
 import com.example.mybooktracker.books.domain.Book;
 import com.example.mybooktracker.sessions.domain.ReadingSession;
 import com.example.mybooktracker.sessions.domain.SessionStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -78,7 +77,6 @@ class ReadingSessionControllerTest {
                 .setCustomArgumentResolvers(putPrincipal)
                 .build();
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
 
         Book book = new Book();
         book.setId(1L);

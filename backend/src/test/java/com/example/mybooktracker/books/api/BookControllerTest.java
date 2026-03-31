@@ -10,7 +10,6 @@ import com.example.mybooktracker.books.application.BookService;
 import com.example.mybooktracker.books.application.ReadingGoalProgressService;
 import com.example.mybooktracker.books.domain.Book;
 import com.example.mybooktracker.books.domain.ReadingGoalType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,13 +21,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.config.SpringDataJackson3Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -85,12 +88,13 @@ class BookControllerTest {
                 objectMapper = new ObjectMapper();
         }
 
-        private org.springframework.http.converter.json.MappingJackson2HttpMessageConverter createPageAwareMessageConverter() {
-                ObjectMapper om = new ObjectMapper();
-                om.registerModule(new org.springframework.data.web.config.SpringDataJacksonConfiguration.PageModule(
-                                new org.springframework.data.web.config.SpringDataWebSettings(
-                                                org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.DIRECT)));
-                return new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter(om);
+        private JacksonJsonHttpMessageConverter createPageAwareMessageConverter() {
+                JsonMapper mapper = JsonMapper.builder()
+                                .addModule(new SpringDataJackson3Configuration.PageModule(
+                                                new org.springframework.data.web.config.SpringDataWebSettings(
+                                                                org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.DIRECT)))
+                                .build();
+                return new JacksonJsonHttpMessageConverter(mapper);
         }
 
         @Test

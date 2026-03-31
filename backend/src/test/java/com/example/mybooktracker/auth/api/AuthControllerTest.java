@@ -8,7 +8,6 @@ import com.example.mybooktracker.auth.domain.User;
 import com.example.mybooktracker.shared.exception.GlobalExceptionHandler;
 import com.example.mybooktracker.shared.security.CurrentUser;
 import com.example.mybooktracker.shared.security.JwtTokenService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Clock;
 
