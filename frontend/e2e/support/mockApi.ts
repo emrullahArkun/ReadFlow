@@ -41,6 +41,13 @@ const mockBooks = [
     },
 ];
 
+const mockFocus = {
+    currentBook: mockBooks[0],
+    queuedBooks: [mockBooks[1]],
+    activeBooksCount: 1,
+    completedBooksCount: 0,
+};
+
 const mockStatsOverview = {
     totalBooks: 2,
     completedBooks: 0,
@@ -137,6 +144,11 @@ export const installApiMocks = async (
 
         if (pathname === '/api/sessions/active' && method === 'GET') {
             await route.fulfill({ status: 204, body: '' });
+            return;
+        }
+
+        if (pathname === '/api/books/focus' && method === 'GET') {
+            await json(route, mockFocus);
             return;
         }
 
