@@ -31,6 +31,7 @@ const useSectionQuery = (token: string | null, section: LibrarySectionKey, page:
             return (await booksApi.getSection(section, page, SECTION_PAGE_SIZE)) || EMPTY_PAGE;
         },
         enabled: !!token,
+        placeholderData: (previousData) => previousData ?? EMPTY_PAGE,
     })
 );
 
@@ -46,6 +47,7 @@ export const useLibraryPageData = (sectionPages: SectionPages) => {
     const currentQuery = useSectionQuery(token, 'current', sectionPages.current);
     const nextQuery = useSectionQuery(token, 'next', sectionPages.next);
     const finishedQuery = useSectionQuery(token, 'finished', sectionPages.finished);
+    const sectionQueries = [currentQuery, nextQuery, finishedQuery];
 
     const invalidateLibraryViews = () => {
         queryClient.invalidateQueries({ queryKey: ['myBooksSection'] });
@@ -123,9 +125,13 @@ export const useLibraryPageData = (sectionPages: SectionPages) => {
         finished: finishedQuery.data || EMPTY_PAGE,
     }), [currentQuery.data, finishedQuery.data, nextQuery.data]);
 
+    const loading = sectionQueries.some((query) => (
+        query.isLoading || (query.isFetching && query.dataUpdatedAt === 0)
+    ));
+
     return {
         sections,
-        loading: currentQuery.isLoading || nextQuery.isLoading || finishedQuery.isLoading,
+        loading,
         error: currentQuery.error?.message || nextQuery.error?.message || finishedQuery.error?.message || null,
         selectedBooks,
         toggleSelection: (id: number) => {

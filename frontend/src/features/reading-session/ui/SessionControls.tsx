@@ -1,4 +1,4 @@
-import { Button, HStack } from '@chakra-ui/react';
+import { Button, SimpleGrid } from '@chakra-ui/react';
 import { FaPause, FaPlay, FaStop } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 
@@ -22,18 +22,23 @@ function SessionControls({
     const { t } = useTranslation();
 
     return (
-        <HStack spacing={4} pt={2} flexWrap={{ base: 'wrap', md: 'nowrap' }} justify="center">
+        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} w="full">
             {isPaused ? (
                 <Button
                     size="lg"
-                    w={{ base: '100%', md: '160px' }}
-                    h="56px"
+                    w="full"
+                    h={{ base: '60px', md: '64px' }}
                     leftIcon={<FaPlay />}
                     onClick={resumeSession}
                     isDisabled={!isController || isBusy}
                     isLoading={isBusy}
                     fontSize="md"
-                    _hover={{ transform: 'translateY(-1px)' }}
+                    fontWeight="700"
+                    borderRadius="2xl"
+                    bg="#d9bc92"
+                    color="#18120f"
+                    boxShadow="0 14px 24px rgba(8, 6, 4, 0.18)"
+                    _hover={{ transform: 'translateY(-1px)', bg: '#e6ccaa' }}
                     transition="all 0.15s"
                 >
                     {t('readingSession.controls.resume')}
@@ -43,13 +48,16 @@ function SessionControls({
                     size="lg"
                     bg="#95a17f"
                     color="#18120f"
-                    w={{ base: '100%', md: '160px' }}
-                    h="56px"
+                    w="full"
+                    h={{ base: '60px', md: '64px' }}
                     leftIcon={<FaPause />}
                     onClick={pauseSession}
                     isDisabled={!isController || isBusy}
                     isLoading={isBusy}
                     fontSize="md"
+                    fontWeight="700"
+                    borderRadius="2xl"
+                    boxShadow="0 14px 24px rgba(8, 6, 4, 0.18)"
                     _hover={{ transform: 'translateY(-1px)', bg: '#a9b695' }}
                     transition="all 0.15s"
                 >
@@ -59,21 +67,26 @@ function SessionControls({
 
             <Button
                 size="lg"
-                variant="outline"
-                w={{ base: '100%', md: '160px' }}
-                h="56px"
+                w="full"
+                h={{ base: '60px', md: '64px' }}
                 leftIcon={<FaStop />}
                 onClick={handleStopClick}
                 isDisabled={!isController || isBusy}
                 isLoading={isBusy}
-                color="#f2b09e"
-                borderColor="rgba(207, 109, 88, 0.3)"
-                _hover={{ bg: 'rgba(207, 109, 88, 0.08)', borderColor: 'rgba(207, 109, 88, 0.4)' }}
+                color="#fff4ef"
+                borderRadius="2xl"
+                bg="linear-gradient(180deg, rgba(207, 109, 88, 0.96) 0%, rgba(168, 72, 58, 0.96) 100%)"
+                boxShadow="0 14px 24px rgba(74, 22, 14, 0.28)"
+                _hover={{
+                    bg: 'linear-gradient(180deg, rgba(220, 122, 101, 0.98) 0%, rgba(182, 82, 67, 0.98) 100%)',
+                    transform: 'translateY(-1px)',
+                }}
                 fontSize="md"
+                fontWeight="700"
             >
                 {t('readingSession.controls.stop')}
             </Button>
-        </HStack>
+        </SimpleGrid>
     );
 }
 

@@ -4,18 +4,14 @@ import { useTranslation } from 'react-i18next';
 import {
     Portal,
     Box,
+    Button,
     Container,
-    Grid,
-    GridItem,
-    VStack,
     Spinner,
     Flex,
-    Text,
 } from '@chakra-ui/react';
+import { FaArrowLeft } from 'react-icons/fa';
 import { useReadingSessionPageLogic } from '../model/useReadingSessionPageLogic';
 import { useThemeTokens } from '../../../shared/theme/useThemeTokens';
-
-import SessionBookSidebar from '../ui/SessionBookSidebar';
 import SessionCompletionOverlay from '../ui/SessionCompletionOverlay';
 import SessionTimerCard from '../ui/SessionTimerCard';
 import { ROUTES } from '../../../app/router/routes';
@@ -65,7 +61,7 @@ const ReadingSessionPage = () => {
         completionSummary,
     } = useReadingSessionPageLogic(id);
 
-    const { bgColor, cardBg, textColor, subTextColor, mutedTextColor, brandColor, borderColor, panelInsetBg, panelShadow } = useThemeTokens();
+    const { bgColor, cardBg, textColor, subTextColor, mutedTextColor, brandColor, borderColor, panelInsetBg } = useThemeTokens();
     const ambientStyle = AMBIENT_STYLES[ambientMode];
 
     useEffect(() => {
@@ -97,8 +93,7 @@ const ReadingSessionPage = () => {
             bg={bgColor}
             minH="calc(100vh - 60px)"
             px={{ base: 4, md: 8 }}
-            pt={{ base: 4, md: 6 }}
-            pb={5}
+            py={{ base: 3, md: 5 }}
             overflow="hidden"
             display="flex"
             flexDirection="column"
@@ -137,7 +132,7 @@ const ReadingSessionPage = () => {
             />
 
             <Container
-                maxW={focusModeEnabled ? '900px' : '1200px'}
+                maxW="1080px"
                 flex="1"
                 minH="0"
                 display="flex"
@@ -145,73 +140,74 @@ const ReadingSessionPage = () => {
                 position="relative"
                 zIndex={1}
             >
-                <Box mb={6}>
-                    <Text fontSize="0.68rem" color={brandColor} textTransform="uppercase" letterSpacing="0.16em" fontWeight="700" mb={2}>
+                <Flex
+                    align={{ base: 'stretch', md: 'center' }}
+                    justify="space-between"
+                    gap={3}
+                    direction={{ base: 'column', md: 'row' }}
+                    mb={{ base: 3, md: 4 }}
+                >
+                    <Button
+                        onClick={() => navigate(ROUTES.MY_BOOKS)}
+                        leftIcon={<FaArrowLeft />}
+                        alignSelf={{ base: 'flex-start', md: 'center' }}
+                        variant="ghost"
+                        color={subTextColor}
+                        borderRadius="full"
+                        px={4}
+                        _hover={{ bg: 'rgba(248, 236, 214, 0.06)', color: textColor }}
+                    >
+                        {t('navbar.myBooks')}
+                    </Button>
+                    <Box
+                        px={4}
+                        py={2.5}
+                        borderRadius="full"
+                        border="1px solid"
+                        borderColor="rgba(217, 188, 146, 0.14)"
+                        bg="rgba(24, 18, 14, 0.42)"
+                        color={brandColor}
+                        fontSize="0.68rem"
+                        fontWeight="700"
+                        letterSpacing="0.16em"
+                        textTransform="uppercase"
+                        alignSelf={{ base: 'flex-start', md: 'center' }}
+                    >
                         {t('readingSession.focusBadge')}
-                    </Text>
-                    <Text color={subTextColor} maxW="52ch" lineHeight="1.8" fontSize={{ base: 'md', md: 'lg' }}>
-                        {focusModeEnabled ? t('readingSession.focusSubtitleDeep') : t('readingSession.focusSubtitle')}
-                    </Text>
-                </Box>
+                    </Box>
+                </Flex>
 
-                <Grid templateColumns={{ base: "1fr", lg: focusModeEnabled ? "1fr" : "300px 1fr" }} gap={6} alignItems="stretch" flex="1" minH="0">
-                    {!focusModeEnabled && (
-                        <GridItem h="full" overflow="auto" css={{ '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
-                            <Box
-                                bg={cardBg}
-                                border="1px solid"
-                                borderColor={borderColor}
-                                borderRadius="2xl"
-                                boxShadow={panelShadow}
-                                p={1}
-                                h="full"
-                            >
-                                <SessionBookSidebar
-                                    book={book}
-                                    textColor={textColor}
-                                    subTextColor={subTextColor}
-                                />
-                            </Box>
-                        </GridItem>
-                    )}
-
-                    <GridItem w="full" h="full" overflow="auto" css={{ '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
-                        <VStack spacing={5} align="stretch" h="full">
-                            <SessionTimerCard
-                                cardBg={cardBg}
-                                brandColor={brandColor}
-                                sessionPhase={sessionPhase}
-                                isBusy={isBusy}
-                                isPaused={isPaused}
-                                formattedTime={formattedTime}
-                                isController={isController}
-                                takeControl={takeControl}
-                                showStopConfirm={showStopConfirm}
-                                endPage={endPage}
-                                setEndPage={setEndPage}
-                                bookTitle={book.title}
-                                authorName={book.authorName}
-                                currentPageNumber={book.currentPage ?? 0}
-                                pageCount={book.pageCount}
-                                currentPage={String(book.currentPage ?? 0)}
-                                subTextColor={subTextColor}
-                                mutedTextColor={mutedTextColor}
-                                borderColor={borderColor}
-                                panelInsetBg={panelInsetBg}
-                                focusModeEnabled={focusModeEnabled}
-                                onToggleFocusMode={() => setFocusModeEnabled((currentValue) => !currentValue)}
-                                ambientMode={ambientMode}
-                                onAmbientModeChange={setAmbientMode}
-                                handleConfirmStop={handleConfirmStop}
-                                handleStopCancel={handleStopCancel}
-                                resumeSession={resumeSession}
-                                pauseSession={pauseSession}
-                                handleStopClick={handleStopClick}
-                            />
-                        </VStack>
-                    </GridItem>
-                </Grid>
-
+                <SessionTimerCard
+                    cardBg={cardBg}
+                    brandColor={brandColor}
+                    sessionPhase={sessionPhase}
+                    isBusy={isBusy}
+                    isPaused={isPaused}
+                    formattedTime={formattedTime}
+                    isController={isController}
+                    takeControl={takeControl}
+                    showStopConfirm={showStopConfirm}
+                    endPage={endPage}
+                    setEndPage={setEndPage}
+                    bookTitle={book.title}
+                    authorName={book.authorName}
+                    currentPageNumber={book.currentPage ?? 0}
+                    pageCount={book.pageCount}
+                    currentPage={String(book.currentPage ?? 0)}
+                    subTextColor={subTextColor}
+                    mutedTextColor={mutedTextColor}
+                    borderColor={borderColor}
+                    panelInsetBg={panelInsetBg}
+                    focusModeEnabled={focusModeEnabled}
+                    onToggleFocusMode={() => setFocusModeEnabled((currentValue) => !currentValue)}
+                    ambientMode={ambientMode}
+                    onAmbientModeChange={setAmbientMode}
+                    handleConfirmStop={handleConfirmStop}
+                    handleStopCancel={handleStopCancel}
+                    resumeSession={resumeSession}
+                    pauseSession={pauseSession}
+                    handleStopClick={handleStopClick}
+                />
             </Container>
         </Box>
     );

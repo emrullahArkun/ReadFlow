@@ -22,6 +22,12 @@
 
 .main-layout-content--session {
   max-width: 1440px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.main-layout-content--session .main-layout-scene {
+  min-height: 100vh;
 }
 
 .main-layout-scene {

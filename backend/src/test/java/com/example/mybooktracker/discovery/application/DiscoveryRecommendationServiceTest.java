@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,16 +58,40 @@ class DiscoveryRecommendationServiceTest {
     }
 
     @Test
-    void searchBooks_ShouldKeepProviderTotal_WhenOwnedBooksAreFilteredFromCurrentPage() {
+    void searchBooks_ShouldFillRequestedPageAfterOwnedBooksAreFiltered() {
         DiscoveryBook owned = new DiscoveryBook("Owned", null, null, null, null, "owned-1", null);
-        DiscoveryBook available = new DiscoveryBook("Available", null, null, null, null, "free-1", null);
-        when(discoveryProvider.searchBooks("java", 0, 10))
-                .thenReturn(new DiscoverySearchResult(List.of(owned, available), 99));
+        DiscoveryBook availableOne = new DiscoveryBook("Available 1", null, null, null, null, "free-1", null);
+        DiscoveryBook availableTwo = new DiscoveryBook("Available 2", null, null, null, null, "free-2", null);
+        DiscoveryBook availableThree = new DiscoveryBook("Available 3", null, null, null, null, "free-3", null);
+        when(discoveryProvider.searchBooks("java", 0, 40))
+                .thenReturn(new DiscoverySearchResult(List.of(owned, availableOne), 4));
+        when(discoveryProvider.searchBooks("java", 2, 40))
+                .thenReturn(new DiscoverySearchResult(List.of(availableTwo, availableThree), 4));
 
-        DiscoverySearchResult result = recommendationService.searchBooks("java", Set.of("owned-1"), 0, 10);
+        DiscoverySearchResult result = recommendationService.searchBooks("java", Set.of("owned-1"), 0, 3);
 
-        assertEquals(1, result.items().size());
-        assertEquals("Available", result.items().get(0).title());
-        assertEquals(99, result.totalItems());
+        assertEquals(List.of("Available 1", "Available 2", "Available 3"),
+                result.items().stream().map(DiscoveryBook::title).toList());
+        assertEquals(3, result.totalItems());
+    }
+
+    @Test
+    void searchBooks_ShouldUseFilteredOffsetForLaterPages() {
+        DiscoveryBook owned = new DiscoveryBook("Owned", null, null, null, null, "owned-1", null);
+        DiscoveryBook availableOne = new DiscoveryBook("Available 1", null, null, null, null, "free-1", null);
+        DiscoveryBook availableTwo = new DiscoveryBook("Available 2", null, null, null, null, "free-2", null);
+        DiscoveryBook availableThree = new DiscoveryBook("Available 3", null, null, null, null, "free-3", null);
+        when(discoveryProvider.searchBooks("java", 0, 40))
+                .thenReturn(new DiscoverySearchResult(List.of(owned, availableOne), 4));
+        when(discoveryProvider.searchBooks("java", 2, 40))
+                .thenReturn(new DiscoverySearchResult(List.of(availableTwo, availableThree), 4));
+
+        DiscoverySearchResult result = recommendationService.searchBooks("java", Set.of("owned-1"), 1, 2);
+
+        assertEquals(List.of("Available 2", "Available 3"),
+                result.items().stream().map(DiscoveryBook::title).toList());
+        assertEquals(3, result.totalItems());
+        verify(discoveryProvider).searchBooks("java", 0, 40);
+        verify(discoveryProvider).searchBooks("java", 2, 40);
     }
 }

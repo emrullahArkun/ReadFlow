@@ -131,7 +131,9 @@ const MainLayout = () => {
                         </Flex>
                     </Box>
                 )}
-                <Navbar sessionMode={Boolean(isSessionPage)} />
+                {!isSessionPage && (
+                    <Navbar sessionMode={Boolean(isSessionPage)} />
+                )}
             </Box>
             <Box
                 className={`main-layout-content${isSessionPage ? ' main-layout-content--session' : ''}`}

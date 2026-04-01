@@ -67,7 +67,7 @@
     overflow-y: auto;
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 4px 0 0;
     padding-right: 4px;
 }
 
@@ -93,6 +93,12 @@
     transform: translateY(-1px);
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.16);
+}
+
+.historyItemActive {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(217, 188, 146, 0.28);
 }
 
 .historyItem:focus-visible {

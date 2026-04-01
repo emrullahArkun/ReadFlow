@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { FaHistory, FaSearch } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import styles from './SearchForm.module.css';
@@ -27,7 +27,13 @@ const SearchForm = ({
     const { t } = useTranslation();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const historyListId = useId();
+    const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(-1);
     const isHistoryVisible = isHistoryOpen && recentSearches.length > 0;
+
+    const handleOpenHistory = () => {
+        setSelectedHistoryIndex(-1);
+        onOpenHistory();
+    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setQuery(e.target.value);
@@ -37,6 +43,49 @@ const SearchForm = ({
         e.preventDefault();
         onSearch();
     };
+
+    const handleInputKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+        if (!isHistoryVisible) {
+            return;
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            setSelectedHistoryIndex((currentIndex) => (
+                currentIndex < recentSearches.length - 1 ? currentIndex + 1 : 0
+            ));
+            return;
+        }
+
+        if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            setSelectedHistoryIndex((currentIndex) => (
+                currentIndex > 0 ? currentIndex - 1 : recentSearches.length - 1
+            ));
+            return;
+        }
+
+        if (event.key === 'Enter' && selectedHistoryIndex >= 0) {
+            event.preventDefault();
+            onSelectRecentSearch(recentSearches[selectedHistoryIndex]);
+        }
+    };
+
+    useEffect(() => {
+        if (!isHistoryVisible) {
+            setSelectedHistoryIndex(-1);
+        }
+    }, [isHistoryVisible]);
+
+    useEffect(() => {
+        setSelectedHistoryIndex((currentIndex) => {
+            if (recentSearches.length === 0) {
+                return -1;
+            }
+
+            return currentIndex >= recentSearches.length ? recentSearches.length - 1 : currentIndex;
+        });
+    }, [recentSearches]);
 
     useEffect(() => {
         if (!isHistoryOpen) {
@@ -59,7 +108,7 @@ const SearchForm = ({
             onCloseHistory();
         };
 
-        const handleKeyDown = (event: KeyboardEvent) => {
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
             if (event.key === 'Escape') {
                 onCloseHistory();
             }
@@ -83,9 +132,15 @@ const SearchForm = ({
                     type="text"
                     value={query}
                     onChange={handleChange}
-                    onFocus={onOpenHistory}
+                    onFocus={handleOpenHistory}
+                    onKeyDown={handleInputKeyDown}
                     aria-expanded={isHistoryVisible}
                     aria-controls={isHistoryVisible ? historyListId : undefined}
+                    aria-activedescendant={
+                        isHistoryVisible && selectedHistoryIndex >= 0
+                            ? `${historyListId}-${selectedHistoryIndex}`
+                            : undefined
+                    }
                     placeholder={t('search.placeholder')}
                     className={styles.searchInput}
                 />
@@ -94,12 +149,15 @@ const SearchForm = ({
             {isHistoryVisible && (
                 <div className={styles.historyPanel}>
                     <ul id={historyListId} className={styles.historyList} aria-label={t('search.recentSearches')}>
-                        {recentSearches.map((recentSearch) => (
+                        {recentSearches.map((recentSearch, index) => (
                             <li key={recentSearch}>
                                 <button
                                     type="button"
-                                    className={styles.historyItem}
+                                    id={`${historyListId}-${index}`}
+                                    className={`${styles.historyItem} ${selectedHistoryIndex === index ? styles.historyItemActive : ''}`}
+                                    aria-selected={selectedHistoryIndex === index}
                                     onClick={() => onSelectRecentSearch(recentSearch)}
+                                    onMouseEnter={() => setSelectedHistoryIndex(index)}
                                 >
                                     <FaHistory className={styles.historyIcon} aria-hidden="true" />
                                     <span>{recentSearch}</span>

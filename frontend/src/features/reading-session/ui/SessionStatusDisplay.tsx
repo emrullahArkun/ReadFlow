@@ -1,4 +1,4 @@
-import { Box, HStack, Icon, Text } from '@chakra-ui/react';
+import { Box, HStack, Icon, Text, VStack } from '@chakra-ui/react';
 import { FaBookOpen } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import { READING_SESSION_PHASES } from '../model/readingSessionMachine';
@@ -24,7 +24,7 @@ function SessionStatusDisplay({
     const { t } = useTranslation();
 
     return (
-        <>
+        <VStack align="stretch" spacing={2} pt={{ base: 1, md: 2 }} pl={{ base: 1, md: 2 }}>
             <HStack align="center" color={brandColor} spacing={2}>
                 <Icon as={FaBookOpen} boxSize={3.5} />
                 <Text fontWeight="700" letterSpacing="0.14em" textTransform="uppercase" fontSize="0.68rem">
@@ -34,27 +34,27 @@ function SessionStatusDisplay({
 
             <Box>
                 <Text
-                    fontSize={{ base: '5xl', md: '7xl' }}
+                    fontSize={{ base: '3.35rem', md: '4.4rem', xl: '5rem' }}
                     fontWeight="bold"
                     fontFamily="heading"
-                    letterSpacing="-0.05em"
+                    letterSpacing="-0.04em"
                     color={isPaused ? 'rgba(217, 204, 182, 0.56)' : '#f4ead7'}
-                    lineHeight="1"
+                    lineHeight="0.94"
                 >
                     {formattedTime}
                 </Text>
                 <Text
                     color={isPaused ? brandColor : 'rgba(217, 204, 182, 0.58)'}
-                    mt={2}
+                    mt={1.5}
                     fontWeight="600"
-                    fontSize="sm"
+                    fontSize="0.72rem"
                     letterSpacing="0.12em"
                     textTransform="uppercase"
                 >
                     {getSessionStatusLabel({ isPaused, isBusy, sessionPhase, t })}
                 </Text>
             </Box>
-        </>
+        </VStack>
     );
 }
 
