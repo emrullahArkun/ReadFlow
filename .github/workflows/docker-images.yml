@@ -70,7 +70,7 @@ jobs:
 
       - name: Extract backend image metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ needs.prepare.outputs.owner_lc }}/mybooktracker-backend
           tags: |
@@ -120,7 +120,7 @@ jobs:
 
       - name: Extract frontend image metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ needs.prepare.outputs.owner_lc }}/mybooktracker-frontend
           tags: |
